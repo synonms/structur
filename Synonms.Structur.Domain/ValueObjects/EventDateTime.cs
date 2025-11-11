@@ -1,58 +1,40 @@
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Faults;
+using Synonms.Structur.Domain.Validation;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record EventDateTime : ValueObject<DateTime>, IComparable, IComparable<EventDateTime>
+public record EventDateTime : DateTimeValueObject<EventDateTime>
 {
     private EventDateTime(DateTime value) : base(value)
     {
     }
         
-    public static implicit operator DateTime(EventDateTime valueObject) => valueObject.Value;
+    public static OneOf<EventDateTime, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, DateTime value) =>
+        CreateMandatory(propertyName, value, DateTime.MinValue, DateTime.MaxValue);
 
-    public static OneOf<EventDateTime, IEnumerable<DomainRuleFault>> CreateMandatory(DateTime value) =>
-        CreateMandatory(value, DateTime.MinValue, DateTime.MaxValue);
+    public static OneOf<EventDateTime, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, DateTime value, DateTime minimum, DateTime maximum) =>
+        ValueObject.CreateBuilder<EventDateTime>()
+            .WithFaultIfValueLessThan(propertyName, value, minimum)
+            .WithFaultIfValueMoreThan(propertyName, value, maximum)
+            .Build(value, x => new EventDateTime(x));
 
-    public static OneOf<EventDateTime, IEnumerable<DomainRuleFault>> CreateMandatory(DateTime value, DateTime minimum, DateTime maximum)
-    {
-        List<DomainRuleFault> faults = new ();
+    public static OneOf<Maybe<EventDateTime>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, DateTime? value) =>
+        CreateOptional(propertyName, value, DateTime.MinValue, DateTime.MaxValue);
 
-        if (value < minimum)
-        {
-            faults.Add(new DomainRuleFault("{0} property has minimum of {1}.", nameof(EventDateTime), minimum));
-        }
-
-        if (value > maximum)
-        {
-            faults.Add(new DomainRuleFault("{0} property has maximum of {1}.", nameof(EventDateTime), maximum));
-        }
-            
-        return faults.Any() ? faults : new EventDateTime(value);
-    }
-
-    public static OneOf<Maybe<EventDateTime>, IEnumerable<DomainRuleFault>> CreateOptional(DateTime? value) =>
-        CreateOptional(value, DateTime.MinValue, DateTime.MaxValue);
-
-    public static OneOf<Maybe<EventDateTime>, IEnumerable<DomainRuleFault>> CreateOptional(DateTime? value, DateTime minimum, DateTime maximum)
+    public static OneOf<Maybe<EventDateTime>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, DateTime? value, DateTime minimum, DateTime maximum)
     {
         if (value is null)
         {
-            return new OneOf<Maybe<EventDateTime>, IEnumerable<DomainRuleFault>>(Maybe<EventDateTime>.None);
+            return Maybe<EventDateTime>.None;
         }
 
-        return CreateMandatory(value.Value, minimum, maximum).Match(
-            valueObject => new OneOf<Maybe<EventDateTime>, IEnumerable<DomainRuleFault>>(valueObject), 
-            faults => new OneOf<Maybe<EventDateTime>, IEnumerable<DomainRuleFault>>(faults));
+        return CreateMandatory(propertyName, value.Value, minimum, maximum).ToMaybe();
     }
         
     internal static EventDateTime Convert(DateTime value) =>
-        CreateMandatory(value, value, value).Match(
+        CreateMandatory(nameof(EventDateTime), value, value, value).Match(
             valueObject => valueObject,
-            fault => new EventDateTime(DateTime.MinValue)
+            _ => new EventDateTime(DateTime.MinValue)
         );
-        
-    public int CompareTo(EventDateTime? other) => DateTime.Compare(Value, other?.Value ?? DateTime.MinValue);
-        
-    public int CompareTo(object? obj) => Value.CompareTo(obj);
 }

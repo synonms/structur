@@ -17,11 +17,17 @@ public record GuidEntityId<TEntity> : EntityId<TEntity, Guid>
 
     public override Guid Key { get; }
     
-    public override bool IsEmpty => Key.Equals(Guid.Empty);
+    public override bool IsUninitialised => Key.Equals(Guid.Empty);
+
+    public static GuidEntityId<TEntity> From(Guid id) =>
+        id == Guid.Empty ? Uninitialised : new GuidEntityId<TEntity>(id);
 
     public static GuidEntityId<TEntity> New() =>
         new(Guid.NewGuid().ToComb());
-    
+
+    public static GuidEntityId<TEntity> New(Guid id) =>
+        id == Guid.Empty ? New() : new GuidEntityId<TEntity>(id);
+
     public static GuidEntityId<TEntity> Parse(string id) => 
         new(Guid.Parse(id));
 

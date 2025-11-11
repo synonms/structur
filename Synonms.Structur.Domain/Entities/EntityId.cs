@@ -3,7 +3,7 @@ namespace Synonms.Structur.Domain.Entities;
 public abstract record EntityId<TEntity>
     where TEntity : Entity<TEntity>
 {
-    public abstract bool IsEmpty { get; }
+    public abstract bool IsUninitialised { get; }
 
     public static EntityId<TEntity> Uninitialised => null!;
 }
