@@ -1,5 +1,4 @@
 using Synonms.Structur.Domain.Validation;
-using Synonms.Structur.Domain.ValueObjects;
 
 namespace Synonms.Structur.Domain.Entities;
 
@@ -44,7 +43,7 @@ public abstract class Entity<TEntity>
             return false;
         }
 
-        if (Id.IsUninitialised || other.Id.IsUninitialised)
+        if (Id.IsEmpty || other.Id.IsEmpty)
         {
             return false;
         }

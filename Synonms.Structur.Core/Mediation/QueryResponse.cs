@@ -1,6 +1,6 @@
 ﻿namespace Synonms.Structur.Core.Mediation;
 
-public class QueryResponse
+public abstract class QueryResponse
 {
     
 }

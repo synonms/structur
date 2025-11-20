@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Core", "Sy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Domain", "Synonms.Structur.Domain\Synonms.Structur.Domain.csproj", "{4E7684B9-A8AB-4647-9A17-884585263768}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Presentation", "Synonms.Structur.Presentation\Synonms.Structur.Presentation.csproj", "{009FE411-F1EF-45E9-822A-6134675D16D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Application", "Synonms.Structur.Application\Synonms.Structur.Application.csproj", "{009FE411-F1EF-45E9-822A-6134675D16D3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{437DD44B-A17C-4416-B058-D50499BBDF6A}"
 EndProject
@@ -17,6 +17,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Sample.Infrastructure", "Sample\Synonms.Structur.Sample.Infrastructure\Synonms.Structur.Sample.Infrastructure.csproj", "{60F29B43-D9C6-4549-B2E5-2A74F615E883}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Sample.Domain", "Sample\Synonms.Structur.Sample.Domain\Synonms.Structur.Sample.Domain.csproj", "{44FF8E1F-A1AC-4473-AA53-C8E98E03D90F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.WebApi", "Synonms.Structur.WebApi\Synonms.Structur.WebApi.csproj", "{57D91620-5853-461E-8A05-BF9B626ECEA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,6 +58,10 @@ Global
 		{44FF8E1F-A1AC-4473-AA53-C8E98E03D90F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44FF8E1F-A1AC-4473-AA53-C8E98E03D90F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44FF8E1F-A1AC-4473-AA53-C8E98E03D90F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57D91620-5853-461E-8A05-BF9B626ECEA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57D91620-5853-461E-8A05-BF9B626ECEA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57D91620-5853-461E-8A05-BF9B626ECEA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57D91620-5853-461E-8A05-BF9B626ECEA2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F2C046BC-22E8-4781-B9EF-0547E5536C20} = {437DD44B-A17C-4416-B058-D50499BBDF6A}

@@ -11,7 +11,7 @@ public abstract class Projection
 public abstract class Projection<TAggregateRoot> : Projection
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
 {
-    public EntityId<TAggregateRoot> AggregateId { get; protected set; }
+    public EntityId<TAggregateRoot> AggregateId { get; protected set; } = EntityId<TAggregateRoot>.Uninitialised;
     
     public void Replay(EntityId<TAggregateRoot> aggregateId, IEnumerable<DomainEvent> eventHistory)
     {

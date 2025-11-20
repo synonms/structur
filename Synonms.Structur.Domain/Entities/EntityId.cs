@@ -1,25 +1,51 @@
+using System.ComponentModel;
+using Synonms.Structur.Core.System;
+
 namespace Synonms.Structur.Domain.Entities;
 
-public abstract record EntityId<TEntity>
+[TypeDescriptionProvider(typeof(EntityIdTypeDescriptionProvider))]
+public record EntityId<TEntity>(Guid Value) : IComparable, IComparable<EntityId<TEntity>>
     where TEntity : Entity<TEntity>
 {
-    public abstract bool IsUninitialised { get; }
+    private EntityId() : this(Guid.Empty)
+    {
+    }
 
-    public static EntityId<TEntity> Uninitialised => null!;
-}
+    public static explicit operator EntityId<TEntity>(Guid id) => new(id);
+    public static explicit operator Guid(EntityId<TEntity> id) => id.Value;
 
-public abstract record EntityId<TEntity, TKey> : EntityId<TEntity>, IComparable, IComparable<EntityId<TEntity, TKey>>
-    where TEntity : Entity<TEntity>
-    where TKey : IComparable, IComparable<TKey>, IEquatable<TKey>
-{
-    public abstract TKey Key { get; }
+    public static explicit operator EntityId<TEntity>?(Guid? id) => id is null ? null : new EntityId<TEntity>(id.Value);
+    public static explicit operator Guid?(EntityId<TEntity>? id) => id?.Value;
+
+    public bool IsEmpty => Value.Equals(Guid.Empty);
+
+    public int CompareTo(EntityId<TEntity>? other) => Value.CompareTo(other?.Value);
     
-    public int CompareTo(EntityId<TEntity, TKey>? other) => 
-        other is null ? 1 : Key.CompareTo(other.Key);
-
-    public int CompareTo(object? obj) => 
-        obj is null ? 1 : Key.CompareTo(obj);
+    public int CompareTo(object? obj) => Value.CompareTo(obj);
     
-    public override string ToString() => 
-        Key?.ToString() ?? string.Empty;
+    public override string ToString() => Value.ToString();
+    
+    public static EntityId<TEntity> New() =>
+        new(Guid.NewGuid().ToComb());
+
+    public static EntityId<TEntity> Parse(string id) => 
+        new(Guid.Parse(id));
+
+    public static EntityId<TEntity>? ParseOptional(string? id) => 
+        id is null ? null : Parse(id);
+
+    public static bool TryParse(string id, out EntityId<TEntity> entityId)
+    {
+        if (Guid.TryParse(id, out Guid guid))
+        {
+            entityId = new EntityId<TEntity>(guid);
+            return true;
+        }
+
+        entityId = Uninitialised;
+        return false;
+    }
+
+    public static EntityId<TEntity> Uninitialised => 
+        new();
 }

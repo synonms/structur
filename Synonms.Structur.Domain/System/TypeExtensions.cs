@@ -1,4 +1,5 @@
 ﻿using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Domain.Lookups;
 using Synonms.Structur.Domain.ValueObjects;
 
 namespace Synonms.Structur.Domain.System;
@@ -30,14 +31,14 @@ public static class TypeExtensions
         && (type.BaseType.GetGenericTypeDefinition() == typeof(AggregateMember<>)
             || type.BaseType.BaseType is not null && type.BaseType.BaseType.IsGenericType && type.BaseType.BaseType.GetGenericTypeDefinition() == typeof(AggregateMember<>));
     
-    // public static bool IsLookup(this Type type) =>
-    //     !type.IsInterface
-    //     && !type.IsAbstract
-    //     && type.BaseType is not null
-    //     && type.BaseType == typeof(Lookup);
+    public static bool IsLookup(this Type type) =>
+        !type.IsInterface
+        && !type.IsAbstract
+        && type.BaseType is not null
+        && type.BaseType == typeof(Lookup);
 
-    // public static bool IsLookupId(this Type type) =>
-    //     type == typeof(EntityId<Lookup>);
+    public static bool IsLookupId(this Type type) =>
+        type == typeof(EntityId<Lookup>);
 
     public static bool IsValueObject(this Type type) =>
         type is

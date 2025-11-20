@@ -1,3 +1,4 @@
+using Synonms.Structur.Core.Attributes;
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Entities;
@@ -6,19 +7,22 @@ using Synonms.Structur.Sample.Domain.Widgets.Events;
 
 namespace Synonms.Structur.Sample.Domain.Widgets;
 
+[StructurResource(typeof(WidgetResource), "widgets", allowAnonymous: true, pageLimit: 5)]
 public class Widget : AggregateRoot<Widget>
 {
-    private Widget() : base(GuidEntityId<Widget>.Uninitialised)
+    public const int NameMaxLength = 250;
+    
+    private Widget() : base(EntityId<Widget>.Uninitialised)
     {
     }
     
-    private Widget(GuidEntityId<Widget> id, Moniker name) : base(id)
+    private Widget(EntityId<Widget> id, Moniker name) : base(id)
     {
     }
 
     public Moniker Name { get; private set; } = null!;
     
-    internal Maybe<Fault> Update(WidgetUpdatedTrigger trigger) =>
+    internal Maybe<Fault> Update(WidgetUpdateRequest trigger) =>
         Entity.CreateBuilder<Widget>()
             .WithMandatoryValueObject(trigger.Name, x => Moniker.CreateMandatory(nameof(Name), x), out Moniker nameValueObject)
             .Build()
@@ -29,9 +33,9 @@ public class Widget : AggregateRoot<Widget>
                     return Maybe<Fault>.None;
                 });
 
-    internal static Result<Widget> Create(WidgetCreatedTrigger trigger) =>
+    internal static Result<Widget> Create(WidgetCreateRequest trigger) =>
         Entity.CreateBuilder<Widget>()
-            .WithMandatoryValueObject(trigger.Name, x => Moniker.CreateMandatory(nameof(Name), x), out Moniker nameValueObject)
+            .WithMandatoryValueObject(trigger.Name, x => Moniker.CreateMandatory(nameof(Name), x, NameMaxLength), out Moniker nameValueObject)
             .Build()
-            .ToResult(() => new Widget(GuidEntityId<Widget>.New(trigger.Id), nameValueObject));
+            .ToResult(() => new Widget((EntityId<Widget>)trigger.Id, nameValueObject));
 }

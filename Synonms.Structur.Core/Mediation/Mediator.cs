@@ -23,15 +23,16 @@ public class Mediator : IMediator
         RegisterQueryHandlersFrom(assemblies, serviceScope);
     }
 
-    public async Task<Maybe<Fault>> SendCommandAsync<TCommand>(TCommand command, CancellationToken cancellationToken = default)
+    public async Task<Result<TCommandResponse>> SendCommandAsync<TCommand, TCommandResponse>(TCommand command, CancellationToken cancellationToken = default)
         where TCommand : Command
+        where TCommandResponse : CommandResponse
     {
         if (_commandHandlers.TryGetValue(typeof(TCommand), out ICommandHandler? commandHandler) is false)
         {
             return new MediationFault("Handler not found for command type {CommandType}.", typeof(TCommand).Name);
         }
 
-        if (commandHandler is ICommandHandler<TCommand> commandHandlerForCommand)
+        if (commandHandler is ICommandHandler<TCommand, TCommandResponse> commandHandlerForCommand)
         {
             return await commandHandlerForCommand.HandleAsync(command, cancellationToken);
         }
@@ -39,7 +40,7 @@ public class Mediator : IMediator
         return new MediationFault("Invalid handler {CommandHandlerType} found for command type {CommandType}.", commandHandler.GetType().Name, typeof(TCommand).Name);
     }
     
-    public async Task<Result<QueryResponse>> SendQueryAsync<TQuery, TQueryResponse>(TQuery query, CancellationToken cancellationToken = default)
+    public async Task<Result<TQueryResponse>> SendQueryAsync<TQuery, TQueryResponse>(TQuery query, CancellationToken cancellationToken = default)
         where TQuery : Query
         where TQueryResponse : QueryResponse
     {
@@ -60,12 +61,13 @@ public class Mediator : IMediator
     {
         foreach (Assembly assembly in assemblies)
         {
-            List<Type> commandHandlerTypes = assembly.GetImplementationsOfGenericInterface(typeof(ICommandHandler<>)).ToList();
+            List<Type> commandHandlerTypes = assembly.GetImplementationsOfGenericInterface(typeof(ICommandHandler<,>)).ToList();
 
             foreach (Type commandHandlerType in commandHandlerTypes)
             {
-                Type? interfaceType = commandHandlerType.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<>));
+                Type? interfaceType = commandHandlerType.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<,>));
                 Type? commandType = interfaceType?.GetGenericArguments().FirstOrDefault();
+                Type? commandResponseType = interfaceType?.GetGenericArguments().LastOrDefault();
 
                 if (interfaceType is not null && commandType is not null)
                 {

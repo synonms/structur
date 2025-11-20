@@ -1,5 +1,4 @@
-﻿using Synonms.Structur.Core.Faults;
-using Synonms.Structur.Core.Functional;
+﻿using Synonms.Structur.Core.Functional;
 
 namespace Synonms.Structur.Core.Mediation;
 
@@ -7,8 +6,9 @@ public interface ICommandHandler
 {
 }
 
-public interface ICommandHandler<in TCommand> : ICommandHandler
+public interface ICommandHandler<in TCommand, TCommandResponse> : ICommandHandler
     where TCommand : Command
+    where TCommandResponse : CommandResponse
 {
-    public Task<Maybe<Fault>> HandleAsync(TCommand command, CancellationToken cancellationToken = default);
+    public Task<Result<TCommandResponse>> HandleAsync(TCommand command, CancellationToken cancellationToken = default);
 }

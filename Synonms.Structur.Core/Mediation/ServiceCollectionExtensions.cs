@@ -10,7 +10,7 @@ public static class ServiceCollectionExtensions
     {
         foreach (Assembly assembly in assemblies)
         {
-            List<Type> commandHandlerTypes = assembly.GetImplementationsOfGenericInterface(typeof(ICommandHandler<>)).ToList();
+            List<Type> commandHandlerTypes = assembly.GetImplementationsOfGenericInterface(typeof(ICommandHandler<,>)).ToList();
 
             commandHandlerTypes.ForEach(implementationType =>
             {

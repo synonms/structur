@@ -1,14 +1,14 @@
-﻿using Synonms.Structur.Core.Faults;
-using Synonms.Structur.Core.Functional;
+﻿using Synonms.Structur.Core.Functional;
 
 namespace Synonms.Structur.Core.Mediation;
 
 public interface IMediator
 {
-    Task<Maybe<Fault>> SendCommandAsync<TCommand>(TCommand command, CancellationToken cancellationToken = default)
-        where TCommand : Command;
+    Task<Result<TCommandResponse>> SendCommandAsync<TCommand, TCommandResponse>(TCommand command, CancellationToken cancellationToken = default)
+        where TCommand : Command
+        where TCommandResponse : CommandResponse;
 
-    Task<Result<QueryResponse>> SendQueryAsync<TQuery, TQueryResponse>(TQuery query, CancellationToken cancellationToken = default)
+    Task<Result<TQueryResponse>> SendQueryAsync<TQuery, TQueryResponse>(TQuery query, CancellationToken cancellationToken = default)
         where TQuery : Query
         where TQueryResponse : QueryResponse;
 }

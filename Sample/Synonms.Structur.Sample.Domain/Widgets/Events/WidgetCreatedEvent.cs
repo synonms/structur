@@ -6,9 +6,9 @@ using Synonms.Structur.Domain.Projections;
 
 namespace Synonms.Structur.Sample.Domain.Widgets.Events;
 
-public class WidgetCreatedEvent : DomainEvent<Widget, WidgetCreatedTrigger>
+public class WidgetCreatedEvent : DomainEvent<Widget, WidgetCreateRequest>
 {
-    public WidgetCreatedEvent(EntityId<Widget> aggregateId, WidgetCreatedTrigger trigger) : base(aggregateId, trigger)
+    public WidgetCreatedEvent(EntityId<Widget> aggregateId, WidgetCreateRequest trigger) : base(aggregateId, trigger)
     {
     }
 
@@ -28,7 +28,7 @@ public class WidgetCreatedEvent : DomainEvent<Widget, WidgetCreatedTrigger>
     }
 }
 
-public class WidgetCreatedTrigger : EventTrigger
+public class WidgetCreateRequest : AggregateCreateRequest
 {
     public Guid Id { get; init; } = Guid.NewGuid();
     
