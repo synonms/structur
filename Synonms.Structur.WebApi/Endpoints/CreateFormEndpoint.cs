@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Application.Iana;
+using Synonms.Structur.Application.Routing;
 using Synonms.Structur.Application.Schema.Forms;
 using Synonms.Structur.Application.Schema.Resources;
 using Synonms.Structur.WebApi.Cors;

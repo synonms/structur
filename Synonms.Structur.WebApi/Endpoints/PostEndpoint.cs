@@ -5,6 +5,7 @@ using Microsoft.Net.Http.Headers;
 using Synonms.Structur.Core.Mediation;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Application.Iana;
+using Synonms.Structur.Application.Routing;
 using Synonms.Structur.Application.Schema;
 using Synonms.Structur.Application.Schema.Errors;
 using Synonms.Structur.Application.Schema.Resources;

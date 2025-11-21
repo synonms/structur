@@ -13,21 +13,17 @@ public abstract class DomainEvent : Entity<DomainEvent>
     public abstract void Replay(Projection projection);
 }
 
-public abstract class DomainEvent<TAggregateRoot, TTrigger> : DomainEvent
+public abstract class DomainEvent<TAggregateRoot> : DomainEvent
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TTrigger : EventTrigger
 {
-    protected DomainEvent(EntityId<TAggregateRoot> aggregateId, TTrigger trigger)
+    protected DomainEvent(EntityId<TAggregateRoot> aggregateId)
     {
         AggregateId = aggregateId;
-        Trigger = trigger;
     }
     
     public override string AggregateType => typeof(TAggregateRoot).Name;
     
     public EntityId<TAggregateRoot> AggregateId { get; protected set; }
-    
-    public TTrigger Trigger { get; protected set; }
     
     public abstract Task<Result<TAggregateRoot>> ApplyAsync(TAggregateRoot? aggregateRoot);
 }

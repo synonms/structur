@@ -16,8 +16,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Sample.Api
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Sample.Infrastructure", "Sample\Synonms.Structur.Sample.Infrastructure\Synonms.Structur.Sample.Infrastructure.csproj", "{60F29B43-D9C6-4549-B2E5-2A74F615E883}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Sample.Domain", "Sample\Synonms.Structur.Sample.Domain\Synonms.Structur.Sample.Domain.csproj", "{44FF8E1F-A1AC-4473-AA53-C8E98E03D90F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.WebApi", "Synonms.Structur.WebApi\Synonms.Structur.WebApi.csproj", "{57D91620-5853-461E-8A05-BF9B626ECEA2}"
 EndProject
 Global
@@ -54,10 +52,6 @@ Global
 		{60F29B43-D9C6-4549-B2E5-2A74F615E883}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60F29B43-D9C6-4549-B2E5-2A74F615E883}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60F29B43-D9C6-4549-B2E5-2A74F615E883}.Release|Any CPU.Build.0 = Release|Any CPU
-		{44FF8E1F-A1AC-4473-AA53-C8E98E03D90F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{44FF8E1F-A1AC-4473-AA53-C8E98E03D90F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{44FF8E1F-A1AC-4473-AA53-C8E98E03D90F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{44FF8E1F-A1AC-4473-AA53-C8E98E03D90F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{57D91620-5853-461E-8A05-BF9B626ECEA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{57D91620-5853-461E-8A05-BF9B626ECEA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57D91620-5853-461E-8A05-BF9B626ECEA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -68,6 +62,5 @@ Global
 		{4E9ADC40-E99F-4689-A596-5D77DB4E39BE} = {437DD44B-A17C-4416-B058-D50499BBDF6A}
 		{E03337A6-7A75-4E85-981F-EA9457EF6F7D} = {437DD44B-A17C-4416-B058-D50499BBDF6A}
 		{60F29B43-D9C6-4549-B2E5-2A74F615E883} = {437DD44B-A17C-4416-B058-D50499BBDF6A}
-		{44FF8E1F-A1AC-4473-AA53-C8E98E03D90F} = {437DD44B-A17C-4416-B058-D50499BBDF6A}
 	EndGlobalSection
 EndGlobal

@@ -8,9 +8,15 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10"/>
+        <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.0.11">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Synonms.Structur.WebApi\Synonms.Structur.WebApi.csproj" />
       <ProjectReference Include="..\Synonms.Structur.Sample.ServiceDefaults\Synonms.Structur.Sample.ServiceDefaults.csproj" />
     </ItemGroup>
 

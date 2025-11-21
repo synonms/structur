@@ -1,43 +1,43 @@
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+using Serilog;
+using Serilog.Extensions.Logging;
+using Synonms.Structur.Sample.Api;
+using Synonms.Structur.WebApi.Controllers;
+using Synonms.Structur.WebApi.DependencyInjection;
+using Synonms.Structur.WebApi.Hosting;
+using Synonms.Structur.WebApi.Hypermedia.Default;
+using Synonms.Structur.WebApi.Hypermedia.Ion;
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+WebApplicationBuilder webApplicationBuilder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults();
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(webApplicationBuilder.Configuration)
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "FourFour")
+    .CreateBootstrapLogger();
 
-WebApplication app = builder.Build();
+ILoggerFactory loggerFactory = new SerilogLoggerFactory(Log.Logger);
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+StructurOptions structurOptions = new()
 {
-    app.MapOpenApi();
-}
-
-app.UseHttpsRedirection();
-
-string[] summaries =
-[
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-];
-
-app.MapGet("/weather-forecasts", () =>
+    Assemblies = [SampleApiProject.Assembly],
+    CorsConfiguration = corsPolicyBuilder =>
     {
-        WeatherForecast[] forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast");
+        corsPolicyBuilder.WithOrigins("https://localhost:5003", "https://localhost:6003")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .Build();
+    },
+    MvcOptionsConfigurationAction = mvcOptions => mvcOptions.ClearFormatters().WithDefaultFormatters(loggerFactory).WithIonFormatters(loggerFactory),
+    SwaggerUiConfigurationAction = swaggerUiOptions => swaggerUiOptions.SwaggerEndpoint("/swagger/v1.0/swagger.json", "v1.0")
+};
+
+webApplicationBuilder.Services.AddStructur(structurOptions);
+
+webApplicationBuilder.AddServiceDefaults();
+
+WebApplication app = webApplicationBuilder.Build();
+
+app.UseStructur(structurOptions);
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

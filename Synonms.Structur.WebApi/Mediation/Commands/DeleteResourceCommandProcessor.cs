@@ -36,6 +36,8 @@ public class DeleteResourceCommandProcessor<TAggregateRoot> : ICommandHandler<De
             return Maybe<TAggregateRoot>.None;
         });
 
+        // TODO: DOMAIN EVENT
+        
         Maybe<Fault> deleteOutcome = await filterOutcome
             .MatchAsync(
                 async aggregateRoot => 

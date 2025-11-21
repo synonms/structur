@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Synonms.Structur.Application.Routing;
 using Synonms.Structur.Core.Attributes;
 using Synonms.Structur.WebApi.Endpoints;
 using Synonms.Structur.WebApi.Routing;
