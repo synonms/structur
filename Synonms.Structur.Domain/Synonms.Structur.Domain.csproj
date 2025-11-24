@@ -7,6 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="Synonms.Structur.Infrastructure.MongoDb" />
+    </ItemGroup>
+    
+    <ItemGroup>
       <ProjectReference Include="..\Synonms.Structur.Core\Synonms.Structur.Core.csproj" />
     </ItemGroup>
 

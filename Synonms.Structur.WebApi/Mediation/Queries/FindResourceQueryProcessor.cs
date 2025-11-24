@@ -1,5 +1,4 @@
 using Synonms.Structur.Application.Mapping;
-using Synonms.Structur.Application.Persistence;
 using Synonms.Structur.Application.Schema.Resources;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Core.Mediation;
@@ -12,18 +11,18 @@ public class FindResourceQueryProcessor<TAggregateRoot, TResource> : IQueryHandl
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource
 {
-    private readonly IAggregateRepository<TAggregateRoot> _aggregateRepository;
+    private readonly IReadAggregateRepository<TAggregateRoot> _readAggregateRepository;
     private readonly IResourceMapper<TAggregateRoot, TResource> _resourceMapper;
 
-    public FindResourceQueryProcessor(IAggregateRepository<TAggregateRoot> aggregateRepository, IResourceMapper<TAggregateRoot, TResource> resourceMapper)
+    public FindResourceQueryProcessor(IReadAggregateRepository<TAggregateRoot> readAggregateRepository, IResourceMapper<TAggregateRoot, TResource> resourceMapper)
     {
-        _aggregateRepository = aggregateRepository;
+        _readAggregateRepository = readAggregateRepository;
         _resourceMapper = resourceMapper;
     }
     
     public async Task<Result<FindResourceQueryResponse<TAggregateRoot, TResource>>> HandleAsync(FindResourceQuery<TAggregateRoot, TResource> query, CancellationToken cancellationToken)
     {
-        Maybe<TAggregateRoot> findOutcome = await _aggregateRepository.FindAsync(query.Id, cancellationToken);
+        Maybe<TAggregateRoot> findOutcome = await _readAggregateRepository.FindAsync(query.Id, cancellationToken);
             
         Result<FindResourceQueryResponse<TAggregateRoot, TResource>> response = findOutcome.Match(
             aggregateRoot =>

@@ -1,6 +1,10 @@
+using System.Reflection;
 using Serilog;
 using Serilog.Extensions.Logging;
+using Synonms.Structur.Infrastructure.MongoDb;
 using Synonms.Structur.Sample.Api;
+using Synonms.Structur.Sample.Api.Data;
+using Synonms.Structur.Sample.Api.Features.Widgets.Domain;
 using Synonms.Structur.WebApi.Controllers;
 using Synonms.Structur.WebApi.DependencyInjection;
 using Synonms.Structur.WebApi.Hosting;
@@ -8,6 +12,12 @@ using Synonms.Structur.WebApi.Hypermedia.Default;
 using Synonms.Structur.WebApi.Hypermedia.Ion;
 
 WebApplicationBuilder webApplicationBuilder = WebApplication.CreateBuilder(args);
+bool isGeneratingOpenApiFile = Assembly.GetEntryAssembly()?.GetName().Name == "GetDocument.Insider";
+
+if (!isGeneratingOpenApiFile)
+{
+    webApplicationBuilder.AddServiceDefaults();
+}
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(webApplicationBuilder.Configuration)
@@ -34,10 +44,26 @@ StructurOptions structurOptions = new()
 
 webApplicationBuilder.Services.AddStructur(structurOptions);
 
-webApplicationBuilder.AddServiceDefaults();
+Dictionary<Type, string> collectionNamesByAggregateType = new()
+{
+    {typeof(Widget), "widgets"}
+};
+MongoDatabaseConfiguration mongoDatabaseConfiguration = new("synonms-structur-sample-mongodb", collectionNamesByAggregateType);
+
+if (!isGeneratingOpenApiFile)
+{
+    webApplicationBuilder.AddStructurMongoDb(mongoDatabaseConfiguration, "synonms-structur-sample-mongodb", SampleApiProject.Assembly);
+}
 
 WebApplication app = webApplicationBuilder.Build();
 
 app.UseStructur(structurOptions);
+
+
+if (app.Environment.IsDevelopment())
+{
+    DataSeeder dataSeeder = new();
+    await dataSeeder.SeedDevelopmentDataAsync(app);
+}
 
 app.Run();

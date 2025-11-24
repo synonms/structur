@@ -1,7 +1,6 @@
 using Synonms.Structur.Domain.Entities;
-using Synonms.Structur.Domain.Lookups;
 
-namespace Synonms.Structur.Application.Persistence;
+namespace Synonms.Structur.Domain.Lookups;
 
 public interface ILookupRepository<TLookup> 
     where TLookup : Lookup

@@ -28,5 +28,5 @@ public abstract class AggregateCreatedDomainEvent<TAggregateRoot, TResource> : D
         return CreateAggregate(Resource).AsAsync();
     }
 
-    public abstract Result<TAggregateRoot> CreateAggregate(TResource trigger);
+    public abstract Result<TAggregateRoot> CreateAggregate(TResource resource);
 }

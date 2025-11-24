@@ -1,7 +1,6 @@
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Core.Mediation;
 using Synonms.Structur.Domain.Entities;
-using Synonms.Structur.Application.Persistence;
 using Synonms.Structur.Application.Schema.Resources;
 using Synonms.Structur.Domain.Events;
 using Synonms.Structur.Domain.Faults;
@@ -13,20 +12,22 @@ public class CreateResourceCommandProcessor<TAggregateRoot, TResource> : IComman
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource
 {
-    private readonly IDomainEventRepository _domainEventRepository;
-    private readonly IAggregateRepository<TAggregateRoot> _aggregateRepository;
     private readonly IDomainEventFactory<TAggregateRoot, TResource> _domainEventFactory;
+    private readonly IDomainEventRepository<TAggregateRoot> _domainEventRepository;
+    private readonly IReadAggregateRepository<TAggregateRoot> _readAggregateRepository;
+    private readonly IWriteAggregateRepository<TAggregateRoot> _writeAggregateRepository;
 
-    public CreateResourceCommandProcessor(IDomainEventRepository domainEventRepository, IAggregateRepository<TAggregateRoot> aggregateRepository, IDomainEventFactory<TAggregateRoot, TResource> domainEventFactory)
+    public CreateResourceCommandProcessor(IDomainEventFactory<TAggregateRoot, TResource> domainEventFactory, IDomainEventRepository<TAggregateRoot> domainEventRepository, IReadAggregateRepository<TAggregateRoot> readAggregateRepository, IWriteAggregateRepository<TAggregateRoot> writeAggregateRepository)
     {
-        _domainEventRepository = domainEventRepository;
-        _aggregateRepository = aggregateRepository;
         _domainEventFactory = domainEventFactory;
+        _domainEventRepository = domainEventRepository;
+        _readAggregateRepository = readAggregateRepository;
+        _writeAggregateRepository = writeAggregateRepository;
     }
 
     public async Task<Result<CreateResourceCommandResponse<TAggregateRoot>>> HandleAsync(CreateResourceCommand<TAggregateRoot, TResource> command, CancellationToken cancellationToken)
     {
-        Maybe<TAggregateRoot> existingOutcome = await _aggregateRepository.FindAsync((EntityId<TAggregateRoot>)command.Resource.Id, cancellationToken);
+        Maybe<TAggregateRoot> existingOutcome = await _readAggregateRepository.FindAsync((EntityId<TAggregateRoot>)command.Resource.Id, cancellationToken);
 
         Result<TAggregateRoot> createOutcome = await existingOutcome.MatchAsync(
             existingAggregate => Result<TAggregateRoot>.FailureAsync(new DomainRuleFault("{entityType} Id '{id}' already exists.", nameof(TAggregateRoot), command.Resource.Id)), 
@@ -38,7 +39,7 @@ public class CreateResourceCommandProcessor<TAggregateRoot, TResource> : IComman
                     .BindAsync(async aggregateRoot => await _domainEventRepository.CreateAsync(createdEvent, cancellationToken)
                         .ToResultAsync(async () =>
                         {
-                            await _aggregateRepository.AddAsync(aggregateRoot, cancellationToken);
+                            await _writeAggregateRepository.AddAsync(aggregateRoot, cancellationToken);
 
                             return Result<TAggregateRoot>.Success(aggregateRoot);
                         }));

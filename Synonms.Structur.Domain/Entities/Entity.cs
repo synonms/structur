@@ -10,22 +10,24 @@ public static class Entity
 public abstract class Entity<TEntity>
     where TEntity : Entity<TEntity>
 {
-    public event EventHandler OnCreated;
-    public event EventHandler OnUpdated;
-
-    protected Entity() : this(EntityId<TEntity>.Uninitialised)
+    protected Entity()
     {
     }
 
     protected Entity(EntityId<TEntity> id)
     {
         Id = id;
-        
-        OnCreated?.Invoke(this, EventArgs.Empty);
     }
     
     public EntityId<TEntity> Id { get; protected init; }
 
+    public bool IsDeleted { get; private set; }
+
+    public void MarkDeleted()
+    {
+        IsDeleted = true;
+    }
+    
     public override bool Equals(object? obj)
     {
         if ((obj is Entity<TEntity> other) is false)

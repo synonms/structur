@@ -18,6 +18,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Sample.Inf
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.WebApi", "Synonms.Structur.WebApi\Synonms.Structur.WebApi.csproj", "{57D91620-5853-461E-8A05-BF9B626ECEA2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Infrastructure", "Synonms.Structur.Infrastructure\Synonms.Structur.Infrastructure.csproj", "{F482A622-D396-4286-A68C-C1D039344D95}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Infrastructure.MongoDb", "Synonms.Structur.Infrastructure.MongoDb\Synonms.Structur.Infrastructure.MongoDb.csproj", "{18223A1E-4D33-4FBF-8814-66B0007978C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +60,14 @@ Global
 		{57D91620-5853-461E-8A05-BF9B626ECEA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57D91620-5853-461E-8A05-BF9B626ECEA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57D91620-5853-461E-8A05-BF9B626ECEA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F482A622-D396-4286-A68C-C1D039344D95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F482A622-D396-4286-A68C-C1D039344D95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F482A622-D396-4286-A68C-C1D039344D95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F482A622-D396-4286-A68C-C1D039344D95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18223A1E-4D33-4FBF-8814-66B0007978C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18223A1E-4D33-4FBF-8814-66B0007978C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18223A1E-4D33-4FBF-8814-66B0007978C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18223A1E-4D33-4FBF-8814-66B0007978C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F2C046BC-22E8-4781-B9EF-0547E5536C20} = {437DD44B-A17C-4416-B058-D50499BBDF6A}

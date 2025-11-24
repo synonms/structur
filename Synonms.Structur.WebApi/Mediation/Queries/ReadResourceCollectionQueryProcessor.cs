@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Synonms.Structur.Application.Mapping;
-using Synonms.Structur.Application.Persistence;
 using Synonms.Structur.Application.Schema.Resources;
 using Synonms.Structur.Core.Collections;
 using Synonms.Structur.Core.Functional;
@@ -16,12 +15,12 @@ public class ReadResourceCollectionQueryProcessor<TAggregateRoot, TResource> : I
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource
 {
-    private readonly IAggregateRepository<TAggregateRoot> _aggregateRepository;
+    private readonly IReadAggregateRepository<TAggregateRoot> _readAggregateRepository;
     private readonly IResourceMapper<TAggregateRoot, TResource> _resourceMapper;
 
-    public ReadResourceCollectionQueryProcessor(IAggregateRepository<TAggregateRoot> aggregateRepository, IResourceMapper<TAggregateRoot, TResource> resourceMapper)
+    public ReadResourceCollectionQueryProcessor(IReadAggregateRepository<TAggregateRoot> readAggregateRepository, IResourceMapper<TAggregateRoot, TResource> resourceMapper)
     {
-        _aggregateRepository = aggregateRepository;
+        _readAggregateRepository = readAggregateRepository;
         _resourceMapper = resourceMapper;
     }
 
@@ -30,8 +29,8 @@ public class ReadResourceCollectionQueryProcessor<TAggregateRoot, TResource> : I
         IReadOnlyDictionary<string, object> filterParameters = query.QueryParameters.GetFiltersOnly();
         
         PaginatedList<TAggregateRoot> paginatedAggregateRoots = filterParameters.Any()
-            ? PaginatedList<TAggregateRoot>.Create(_aggregateRepository.Query(ParametersPredicate(filterParameters)).ApplySort(query.SortItems), query.Offset, query.Limit)
-            : await _aggregateRepository.ReadAllAsync(query.Offset, query.Limit, q => q.ApplySort(query.SortItems), cancellationToken);
+            ? PaginatedList<TAggregateRoot>.Create(_readAggregateRepository.Query(ParametersPredicate(filterParameters)).ApplySort(query.SortItems), query.Offset, query.Limit)
+            : await _readAggregateRepository.ReadAllAsync(query.Offset, query.Limit, q => q.ApplySort(query.SortItems), cancellationToken);
         
         List<TResource> resources = paginatedAggregateRoots.Select(x => _resourceMapper.Map(x)).ToList();
         PaginatedList<TResource> paginatedResources = PaginatedList<TResource>.Create(resources, query.Offset, query.Limit, paginatedAggregateRoots.Size);

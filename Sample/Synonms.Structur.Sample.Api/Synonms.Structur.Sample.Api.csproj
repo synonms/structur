@@ -16,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Synonms.Structur.Infrastructure.MongoDb\Synonms.Structur.Infrastructure.MongoDb.csproj" />
       <ProjectReference Include="..\..\Synonms.Structur.WebApi\Synonms.Structur.WebApi.csproj" />
       <ProjectReference Include="..\Synonms.Structur.Sample.ServiceDefaults\Synonms.Structur.Sample.ServiceDefaults.csproj" />
     </ItemGroup>

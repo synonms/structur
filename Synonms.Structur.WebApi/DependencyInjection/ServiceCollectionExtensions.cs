@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
 using Synonms.Structur.Application.Mapping;
-using Synonms.Structur.Application.Persistence;
 using Synonms.Structur.Application.Products;
 using Synonms.Structur.Application.Products.Context;
 using Synonms.Structur.Application.Products.Resolution;
@@ -21,6 +20,7 @@ using Synonms.Structur.Application.Users.Resolution;
 using Synonms.Structur.Core.Attributes;
 using Synonms.Structur.Core.DependencyInjection;
 using Synonms.Structur.Core.Mediation;
+using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Domain.Services;
 using Synonms.Structur.WebApi.Auth;
 using Synonms.Structur.WebApi.Controllers;
@@ -170,7 +170,7 @@ public static class ServiceCollectionExtensions
             Type deleteResourceRequestType = typeof(DeleteResourceCommand<>).MakeGenericType(aggregateRootLayout.AggregateRootType);
             Type deleteResourceResponseType = typeof(DeleteResourceCommandResponse<>).MakeGenericType(aggregateRootLayout.AggregateRootType);
             Type deleteResourceRequestHandlerInterfaceType = typeof(ICommandHandler<,>).MakeGenericType(deleteResourceRequestType, deleteResourceResponseType);
-            Type deleteResourceRequestHandlerImplementationType = typeof(DeleteResourceCommandProcessor<>).MakeGenericType(aggregateRootLayout.AggregateRootType);
+            Type deleteResourceRequestHandlerImplementationType = typeof(DeleteResourceCommandProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
 
             serviceCollection.AddTransient(deleteResourceRequestHandlerInterfaceType, deleteResourceRequestHandlerImplementationType);
         }
@@ -212,7 +212,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.RegisterAllImplementationsOf(typeof(IDomainEventFactory<,>), serviceCollection.AddSingleton, assemblies);
         
         serviceCollection.RegisterAllImplementationsOf(typeof(IDomainService), serviceCollection.AddScoped, assemblies);
-        serviceCollection.RegisterAllImplementationsOf(typeof(IAggregateRepository<>), serviceCollection.AddScoped, assemblies);
+        serviceCollection.RegisterAllImplementationsOf(typeof(IReadAggregateRepository<>), serviceCollection.AddScoped, assemblies);
 
         return serviceCollection;
     }

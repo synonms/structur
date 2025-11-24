@@ -1,4 +1,3 @@
-using Synonms.Structur.Application.Persistence;
 using Synonms.Structur.Application.Schema.Resources;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Core.Mediation;
@@ -13,20 +12,22 @@ public class UpdateResourceCommandProcessor<TAggregateRoot, TResource> : IComman
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource
 {
-    private readonly IDomainEventRepository _domainEventRepository;
-    private readonly IAggregateRepository<TAggregateRoot> _aggregateRepository;
     private readonly IDomainEventFactory<TAggregateRoot, TResource> _domainEventFactory;
+    private readonly IDomainEventRepository<TAggregateRoot> _domainEventRepository;
+    private readonly IReadAggregateRepository<TAggregateRoot> _readAggregateRepository;
+    private readonly IWriteAggregateRepository<TAggregateRoot> _writeAggregateRepository;
 
-    public UpdateResourceCommandProcessor(IDomainEventRepository domainEventRepository, IAggregateRepository<TAggregateRoot> aggregateRepository, IDomainEventFactory<TAggregateRoot, TResource> domainEventFactory)
+    public UpdateResourceCommandProcessor(IDomainEventFactory<TAggregateRoot, TResource> domainEventFactory, IDomainEventRepository<TAggregateRoot> domainEventRepository, IReadAggregateRepository<TAggregateRoot> readAggregateRepository, IWriteAggregateRepository<TAggregateRoot> writeAggregateRepository)
     {
-        _domainEventRepository = domainEventRepository;
-        _aggregateRepository = aggregateRepository;
         _domainEventFactory = domainEventFactory;
+        _domainEventRepository = domainEventRepository;
+        _readAggregateRepository = readAggregateRepository;
+        _writeAggregateRepository = writeAggregateRepository;
     }
 
     public async Task<Result<UpdateResourceCommandResponse<TAggregateRoot>>> HandleAsync(UpdateResourceCommand<TAggregateRoot, TResource> command, CancellationToken cancellationToken)
     {
-        Result<TAggregateRoot> findOutcome = await _aggregateRepository.FindAsync(command.Id, cancellationToken)
+        Result<TAggregateRoot> findOutcome = await _readAggregateRepository.FindAsync(command.Id, cancellationToken)
             .MatchAsync(
                 Result<TAggregateRoot>.SuccessAsync,
                 () =>
@@ -44,7 +45,7 @@ public class UpdateResourceCommandProcessor<TAggregateRoot, TResource> : IComman
                     .BindAsync(async updatedAggregateRoot => await _domainEventRepository.CreateAsync(updatedEvent, cancellationToken) 
                         .ToResultAsync(async () =>
                         {
-                            await _aggregateRepository.UpdateAsync(updatedAggregateRoot, cancellationToken);
+                            await _writeAggregateRepository.UpdateAsync(updatedAggregateRoot, cancellationToken);
 
                             return Result<TAggregateRoot>.Success(updatedAggregateRoot);
                         }));
