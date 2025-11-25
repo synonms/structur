@@ -39,7 +39,13 @@ StructurOptions structurOptions = new()
             .Build();
     },
     MvcOptionsConfigurationAction = mvcOptions => mvcOptions.ClearFormatters().WithDefaultFormatters(loggerFactory).WithIonFormatters(loggerFactory),
-    SwaggerUiConfigurationAction = swaggerUiOptions => swaggerUiOptions.SwaggerEndpoint("/swagger/v1.0/swagger.json", "v1.0")
+    OpenApiDocumentPath = "/openapi/v1.json",
+    SwaggerUiConfigurationAction = swaggerUiOptions =>
+    {
+        swaggerUiOptions.SwaggerEndpoint("/openapi/v1.json", "v1");
+        swaggerUiOptions.DocumentTitle = "Structur Sample API";
+    },
+    UseEmptyLookups = true
 };
 
 webApplicationBuilder.Services.AddStructur(structurOptions);
@@ -59,11 +65,10 @@ WebApplication app = webApplicationBuilder.Build();
 
 app.UseStructur(structurOptions);
 
-
 if (app.Environment.IsDevelopment())
 {
     DataSeeder dataSeeder = new();
-    await dataSeeder.SeedDevelopmentDataAsync(app);
+    await dataSeeder.SeedDevelopmentDataAsync(app, clearData: true);
 }
 
 app.Run();

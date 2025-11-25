@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Synonms.Structur.Core.Cqrs;
 using Synonms.Structur.Core.Functional;
-using Synonms.Structur.Core.Mediation;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.WebApi.Cors;
 using Synonms.Structur.WebApi.Http;
@@ -16,11 +16,11 @@ namespace Synonms.Structur.WebApi.Endpoints;
 public class DeleteEndpoint<TAggregateRoot> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
 {
-    private readonly IMediator _mediator;
+    private readonly ICommandHandler<DeleteResourceCommand<TAggregateRoot>, DeleteResourceCommandResponse<TAggregateRoot>> _commandHandler;
 
-    public DeleteEndpoint(IMediator mediator)
+    public DeleteEndpoint(ICommandHandler<DeleteResourceCommand<TAggregateRoot>, DeleteResourceCommandResponse<TAggregateRoot>> commandHandler)
     {
-        _mediator = mediator;
+        _commandHandler = commandHandler;
     }
     
     [HttpDelete]
@@ -29,7 +29,7 @@ public class DeleteEndpoint<TAggregateRoot> : ControllerBase
     {
         // TODO: Support parameters
         DeleteResourceCommand<TAggregateRoot> request = new(id);
-        Result<DeleteResourceCommandResponse<TAggregateRoot>> response = await _mediator.SendCommandAsync<DeleteResourceCommand<TAggregateRoot>, DeleteResourceCommandResponse<TAggregateRoot>>(request);
+        Result<DeleteResourceCommandResponse<TAggregateRoot>> response = await _commandHandler.HandleAsync(request);
 
         return response.Match<IActionResult>(
             _ => StatusCode(StatusCodes.Status204NoContent),

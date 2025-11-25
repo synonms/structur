@@ -12,6 +12,7 @@ public abstract class Entity<TEntity>
 {
     protected Entity()
     {
+        Id = EntityId<TEntity>.New(); 
     }
 
     protected Entity(EntityId<TEntity> id)

@@ -16,7 +16,7 @@ namespace Synonms.Structur.Infrastructure.MongoDb;
 
 public static class HostApplicationBuilderExtensions
 {
-    public static IHostApplicationBuilder AddStructurMongoDb(this IHostApplicationBuilder builder, MongoDatabaseConfiguration mongoDatabaseConfiguration, string connectionStringName, params Assembly[] domainAssemblies)
+    public static MongoDbBuilder AddStructurMongoDb(this IHostApplicationBuilder builder, MongoDatabaseConfiguration mongoDatabaseConfiguration, string connectionStringName, params Assembly[] domainAssemblies)
     {
         ConventionPack conventionPack = [new IgnoreExtraElementsConvention(true)];
         ConventionRegistry.Register("IgnoreExtraElements", conventionPack, type => true);
@@ -34,18 +34,18 @@ public static class HostApplicationBuilderExtensions
 
         builder.Services.AddSingleton<IMongoClient>(_ => new MongoClient(MongoClientSettings.FromConnectionString(connectionString)));
         builder.Services.AddSingleton(_ => mongoDatabaseConfiguration);
-        builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
-        builder.Services.AddScoped<IDomainTransaction, MongoDomainTransaction>();
+        builder.Services.AddScoped<IDomainTransaction, NoOpDomainTransaction>();
         
         builder.Services.AddScoped(typeof(IWriteAggregateRepository<>), typeof(MongoDbWriteAggregateRepository<>));
         builder.Services.AddScoped(typeof(IReadAggregateRepository<>), typeof(MongoDbReadAggregateRepository<>));
         builder.Services.AddScoped(typeof(IDomainEventRepository<>), typeof(MongoDbDomainEventRepository<>));
         builder.Services.AddScoped(typeof(ITenantRepository<>), typeof(MongoDbTenantRepository<>));
 
+
         builder.Services.AddTransient(_ => TimeProvider.System);
 
         builder.Services.AddHealthChecks().AddMongoDb();
 
-        return builder;
+        return new MongoDbBuilder(builder);
     }
 }

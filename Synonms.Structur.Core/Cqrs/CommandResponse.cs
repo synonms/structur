@@ -1,4 +1,4 @@
-namespace Synonms.Structur.Core.Mediation;
+namespace Synonms.Structur.Core.Cqrs;
 
 public abstract class CommandResponse
 {

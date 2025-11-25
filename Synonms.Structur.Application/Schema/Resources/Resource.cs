@@ -18,7 +18,7 @@ public abstract class Resource
     
     public Guid Id { get; set; }
     
-    public bool IsActive { get; init; } = true;
+    public bool IsDeleted { get; init; }
     
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 

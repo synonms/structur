@@ -10,10 +10,8 @@ public class WidgetDomainEventFactory : IDomainEventFactory<Widget, WidgetResour
     public DomainEvent<Widget> GenerateCreatedEvent(WidgetResource resource) =>
         new WidgetCreatedEvent((EntityId<Widget>)resource.Id, resource);
 
-    public DomainEvent<Widget> GenerateDeletedEvent(EntityId<Widget> aggregateId)
-    {
-        throw new NotImplementedException();
-    }
+    public DomainEvent<Widget> GenerateDeletedEvent(EntityId<Widget> aggregateId) =>
+        new WidgetDeletedEvent(aggregateId);
 
     public DomainEvent<Widget> GenerateUpdatedEvent(WidgetResource resource) =>
         new WidgetUpdatedEvent((EntityId<Widget>)Guid.NewGuid(), resource);

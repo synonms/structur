@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
+using Synonms.Structur.Application.Lookups;
 using Synonms.Structur.Application.Mapping;
 using Synonms.Structur.Application.Products;
 using Synonms.Structur.Application.Products.Context;
+using Synonms.Structur.Application.Products.Persistence;
 using Synonms.Structur.Application.Products.Resolution;
 using Synonms.Structur.Application.Routing;
 using Synonms.Structur.Application.Schema.Errors;
@@ -13,14 +15,18 @@ using Synonms.Structur.Application.Schema.Forms;
 using Synonms.Structur.Application.Services;
 using Synonms.Structur.Application.Tenants;
 using Synonms.Structur.Application.Tenants.Context;
+using Synonms.Structur.Application.Tenants.Persistence;
 using Synonms.Structur.Application.Tenants.Resolution;
 using Synonms.Structur.Application.Users;
 using Synonms.Structur.Application.Users.Context;
+using Synonms.Structur.Application.Users.Persistence;
 using Synonms.Structur.Application.Users.Resolution;
 using Synonms.Structur.Core.Attributes;
+using Synonms.Structur.Core.Cqrs;
 using Synonms.Structur.Core.DependencyInjection;
-using Synonms.Structur.Core.Mediation;
 using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Domain.Events;
+using Synonms.Structur.Domain.Lookups;
 using Synonms.Structur.Domain.Services;
 using Synonms.Structur.WebApi.Auth;
 using Synonms.Structur.WebApi.Controllers;
@@ -60,7 +66,7 @@ public static class ServiceCollectionExtensions
         IRouteNameProvider routeNameProvider = new RouteNameProvider();
         serviceCollection.AddSingleton(routeNameProvider);
         
-        serviceCollection.RegisterMediator(options.Assemblies);
+        serviceCollection.RegisterCqrs(options.Assemblies);
         serviceCollection.RegisterAllImplementationsOf(typeof(IResourceMapper<,>), serviceCollection.AddSingleton, options.Assemblies);
 
         serviceCollection.AddSingleton<IErrorCollectionDocumentFactory, ErrorCollectionDocumentFactory>();
@@ -99,6 +105,12 @@ public static class ServiceCollectionExtensions
         if (options.CorsConfiguration is not null)
         {
             serviceCollection.WithCorsPolicy(options.CorsConfiguration);
+        }
+
+        if (options.UseEmptyLookups)
+        {
+            serviceCollection.AddScoped(typeof(ILookupRepository<>), typeof(EmptyLookupRepository<>));
+            serviceCollection.AddScoped(typeof(ILookupOptionsProvider), typeof(EmptyLookupOptionsProvider));
         }
 
         serviceCollection.WithUsers<TUser>();
@@ -209,6 +221,8 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection RegisterDomainDependenciesFrom(this IServiceCollection serviceCollection, params Assembly[] assemblies)
     {
+        serviceCollection.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
         serviceCollection.RegisterAllImplementationsOf(typeof(IDomainEventFactory<,>), serviceCollection.AddSingleton, assemblies);
         
         serviceCollection.RegisterAllImplementationsOf(typeof(IDomainService), serviceCollection.AddScoped, assemblies);
@@ -237,6 +251,11 @@ public static class ServiceCollectionExtensions
 
         serviceCollection.AddScoped<IUserIdResolutionStrategy, ClaimsPrincipalUserIdResolutionStrategy>();
 
+        if (typeof(TUser) == typeof(NoStructurUser))
+        {
+            serviceCollection.AddScoped<IUserRepository<NoStructurUser>, NoStructurUserRepository>();
+        }
+        
         return serviceCollection;
     }
 
@@ -252,6 +271,11 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddScoped<ITenantIdResolutionStrategy, HeaderTenantIdResolutionStrategy>();
         serviceCollection.AddScoped<ITenantIdResolutionStrategy, QueryStringTenantIdResolutionStrategy>();
 
+        if (typeof(TTenant) == typeof(NoStructurTenant))
+        {
+            serviceCollection.AddScoped<ITenantRepository<NoStructurTenant>, NoStructurTenantRepository>();
+        }
+
         return serviceCollection;
     }
 
@@ -266,6 +290,11 @@ public static class ServiceCollectionExtensions
 
         serviceCollection.AddScoped<IProductIdResolutionStrategy, HeaderProductIdResolutionStrategy>();
         serviceCollection.AddScoped<IProductIdResolutionStrategy, QueryStringProductIdResolutionStrategy>();
+
+        if (typeof(TProduct) == typeof(NoStructurProduct))
+        {
+            serviceCollection.AddScoped<IProductRepository<NoStructurProduct>, NoStructurProductRepository>();
+        }
 
         return serviceCollection;
     }
@@ -300,7 +329,7 @@ public static class ServiceCollectionExtensions
     
     private static IServiceCollection WithOpenApi(this IServiceCollection serviceCollection, Action<OpenApiOptions>? configurationAction = null)
     {
-        serviceCollection.AddEndpointsApiExplorer();
+//        serviceCollection.AddEndpointsApiExplorer();
         serviceCollection.AddOpenApi(options =>
         {
             options.AddDocumentTransformer<StructurDocumentTransformer>();

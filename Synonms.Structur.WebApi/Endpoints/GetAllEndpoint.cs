@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Synonms.Structur.Application.Collections;
 using Synonms.Structur.Core.Attributes;
-using Synonms.Structur.Core.Mediation;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Application.Iana;
 using Synonms.Structur.Application.Routing;
 using Synonms.Structur.Application.Schema;
 using Synonms.Structur.Application.Schema.Resources;
+using Synonms.Structur.Core.Cqrs;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.WebApi.Cors;
 using Synonms.Structur.WebApi.Http;
@@ -24,12 +24,12 @@ public class GetAllEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource
 {
-    private readonly IMediator _mediator;
+    private readonly IQueryHandler<ReadResourceCollectionQuery<TAggregateRoot, TResource>, ReadResourceCollectionQueryResponse<TAggregateRoot, TResource>> _queryHandler;
     private readonly IRouteGenerator _routeGenerator;
 
-    public GetAllEndpoint(IMediator mediator, IRouteGenerator routeGenerator)
+    public GetAllEndpoint(IQueryHandler<ReadResourceCollectionQuery<TAggregateRoot, TResource>, ReadResourceCollectionQueryResponse<TAggregateRoot, TResource>> queryHandler, IRouteGenerator routeGenerator)
     {
-        _mediator = mediator;
+        _queryHandler = queryHandler;
         _routeGenerator = routeGenerator;
     }
 
@@ -48,7 +48,7 @@ public class GetAllEndpoint<TAggregateRoot, TResource> : ControllerBase
             QueryParameters = Request.Query.ExtractQueryParameters<TAggregateRoot>(),
             SortItems = Request.Query.ExtractSortItems()
         };
-        Result<ReadResourceCollectionQueryResponse<TAggregateRoot, TResource>> queryResult = await _mediator.SendQueryAsync<ReadResourceCollectionQuery<TAggregateRoot, TResource>, ReadResourceCollectionQueryResponse<TAggregateRoot, TResource>>(request);
+        Result<ReadResourceCollectionQueryResponse<TAggregateRoot, TResource>> queryResult = await _queryHandler.HandleAsync(request);
 
         return queryResult.Match(
             queryResponse =>

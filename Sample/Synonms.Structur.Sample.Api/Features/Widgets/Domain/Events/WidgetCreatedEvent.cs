@@ -12,8 +12,8 @@ public class WidgetCreatedEvent : AggregateCreatedDomainEvent<Widget, WidgetReso
     {
     }
 
-    public override Result<Widget> CreateAggregate(WidgetResource trigger) => 
-        Widget.Create(trigger);
+    public override Result<Widget> CreateAggregate(WidgetResource resource) => 
+        Widget.Create(resource);
 
     public override void Replay(Projection projection)
     {

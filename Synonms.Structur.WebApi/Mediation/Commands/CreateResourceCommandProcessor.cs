@@ -1,7 +1,7 @@
 using Synonms.Structur.Core.Functional;
-using Synonms.Structur.Core.Mediation;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Application.Schema.Resources;
+using Synonms.Structur.Core.Cqrs;
 using Synonms.Structur.Domain.Events;
 using Synonms.Structur.Domain.Faults;
 using Synonms.Structur.WebApi.Domain;

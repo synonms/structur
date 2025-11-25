@@ -12,11 +12,6 @@ public class MongoDbTenantRepository<TTenant> : ITenantRepository<TTenant>
 
     public MongoDbTenantRepository(IMongoClient mongoClient, MongoDatabaseConfiguration mongoDatabaseConfiguration)
     {
-        if (mongoDatabaseConfiguration.CollectionNamesByAggregateType.ContainsKey(typeof(TTenant)) is false)
-        {
-            throw new InvalidOperationException($"Mongo collection name for type {typeof(TTenant).Name} is not configured.");
-        }
-
         _mongoCollection = mongoClient.GetDatabase(mongoDatabaseConfiguration.DatabaseName)
             .GetCollection<TTenant>(MongoDbConstants.Database.Collections.Tenants);
     }

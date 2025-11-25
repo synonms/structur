@@ -1,4 +1,4 @@
-using Synonms.Structur.Core.Mediation;
+using Synonms.Structur.Core.Cqrs;
 using Synonms.Structur.Domain.Entities;
 
 namespace Synonms.Structur.WebApi.Mediation.Commands;

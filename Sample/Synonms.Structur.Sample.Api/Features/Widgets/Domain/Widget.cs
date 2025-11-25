@@ -18,6 +18,7 @@ public class Widget : AggregateRoot<Widget>
     
     private Widget(EntityId<Widget> id, Moniker name) : base(id)
     {
+        Name = name;
     }
 
     public Moniker Name { get; private set; } = null!;

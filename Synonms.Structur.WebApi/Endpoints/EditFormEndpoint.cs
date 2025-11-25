@@ -1,17 +1,16 @@
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Synonms.Structur.Core.Mediation;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Application.Iana;
 using Synonms.Structur.Application.Routing;
 using Synonms.Structur.Application.Schema.Forms;
 using Synonms.Structur.Application.Schema.Resources;
+using Synonms.Structur.Core.Cqrs;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.WebApi.Cors;
 using Synonms.Structur.WebApi.Http;
 using Synonms.Structur.WebApi.Mediation.Queries;
-using Synonms.Structur.WebApi.Routing;
 
 namespace Synonms.Structur.WebApi.Endpoints;
 
@@ -22,13 +21,13 @@ public class EditFormEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource, new()
 {
-    private readonly IMediator _mediator;
+    private readonly IQueryHandler<FindResourceQuery<TAggregateRoot, TResource>, FindResourceQueryResponse<TAggregateRoot, TResource>> _queryHandler;
     private readonly IRouteGenerator _routeGenerator;
     private readonly IEditFormDocumentFactory<TAggregateRoot, TResource> _documentFactory;
 
-    public EditFormEndpoint(IMediator mediator, IRouteGenerator routeGenerator, IEditFormDocumentFactory<TAggregateRoot, TResource> documentFactory)
+    public EditFormEndpoint(IQueryHandler<FindResourceQuery<TAggregateRoot, TResource>, FindResourceQueryResponse<TAggregateRoot, TResource>> queryHandler, IRouteGenerator routeGenerator, IEditFormDocumentFactory<TAggregateRoot, TResource> documentFactory)
     {
-        _mediator = mediator;
+        _queryHandler = queryHandler;
         _routeGenerator = routeGenerator;
         _documentFactory = documentFactory;
     }
@@ -38,7 +37,7 @@ public class EditFormEndpoint<TAggregateRoot, TResource> : ControllerBase
     public async Task<IActionResult> EditFormAsync([FromRoute] EntityId<TAggregateRoot> id)
     {
         FindResourceQuery<TAggregateRoot, TResource> request = new(id);
-        Result<FindResourceQueryResponse<TAggregateRoot, TResource>> queryResult = await _mediator.SendQueryAsync<FindResourceQuery<TAggregateRoot, TResource>, FindResourceQueryResponse<TAggregateRoot, TResource>>(request);
+        Result<FindResourceQueryResponse<TAggregateRoot, TResource>> queryResult = await _queryHandler.HandleAsync(request);
 
         return queryResult.Match<IActionResult>(
             queryResponse =>

@@ -11,10 +11,17 @@ public class UserContextFactory<TUser> : IUserContextFactory<TUser>
     {
         _repository = repository;
     }
-        
-    public async Task<UserContext<TUser>> CreateAsync(Guid? authenticatedUserId, CancellationToken cancellationToken) =>
-        (await _repository.FindAuthenticatedUserAsync(cancellationToken))
+
+    public async Task<UserContext<TUser>> CreateAsync(Guid? authenticatedUserId, CancellationToken cancellationToken)
+    {
+        if (authenticatedUserId is null)
+        {
+            return UserContext<TUser>.Create(null);
+        }
+
+        return (await _repository.FindAuthenticatedUserAsync(authenticatedUserId.Value, cancellationToken))
             .Match(
-                UserContext<TUser>.Create, 
+                UserContext<TUser>.Create,
                 () => UserContext<TUser>.Create(null));
+    }
 }

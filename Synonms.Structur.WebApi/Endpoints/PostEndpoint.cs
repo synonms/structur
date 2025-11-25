@@ -2,18 +2,17 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
-using Synonms.Structur.Core.Mediation;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Application.Iana;
 using Synonms.Structur.Application.Routing;
 using Synonms.Structur.Application.Schema;
 using Synonms.Structur.Application.Schema.Errors;
 using Synonms.Structur.Application.Schema.Resources;
+using Synonms.Structur.Core.Cqrs;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.WebApi.Cors;
 using Synonms.Structur.WebApi.Http;
 using Synonms.Structur.WebApi.Mediation.Commands;
-using Synonms.Structur.WebApi.Routing;
 
 namespace Synonms.Structur.WebApi.Endpoints;
 
@@ -24,13 +23,13 @@ public class PostEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource
 {
-    private readonly IMediator _mediator;
+    private readonly ICommandHandler<CreateResourceCommand<TAggregateRoot, TResource>, CreateResourceCommandResponse<TAggregateRoot>> _commandHandler;
     private readonly IRouteGenerator _routeGenerator;
     private readonly IErrorCollectionDocumentFactory _errorCollectionDocumentFactory;
 
-    public PostEndpoint(IMediator mediator, IRouteGenerator routeGenerator, IErrorCollectionDocumentFactory errorCollectionDocumentFactory)
+    public PostEndpoint(ICommandHandler<CreateResourceCommand<TAggregateRoot, TResource>, CreateResourceCommandResponse<TAggregateRoot>> commandHandler, IRouteGenerator routeGenerator, IErrorCollectionDocumentFactory errorCollectionDocumentFactory)
     {
-        _mediator = mediator;
+        _commandHandler = commandHandler;
         _routeGenerator = routeGenerator;
         _errorCollectionDocumentFactory = errorCollectionDocumentFactory;
     }
@@ -40,7 +39,7 @@ public class PostEndpoint<TAggregateRoot, TResource> : ControllerBase
     public async Task<IActionResult> PostAsync([FromBody] TResource resource)
     {
         CreateResourceCommand<TAggregateRoot, TResource> request = new(resource);
-        Result<CreateResourceCommandResponse<TAggregateRoot>> commandResult = await _mediator.SendCommandAsync<CreateResourceCommand<TAggregateRoot, TResource>, CreateResourceCommandResponse<TAggregateRoot>>(request);
+        Result<CreateResourceCommandResponse<TAggregateRoot>> commandResult = await _commandHandler.HandleAsync(request);
 
         return commandResult.Match(
             commandResponse =>

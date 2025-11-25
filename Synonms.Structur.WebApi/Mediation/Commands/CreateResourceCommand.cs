@@ -1,6 +1,6 @@
-using Synonms.Structur.Core.Mediation;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Application.Schema.Resources;
+using Synonms.Structur.Core.Cqrs;
 
 namespace Synonms.Structur.WebApi.Mediation.Commands;
 

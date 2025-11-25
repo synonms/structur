@@ -52,4 +52,6 @@ public class StructurOptions
     public Action<WebApplication>? PostAuthorizationPipelineConfigurationAction { get; set; } 
     
     public Action<ControllerActionEndpointConventionBuilder>? ControllerActionConfigurationAction { get; set; } 
+    
+    public bool UseEmptyLookups { get; set; }
 }

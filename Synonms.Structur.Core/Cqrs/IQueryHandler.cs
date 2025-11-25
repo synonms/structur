@@ -1,6 +1,6 @@
 ﻿using Synonms.Structur.Core.Functional;
 
-namespace Synonms.Structur.Core.Mediation;
+namespace Synonms.Structur.Core.Cqrs;
 
 public interface IQueryHandler
 {

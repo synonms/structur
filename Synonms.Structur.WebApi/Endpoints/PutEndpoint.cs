@@ -2,20 +2,17 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
-using Synonms.Structur.Core.Mediation;
 using Synonms.Structur.Domain.Entities;
-using Synonms.Structur.Domain.Faults;
-using Synonms.Structur.Application.Faults;
 using Synonms.Structur.Application.Iana;
 using Synonms.Structur.Application.Routing;
 using Synonms.Structur.Application.Schema;
 using Synonms.Structur.Application.Schema.Errors;
 using Synonms.Structur.Application.Schema.Resources;
+using Synonms.Structur.Core.Cqrs;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.WebApi.Cors;
 using Synonms.Structur.WebApi.Http;
 using Synonms.Structur.WebApi.Mediation.Commands;
-using Synonms.Structur.WebApi.Routing;
 
 namespace Synonms.Structur.WebApi.Endpoints;
 
@@ -26,11 +23,11 @@ public class PutEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource
 {
-    private readonly IMediator _mediator;
+    private readonly ICommandHandler<UpdateResourceCommand<TAggregateRoot, TResource>, UpdateResourceCommandResponse<TAggregateRoot>> _mediator;
     private readonly IRouteGenerator _routeGenerator;
     private readonly IErrorCollectionDocumentFactory _errorCollectionDocumentFactory;
 
-    public PutEndpoint(IMediator mediator, IRouteGenerator routeGenerator, IErrorCollectionDocumentFactory errorCollectionDocumentFactory)
+    public PutEndpoint(ICommandHandler<UpdateResourceCommand<TAggregateRoot, TResource>, UpdateResourceCommandResponse<TAggregateRoot>> mediator, IRouteGenerator routeGenerator, IErrorCollectionDocumentFactory errorCollectionDocumentFactory)
     {
         _mediator = mediator;
         _routeGenerator = routeGenerator;
@@ -52,7 +49,7 @@ public class PutEndpoint<TAggregateRoot, TResource> : ControllerBase
             IfMatch = ifMatch
         };
         
-        Result<UpdateResourceCommandResponse<TAggregateRoot>> commandResult = await _mediator.SendCommandAsync<UpdateResourceCommand<TAggregateRoot, TResource>, UpdateResourceCommandResponse<TAggregateRoot>>(request);
+        Result<UpdateResourceCommandResponse<TAggregateRoot>> commandResult = await _mediator.HandleAsync(request);
     
         return commandResult.Match(
             commandResponse =>

@@ -1,5 +1,8 @@
 using System.Reflection;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Infrastructure.MongoDb.Serialisers;
 
 namespace Synonms.Structur.Infrastructure.MongoDb;
 
@@ -7,6 +10,8 @@ public static class StructurBsonSerialisation
 {
     public static void TryRegisterSerialisersFrom(params Assembly[] assembliesContainingSerialisers)
     {
+        BsonSerializer.RegisterGenericSerializerDefinition(typeof(EntityId<>), typeof(EntityIdBsonSerialiser<>));
+
         RegisterFrom(InfrastructureMongoDbProject.Assembly);
 
         foreach (Assembly assembly in assembliesContainingSerialisers)
@@ -20,6 +25,7 @@ public static class StructurBsonSerialisation
         List<Type> serialiserTypes = assembly
             .GetTypes()
             .Where(type => type is { IsAbstract: false, IsInterface: false }
+                           && type != typeof(EntityIdBsonSerialiser<>)
                            && type.GetInterfaces()
                                .Where(i => i.IsGenericType)
                                .Any(i => i.GetGenericTypeDefinition() == typeof(IBsonSerializer<>)))

@@ -40,14 +40,16 @@ public static class TypeExtensions
     public static bool IsLookupId(this Type type) =>
         type == typeof(EntityId<Lookup>);
 
-    public static bool IsValueObject(this Type type) =>
+    public static bool IsValueObject(this Type type) => 
         type is
         {
             IsInterface: false, 
             IsAbstract: false, 
             BaseType.IsGenericType: true
         }
-        && type.BaseType.GetGenericTypeDefinition() == typeof(ValueObject<>);
+        && (type.BaseType.GetGenericTypeDefinition() == typeof(ValueObject<>)
+            || type.BaseType.BaseType is not null && type.BaseType.BaseType.IsGenericType && type.BaseType.BaseType.GetGenericTypeDefinition() == typeof(ValueObject<>));
+
 
     public static bool IsEntityId(this Type type) =>
         type is

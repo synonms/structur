@@ -13,16 +13,15 @@ public class MongoDbDomainEventRepository<TAggregateRoot> : IDomainEventReposito
 {
     private readonly IDomainEventDispatcher _domainEventDispatcher;
     private readonly IMongoCollection<DomainEvent<TAggregateRoot>> _mongoCollection;
-    private readonly MongoDomainTransaction _transaction;
+    private readonly MongoDomainTransaction? _transaction;
 
     public MongoDbDomainEventRepository(IDomainEventDispatcher domainEventDispatcher, IMongoClient mongoClient, MongoDatabaseConfiguration mongoDatabaseConfiguration, IDomainTransaction domainTransaction)
     {
-        if (domainTransaction is not MongoDomainTransaction mongoDomainTransaction)
+        if (domainTransaction is MongoDomainTransaction mongoDomainTransaction)
         {
-            throw new InvalidOperationException($"Mongo repository requires specific implementation of {nameof(IDomainTransaction)}.");
+            _transaction = mongoDomainTransaction;
         }
         
-        _transaction = mongoDomainTransaction;
         _domainEventDispatcher = domainEventDispatcher;
 
         _mongoCollection = mongoClient.GetDatabase(mongoDatabaseConfiguration.DatabaseName)
@@ -35,7 +34,15 @@ public class MongoDbDomainEventRepository<TAggregateRoot> : IDomainEventReposito
 
         Maybe<Fault> persistenceOutcome = await dispatcherOutcome.BiBindAsync(async () =>
         {
-            await _mongoCollection.InsertOneAsync(_transaction.Session, domainEvent, cancellationToken: cancellationToken);
+            if (_transaction is null)
+            {
+                await _mongoCollection.InsertOneAsync(domainEvent, cancellationToken: cancellationToken);
+            }
+            else
+            {
+                await _mongoCollection.InsertOneAsync(_transaction.Session, domainEvent, cancellationToken: cancellationToken);
+            }
+            
             return Maybe<Fault>.None;
         });
 

@@ -14,12 +14,17 @@ public partial class DataSeeder
     private IMongoCollection<DomainEvent>? _domainEventsCollection;
     private IMongoCollection<Widget>? _widgetsCollection;
 
-    public async Task SeedDevelopmentDataAsync(WebApplication webApplication)
+    public async Task SeedDevelopmentDataAsync(WebApplication webApplication, bool clearData = true)
     {
         await using AsyncServiceScope serviceScope = webApplication.Services.CreateAsyncScope();
         IMongoClient mongoClient = serviceScope.ServiceProvider.GetRequiredService<IMongoClient>();
 
         SetCollections(mongoClient);
+
+        if (clearData)
+        {
+            await ClearDataAsync();
+        }
 
         await SeedWidgetsAsync();
     }
@@ -33,6 +38,12 @@ public partial class DataSeeder
             .GetCollection<Widget>("widgets");
     }
 
+    private async Task ClearDataAsync()
+    {
+        await _domainEventsCollection.DeleteManyAsync(x => true);
+        await _widgetsCollection.DeleteManyAsync(x => true);
+    }
+    
     private async Task SeedWidgetsAsync()
     {
         Guid widget1Id = Guid.Parse("e3fbfa59-d501-4532-ad8f-372d9cf6d5c3");
