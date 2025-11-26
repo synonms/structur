@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Synonms.Structur.Domain.ValueObjects;
 
 namespace Synonms.Structur.Domain.Validation;
@@ -32,6 +33,16 @@ public partial class ValueObjectBuilder<TValueObject>
             _faults.Add(DomainValidationFaults.UnacceptableValue(propertyName, acceptableValues));
         }
 
+        return this;
+    }
+
+    public ValueObjectBuilder<TValueObject> WithFaultIfNotMatchingPattern(string propertyName, string value, string pattern)
+    {
+        if (Regex.IsMatch(value, pattern) is false)
+        {
+            _faults.Add(DomainValidationFaults.PatternMismatch(propertyName));
+        }
+        
         return this;
     }
 }

@@ -4,6 +4,7 @@ using Serilog.Extensions.Logging;
 using Synonms.Structur.Infrastructure.MongoDb;
 using Synonms.Structur.Sample.Api;
 using Synonms.Structur.Sample.Api.Data;
+using Synonms.Structur.Sample.Api.Features.Individuals.Domain;
 using Synonms.Structur.Sample.Api.Features.Widgets.Domain;
 using Synonms.Structur.WebApi.Controllers;
 using Synonms.Structur.WebApi.DependencyInjection;
@@ -22,7 +23,7 @@ if (!isGeneratingOpenApiFile)
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(webApplicationBuilder.Configuration)
     .Enrich.FromLogContext()
-    .Enrich.WithProperty("Application", "FourFour")
+    .Enrich.WithProperty("Application", "Strucutr Sample API")
     .CreateBootstrapLogger();
 
 ILoggerFactory loggerFactory = new SerilogLoggerFactory(Log.Logger);
@@ -52,7 +53,8 @@ webApplicationBuilder.Services.AddStructur(structurOptions);
 
 Dictionary<Type, string> collectionNamesByAggregateType = new()
 {
-    {typeof(Widget), "widgets"}
+    {typeof(Widget), "widgets"},
+    {typeof(Individual), "individuals"},
 };
 MongoDatabaseConfiguration mongoDatabaseConfiguration = new("synonms-structur-sample-mongodb", collectionNamesByAggregateType);
 

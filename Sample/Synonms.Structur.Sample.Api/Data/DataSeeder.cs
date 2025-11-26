@@ -3,16 +3,21 @@ using Synonms.Structur.Application.Schema;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Domain.Events;
+using Synonms.Structur.Domain.ValueObjects;
+using Synonms.Structur.Sample.Api.Features.Individuals.Domain;
+using Synonms.Structur.Sample.Api.Features.Individuals.Domain.Events;
+using Synonms.Structur.Sample.Api.Features.Individuals.Presentation;
 using Synonms.Structur.Sample.Api.Features.Widgets.Domain;
 using Synonms.Structur.Sample.Api.Features.Widgets.Domain.Events;
 using Synonms.Structur.Sample.Api.Features.Widgets.Presentation;
 
 namespace Synonms.Structur.Sample.Api.Data;
 
-public partial class DataSeeder
+public class DataSeeder
 {
     private IMongoCollection<DomainEvent>? _domainEventsCollection;
     private IMongoCollection<Widget>? _widgetsCollection;
+    private IMongoCollection<Individual>? _individualsCollection;
 
     public async Task SeedDevelopmentDataAsync(WebApplication webApplication, bool clearData = true)
     {
@@ -27,6 +32,7 @@ public partial class DataSeeder
         }
 
         await SeedWidgetsAsync();
+        await SeedIndividualsAsync();
     }
 
     private void SetCollections(IMongoClient mongoClient)
@@ -36,6 +42,9 @@ public partial class DataSeeder
 
         _widgetsCollection ??= mongoClient.GetDatabase("synonms-structur-sample-mongodb")
             .GetCollection<Widget>("widgets");
+        
+        _individualsCollection ??= mongoClient.GetDatabase("synonms-structur-sample-mongodb")
+            .GetCollection<Individual>("individuals");
     }
 
     private async Task ClearDataAsync()
@@ -76,4 +85,62 @@ public partial class DataSeeder
             errors => throw new ApplicationException($"Unable to create widget Id '{createdEvent.AggregateId}': {errors}"));
     }
 
+    private async Task SeedIndividualsAsync()
+    {
+        IndividualResource individual1Resource = new(Guid.Parse("a9617306-ffa6-4355-9461-9dfcd6b702d4"), Link.EmptyLink())
+        {
+            TenantReference = "REF0001",
+            Forename = "Lebron",
+            Surname = "James",
+            EmailAddresses = 
+            [
+                new EmailAddressDto
+                {
+                    Address = "l.james@lakers.com",
+                    IsPrimary = true
+                }
+            ],
+            TelephoneNumbers = []
+        };
+        IndividualResource individual2Resource = new(Guid.Parse("294af0a0-0050-4562-8301-8a059bffefba"), Link.EmptyLink())
+        {
+            TenantReference = "REF0002",
+            Forename = "Luka",
+            Surname = "Doncic",
+            EmailAddresses = [
+                new EmailAddressDto
+                {
+                    Address = "l.doncic@lakers.com",
+                    IsPrimary = true
+                }
+            ],
+            TelephoneNumbers = []
+        };
+        
+        IndividualCreatedEvent individual1CreatedEvent = new((EntityId<Individual>)individual1Resource.Id, individual1Resource);
+        IndividualCreatedEvent individual2CreatedEvent = new((EntityId<Individual>)individual2Resource.Id, individual2Resource);
+        
+        await CreateIndividualAsync(individual1CreatedEvent);
+        await CreateIndividualAsync(individual2CreatedEvent);
+    }
+
+    private async Task CreateIndividualAsync(IndividualCreatedEvent createdEvent)
+    {
+        Result<Individual> createdResult = await createdEvent.ApplyAsync(null);
+            
+        await createdResult.MatchAsync(
+            async createdIndividual =>
+            {
+                Individual? existingIndividual = await _individualsCollection
+                    .Find(x => x.Id == createdEvent.AggregateId)
+                    .FirstOrDefaultAsync(CancellationToken.None);
+
+                if (existingIndividual is null && _domainEventsCollection is not null && _individualsCollection is not null)
+                {
+                    await _domainEventsCollection.InsertOneAsync(createdEvent);
+                    await _individualsCollection.InsertOneAsync(createdIndividual);
+                }
+            },
+            errors => throw new ApplicationException($"Unable to create widget Id '{createdEvent.AggregateId}': {errors}"));
+    }
 }

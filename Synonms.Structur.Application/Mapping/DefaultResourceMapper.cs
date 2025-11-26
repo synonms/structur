@@ -99,7 +99,9 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
                 AggregateRootPropertyInfo = aggregateRootPropertyInfo,
                 AggregateRootPropertyValue = aggregateRootPropertyValue
             };
-                
+
+            // TODO: Complex value Object -> Dto
+            // TODO: Complex value Object Collection -> Dto Collection
             switch (resourcePropertyInfo.GetResourcePropertyType())
             {
                 case ResourcePropertyType.EmbeddedResource:
