@@ -2,13 +2,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using Synonms.Structur.Domain.ValueObjects;
 
-namespace Synonms.Structur.Infrastructure.MongoDb.Serialisers;
+namespace Synonms.Structur.Infrastructure.MongoDb.Serialisation;
 
-public class FriendlyIdBsonSerialiser : IBsonSerializer<FriendlyId?>
+public class ExternalReferenceBsonSerialiser : IBsonSerializer<ExternalReference?>
 {
-    public Type ValueType => typeof(FriendlyId);
+    public Type ValueType => typeof(ExternalReference);
 
-    public FriendlyId? Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+    public ExternalReference? Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
     {
         if (context.Reader.CurrentBsonType is BsonType.Null)
         {
@@ -16,13 +16,13 @@ public class FriendlyIdBsonSerialiser : IBsonSerializer<FriendlyId?>
             return null;
         }
         
-        return FriendlyId.Convert(context.Reader.ReadString());
+        return ExternalReference.Convert(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>
         Deserialize(context, args);
 
-    public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, FriendlyId? value)
+    public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, ExternalReference? value)
     {
         if (value is null)
         {
@@ -40,13 +40,13 @@ public class FriendlyIdBsonSerialiser : IBsonSerializer<FriendlyId?>
         {
             context.Writer.WriteNull();
         }
-        else if (value is FriendlyId valueObject)
+        else if (value is ExternalReference valueObject)
         {
             Serialize(context, args, valueObject);
         }
         else
         {
-            throw new NotSupportedException($"{nameof(FriendlyIdBsonSerialiser)} does not support serialisation of {value.GetType().Name}.");
+            throw new NotSupportedException($"{nameof(ExternalReferenceBsonSerialiser)} does not support serialisation of {value.GetType().Name}.");
         }
     }
 }

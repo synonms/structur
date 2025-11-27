@@ -2,6 +2,7 @@ using System.Reflection;
 using Serilog;
 using Serilog.Extensions.Logging;
 using Synonms.Structur.Infrastructure.MongoDb;
+using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 using Synonms.Structur.Sample.Api;
 using Synonms.Structur.Sample.Api.Data;
 using Synonms.Structur.Sample.Api.Features.Individuals.Domain;

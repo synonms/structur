@@ -2,13 +2,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using Synonms.Structur.Domain.ValueObjects;
 
-namespace Synonms.Structur.Infrastructure.MongoDb.Serialisers;
+namespace Synonms.Structur.Infrastructure.MongoDb.Serialisation;
 
-public class SalutationBsonSerialiser : IBsonSerializer<Salutation?>
+public class CurrencyBsonSerialiser : IBsonSerializer<Currency?>
 {
-    public Type ValueType => typeof(Salutation);
+    public Type ValueType => typeof(Currency);
 
-    public Salutation? Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+    public Currency? Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
     {
         if (context.Reader.CurrentBsonType is BsonType.Null)
         {
@@ -16,13 +16,13 @@ public class SalutationBsonSerialiser : IBsonSerializer<Salutation?>
             return null;
         }
         
-        return Salutation.Convert(context.Reader.ReadString());
+        return Currency.Convert(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>
         Deserialize(context, args);
 
-    public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Salutation? value)
+    public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Currency? value)
     {
         if (value is null)
         {
@@ -40,13 +40,13 @@ public class SalutationBsonSerialiser : IBsonSerializer<Salutation?>
         {
             context.Writer.WriteNull();
         }
-        else if (value is Salutation valueObject)
+        else if (value is Currency valueObject)
         {
             Serialize(context, args, valueObject);
         }
         else
         {
-            throw new NotSupportedException($"{nameof(SalutationBsonSerialiser)} does not support serialisation of {value.GetType().Name}.");
+            throw new NotSupportedException($"{nameof(CurrencyBsonSerialiser)} does not support serialisation of {value.GetType().Name}.");
         }
     }
 }

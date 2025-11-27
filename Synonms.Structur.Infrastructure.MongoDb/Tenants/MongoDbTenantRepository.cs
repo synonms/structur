@@ -2,8 +2,9 @@ using MongoDB.Driver;
 using Synonms.Structur.Application.Tenants;
 using Synonms.Structur.Application.Tenants.Persistence;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Tenants;
 
 public class MongoDbTenantRepository<TTenant> : ITenantRepository<TTenant>
     where TTenant : StructurTenant

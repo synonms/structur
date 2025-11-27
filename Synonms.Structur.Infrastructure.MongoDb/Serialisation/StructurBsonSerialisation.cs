@@ -1,10 +1,8 @@
 using System.Reflection;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using Synonms.Structur.Domain.Entities;
-using Synonms.Structur.Infrastructure.MongoDb.Serialisers;
 
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Serialisation;
 
 public static class StructurBsonSerialisation
 {

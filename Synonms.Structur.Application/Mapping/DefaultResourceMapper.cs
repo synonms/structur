@@ -100,8 +100,6 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
                 AggregateRootPropertyValue = aggregateRootPropertyValue
             };
 
-            // TODO: Complex value Object -> Dto
-            // TODO: Complex value Object Collection -> Dto Collection
             switch (resourcePropertyInfo.GetResourcePropertyType())
             {
                 case ResourcePropertyType.EmbeddedResource:
@@ -124,6 +122,12 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
                     break;
                 case ResourcePropertyType.RelatedResourceCollection:
                     MapRelatedResourceCollection(propertyDetails);
+                    break;
+                case ResourcePropertyType.ValueObjectResource:
+                    MapValueObjectResource(propertyDetails);
+                    break;
+                case ResourcePropertyType.ValueObjectResourceCollection:
+                    MapValueObjectResourceCollection(propertyDetails);
                     break;
                 case ResourcePropertyType.VanillaCollection:
                     MapVanillaCollection(propertyDetails);
@@ -175,6 +179,39 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
         return resourceMapper?.Map(aggregateRootValue);
     }
 
+    private object? CreateValueObjectResourceFromValueObject(Type valueObjectType, Type valueObjectResourceType, object? valueObjectValue)
+    {
+        if (valueObjectValue is null)
+        {
+            return null;
+        }
+
+        if (valueObjectResourceType.IsValueObjectResource() is false)
+        {
+            return null;
+        }
+
+        object? valueObjectResource = Activator.CreateInstance(valueObjectResourceType);
+        
+        IEnumerable<PropertyInfo> valueObjectResourceProperties = valueObjectResourceType.GetPublicInstanceProperties([]);
+
+        foreach (PropertyInfo valueObjectResourcePropertyInfo in valueObjectResourceProperties)
+        {
+            PropertyInfo? valueObjectPropertyInfo = valueObjectType.GetProperty(valueObjectResourcePropertyInfo.Name, BindingFlags.Instance | BindingFlags.Public);
+            
+            if (valueObjectPropertyInfo is null)
+            {
+                continue;
+            }
+            
+            object? valueObjectPropertyValue = valueObjectPropertyInfo.GetValue(valueObjectValue);
+            
+            valueObjectResourcePropertyInfo.SetValue(valueObjectResource, valueObjectPropertyValue);
+        }
+
+        return valueObjectResource;
+    }
+    
     private void MapEmbeddedChildResource(ResourcePropertyDetails propertyDetails)
     {
         // TResource.TChildResource <-> TAggregateRoot.TAggregateMember: A member where we present a nested child resource.
@@ -302,30 +339,95 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
             return;
         }
 
-        Type embeddedResourceCollectionType = typeof(List<>).MakeGenericType(resourcePropertyEnumerableElementType);
+        Type destinationCollectionType = typeof(List<>).MakeGenericType(resourcePropertyEnumerableElementType);
 
-        IList embeddedResources = (IList)Activator.CreateInstance(embeddedResourceCollectionType)!;
+        IList destinationList = (IList)Activator.CreateInstance(destinationCollectionType)!;
 
         if (propertyDetails.AggregateRootPropertyValue is null)
         {
-            propertyDetails.ResourcePropertyInfo.SetValue(propertyDetails.Resource, embeddedResources);
+            propertyDetails.ResourcePropertyInfo.SetValue(propertyDetails.Resource, destinationList);
             return;
         }
 
-        if (embeddedResources is IEnumerable enumerablePropertyValue)
+        if (propertyDetails.AggregateRootPropertyValue is IEnumerable enumerablePropertyValue)
         {
             foreach (object item in enumerablePropertyValue)
             {
-                var embeddedResource = CreateResourceFromAggregateRoot(aggregateRootPropertyEnumerableElementType, resourcePropertyEnumerableElementType, item);
+                object? embeddedResource = CreateResourceFromAggregateRoot(aggregateRootPropertyEnumerableElementType, resourcePropertyEnumerableElementType, item);
 
                 if (embeddedResource is not null)
                 {
-                    embeddedResources?.Add(embeddedResource);
+                    destinationList?.Add(embeddedResource);
                 }
             }
         }
 
-        propertyDetails.ResourcePropertyInfo.SetValue(propertyDetails.Resource, embeddedResources);
+        propertyDetails.ResourcePropertyInfo.SetValue(propertyDetails.Resource, destinationList);
+    }
+    
+    private void MapValueObjectResource(ResourcePropertyDetails propertyDetails)
+    {
+        // TResource.TValueObjectResource <-> TAggregateRoot.TValueObject: A complex value object (multiple properties) where we present an embedded resource.
+
+        if (propertyDetails.AggregateRootPropertyInfo is null || propertyDetails.AggregateRootPropertyInfo.PropertyType.IsValueObject() is false)
+        {
+            _logger.LogWarning("Unable to determine ValueObject type from the aggregate '{aggregateRootType}' for resource '{resourceType}' property '{resourcePropertyName}'.", typeof(TAggregateRoot).Name, typeof(TResource).Name, propertyDetails.ResourcePropertyInfo.Name);
+            return;
+        }
+
+        Type embeddedValueObjectType = propertyDetails.AggregateRootPropertyInfo.PropertyType;
+        Type embeddedValueObjectResourceType = propertyDetails.ResourcePropertyInfo.PropertyType;
+        object? value = propertyDetails.AggregateRootPropertyValue;
+
+        object? embeddedResource = CreateValueObjectResourceFromValueObject(embeddedValueObjectType, embeddedValueObjectResourceType, value);
+
+        propertyDetails.ResourcePropertyInfo.SetValue(propertyDetails.Resource, embeddedResource);
+    }
+    
+    private void MapValueObjectResourceCollection(ResourcePropertyDetails propertyDetails)
+    {
+        // TResource.IEnumerable<TValueObjectResource> <-> TAggregateRoot.IEnumerable<TValueObject>: A complex value object collection where we present an embedded array.
+
+        Type? valueObjectResourcePropertyEnumerableElementType = propertyDetails.ResourcePropertyInfo.PropertyType.GetArrayOrEnumerableElementType();
+
+        if (valueObjectResourcePropertyEnumerableElementType is null || valueObjectResourcePropertyEnumerableElementType.IsValueObjectResource() is false)
+        {
+            _logger.LogWarning("Unable to determine enumerable ValueObjectResource type for resource '{resourceType}' property '{resourcePropertyName}'.", typeof(TResource).Name, propertyDetails.ResourcePropertyInfo.Name);
+            return;
+        }
+
+        Type? valueObjectPropertyEnumerableElementType = propertyDetails.AggregateRootPropertyInfo?.PropertyType.GetArrayOrEnumerableElementType();
+
+        if (valueObjectPropertyEnumerableElementType is null || valueObjectPropertyEnumerableElementType.IsValueObject() is false)
+        {
+            _logger.LogWarning("Unable to determine enumerable ValueObject type from the aggregate '{aggregateRootType}' for resource '{resourceType}' property '{resourcePropertyName}'.", typeof(TAggregateRoot).Name, typeof(TResource).Name, propertyDetails.ResourcePropertyInfo.Name);
+            return;
+        }
+
+        Type valueObjectResourceCollectionType = typeof(List<>).MakeGenericType(valueObjectResourcePropertyEnumerableElementType);
+
+        IList valueObjectResources = (IList)Activator.CreateInstance(valueObjectResourceCollectionType)!;
+
+        if (propertyDetails.AggregateRootPropertyValue is null)
+        {
+            propertyDetails.ResourcePropertyInfo.SetValue(propertyDetails.Resource, valueObjectResources);
+            return;
+        }
+
+        if (propertyDetails.AggregateRootPropertyValue is IEnumerable enumerablePropertyValue)
+        {
+            foreach (object item in enumerablePropertyValue)
+            {
+                object? valueObjectResource = CreateValueObjectResourceFromValueObject(valueObjectPropertyEnumerableElementType, valueObjectResourcePropertyEnumerableElementType, item);
+
+                if (valueObjectResource is not null)
+                {
+                    valueObjectResources?.Add(valueObjectResource);
+                }
+            }
+        }
+
+        propertyDetails.ResourcePropertyInfo.SetValue(propertyDetails.Resource, valueObjectResources);
     }
     
     private void MapRelatedResource(ResourcePropertyDetails propertyDetails)
@@ -445,7 +547,7 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
 
     private void MapVanillaScalar(ResourcePropertyDetails propertyDetails)
     {
-        // Either a TResource.VanillaScalar <-> TAggregateRoot.ValueObject: A DDD value object property which we cast to a regular resource property
+        // Either a TResource.VanillaScalar <-> TAggregateRoot.ValueObject: A simple (single value) DDD value object property which we cast to a regular resource property
         // Or a fallback to a vanilla -> vanilla
 
         if (propertyDetails.AggregateRootPropertyInfo?.PropertyType.IsValueObject() ?? false)

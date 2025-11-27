@@ -2,8 +2,9 @@ using MongoDB.Driver;
 using Synonms.Structur.Application.Users;
 using Synonms.Structur.Application.Users.Persistence;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Users;
 
 public class MongoDbUserRepository<TUser> : IUserRepository<TUser>
     where TUser : StructurUser

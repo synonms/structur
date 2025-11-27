@@ -51,6 +51,7 @@ public class DataSeeder
     {
         await _domainEventsCollection.DeleteManyAsync(x => true);
         await _widgetsCollection.DeleteManyAsync(x => true);
+        await _individualsCollection.DeleteManyAsync(x => true);
     }
     
     private async Task SeedWidgetsAsync()
@@ -94,7 +95,7 @@ public class DataSeeder
             Surname = "James",
             EmailAddresses = 
             [
-                new EmailAddressDto
+                new EmailAddressResource
                 {
                     Address = "l.james@lakers.com",
                     IsPrimary = true
@@ -108,7 +109,7 @@ public class DataSeeder
             Forename = "Luka",
             Surname = "Doncic",
             EmailAddresses = [
-                new EmailAddressDto
+                new EmailAddressResource
                 {
                     Address = "l.doncic@lakers.com",
                     IsPrimary = true

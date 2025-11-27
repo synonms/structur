@@ -1,6 +1,7 @@
 using System.Reflection;
 using Synonms.Structur.Core.System;
 using Synonms.Structur.Domain.System;
+using Synonms.Structur.Domain.ValueObjects;
 
 namespace Synonms.Structur.Application.Schema.Resources;
 
@@ -89,6 +90,11 @@ public static class TypeExtensions
         && !type.IsAbstract
         && type.BaseType == typeof(ChildResource);
 
+    public static bool IsValueObjectResource(this Type type) =>
+        !type.IsInterface
+        && !type.IsAbstract
+        && type.BaseType == typeof(ValueObjectResource);
+    
     public static bool IsLookupResource(this Type type) =>
         type == typeof(LookupResource);
 }

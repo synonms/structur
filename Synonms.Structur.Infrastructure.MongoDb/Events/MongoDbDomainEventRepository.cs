@@ -5,8 +5,10 @@ using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Domain.Events;
 using Synonms.Structur.Domain.Transactions;
+using Synonms.Structur.Infrastructure.MongoDb.Hosting;
+using Synonms.Structur.Infrastructure.MongoDb.Transactions;
 
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Events;
 
 public class MongoDbDomainEventRepository<TAggregateRoot> : IDomainEventRepository<TAggregateRoot>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>

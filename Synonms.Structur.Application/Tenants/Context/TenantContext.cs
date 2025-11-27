@@ -1,9 +1,19 @@
 namespace Synonms.Structur.Application.Tenants.Context;
 
-public class TenantContext<TTenant>
+public class TenantContext
+{
+    protected TenantContext(StructurTenant? selectedTenant)
+    {
+        BaseSelectedTenant = selectedTenant;
+    }
+
+    public StructurTenant? BaseSelectedTenant { get; }
+}
+
+public class TenantContext<TTenant> : TenantContext
     where TTenant : StructurTenant
 {
-    private TenantContext(IEnumerable<TTenant> availableTenants, TTenant? selectedTenant)
+    private TenantContext(IEnumerable<TTenant> availableTenants, TTenant? selectedTenant) : base(selectedTenant)
     {
         AvailableTenants = availableTenants;
         SelectedTenant = selectedTenant;

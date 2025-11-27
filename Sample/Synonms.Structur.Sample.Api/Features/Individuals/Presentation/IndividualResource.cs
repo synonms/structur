@@ -33,7 +33,7 @@ public class IndividualResource : Resource
     [StructurMaxLength(Individual.SurnameMaxLength)]
     public string Surname { get; set; } = string.Empty;
     
-    public List<EmailAddressDto> EmailAddresses { get; set; } = [];
+    public List<EmailAddressResource> EmailAddresses { get; set; } = [];
 
-    public List<TelephoneNumberDto> TelephoneNumbers { get; set; } = [];
+    public List<TelephoneNumberResource> TelephoneNumbers { get; set; } = [];
 }

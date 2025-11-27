@@ -2,7 +2,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using Synonms.Structur.Domain.Entities;
 
-namespace Synonms.Structur.Infrastructure.MongoDb.Serialisers;
+namespace Synonms.Structur.Infrastructure.MongoDb.Serialisation;
 
 public class EntityTagBsonSerialiser : IBsonSerializer<EntityTag?>
 {

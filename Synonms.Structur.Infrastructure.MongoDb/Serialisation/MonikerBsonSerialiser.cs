@@ -1,31 +1,28 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Domain.ValueObjects;
 
-namespace Synonms.Structur.Infrastructure.MongoDb.Serialisers;
+namespace Synonms.Structur.Infrastructure.MongoDb.Serialisation;
 
-public class EntityIdBsonSerialiser<TEntity> : IBsonSerializer<EntityId<TEntity>?>
-    where TEntity : Entity<TEntity>
+public class MonikerBsonSerialiser : IBsonSerializer<Moniker?>
 {
-    public Type ValueType => typeof(EntityId<>);
+    public Type ValueType => typeof(Moniker);
 
-    public EntityId<TEntity>? Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+    public Moniker? Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
     {
         if (context.Reader.CurrentBsonType is BsonType.Null)
         {
             context.Reader.ReadNull();
             return null;
         }
-
-        Guid guid = context.Reader.ReadGuid();
         
-        return (EntityId<TEntity>)guid;
+        return Moniker.Convert(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>
         Deserialize(context, args);
 
-    public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, EntityId<TEntity>? value)
+    public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Moniker? value)
     {
         if (value is null)
         {
@@ -33,7 +30,7 @@ public class EntityIdBsonSerialiser<TEntity> : IBsonSerializer<EntityId<TEntity>
         }
         else
         {
-            context.Writer.WriteGuid(value.Value);
+            context.Writer.WriteString(value);
         }
     }
 
@@ -43,9 +40,9 @@ public class EntityIdBsonSerialiser<TEntity> : IBsonSerializer<EntityId<TEntity>
         {
             context.Writer.WriteNull();
         }
-        else if (value is EntityId<TEntity> entityId)
+        else if (value is Moniker valueObject)
         {
-            Serialize(context, args, entityId);
+            Serialize(context, args, valueObject);
         }
         else
         {

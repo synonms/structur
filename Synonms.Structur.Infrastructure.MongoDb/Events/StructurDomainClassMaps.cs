@@ -2,7 +2,7 @@ using System.Reflection;
 using MongoDB.Bson.Serialization;
 using Synonms.Structur.Domain.Events;
 
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Events;
 
 public static class StructurDomainClassMaps
 {

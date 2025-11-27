@@ -7,8 +7,13 @@ using Synonms.Structur.Application.Tenants.Persistence;
 using Synonms.Structur.Application.Users.Persistence;
 using Synonms.Structur.Domain.Lookups;
 using Synonms.Structur.Domain.Transactions;
+using Synonms.Structur.Infrastructure.MongoDb.Lookups;
+using Synonms.Structur.Infrastructure.MongoDb.Products;
+using Synonms.Structur.Infrastructure.MongoDb.Tenants;
+using Synonms.Structur.Infrastructure.MongoDb.Transactions;
+using Synonms.Structur.Infrastructure.MongoDb.Users;
 
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Hosting;
 
 public class MongoDbBuilder(IHostApplicationBuilder hostApplicationBuilder)
 {

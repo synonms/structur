@@ -1,11 +1,14 @@
+using Synonms.Structur.Core.Attributes;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Faults;
 using Synonms.Structur.Domain.Validation;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class TelephoneNumberDto
+public class TelephoneNumberResource : ValueObjectResource
 {
+    [StructurRequired]
+    [StructurPattern(TelephoneNumber.NumberRegex)]
     public required string Number { get; init; }
     public required bool IsPrimary { get; init; }
     public string? Label { get; init; }
@@ -30,20 +33,20 @@ public record TelephoneNumber : ValueObject<TelephoneNumber>
 
     public static implicit operator string(TelephoneNumber telephoneNumber) => telephoneNumber.Number;
 
-    public static OneOf<TelephoneNumber, IEnumerable<DomainRuleFault>>  CreateMandatory(string propertyName, TelephoneNumberDto dto) =>
+    public static OneOf<TelephoneNumber, IEnumerable<DomainRuleFault>>  CreateMandatory(string propertyName, TelephoneNumberResource resource) =>
         ValueObject.CreateBuilder<TelephoneNumber>()
-            .WithFaultIfNotPopulated($"{propertyName}.{nameof(Number)}", dto.Number)
-            .WithFaultIfNotMatchingPattern($"{propertyName}.{nameof(Number)}", dto.Number, NumberRegex)
-            .Build(dto, x => new TelephoneNumber(dto.Number, dto.IsPrimary, dto.Label));
+            .WithFaultIfNotPopulated($"{propertyName}.{nameof(Number)}", resource.Number)
+            .WithFaultIfNotMatchingPattern($"{propertyName}.{nameof(Number)}", resource.Number, NumberRegex)
+            .Build(resource, x => new TelephoneNumber(resource.Number, resource.IsPrimary, resource.Label));
 
-    public static OneOf<Maybe<TelephoneNumber>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, TelephoneNumberDto? dto)
+    public static OneOf<Maybe<TelephoneNumber>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, TelephoneNumberResource? resource)
     {
-        if (dto is null)
+        if (resource is null)
         {
             return Maybe<TelephoneNumber>.None;
         }
 
-        return CreateMandatory(propertyName, dto).ToMaybe();
+        return CreateMandatory(propertyName, resource).ToMaybe();
     }
     
     public override int CompareTo(object? obj)

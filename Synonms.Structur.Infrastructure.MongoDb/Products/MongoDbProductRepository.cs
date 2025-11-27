@@ -2,8 +2,9 @@ using MongoDB.Driver;
 using Synonms.Structur.Application.Products;
 using Synonms.Structur.Application.Products.Persistence;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Products;
 
 public class MongoDbProductRepository<TProduct> : IProductRepository<TProduct>
     where TProduct : StructurProduct

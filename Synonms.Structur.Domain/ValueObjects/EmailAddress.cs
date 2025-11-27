@@ -5,7 +5,7 @@ using Synonms.Structur.Domain.Validation;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class EmailAddressDto
+public class EmailAddressResource : ValueObjectResource
 {
     [StructurRequired]
     [StructurPattern(EmailAddress.AddressRegex)]
@@ -33,20 +33,20 @@ public record EmailAddress : ValueObject<EmailAddress>
 
     public static implicit operator string(EmailAddress emailAddress) => emailAddress.Address;
 
-    public static OneOf<EmailAddress, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, EmailAddressDto dto) =>
+    public static OneOf<EmailAddress, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, EmailAddressResource resource) =>
         ValueObject.CreateBuilder<EmailAddress>()
-            .WithFaultIfNotPopulated($"{propertyName}.{nameof(Address)}", dto.Address)
-            .WithFaultIfNotMatchingPattern($"{propertyName}.{nameof(Address)}", dto.Address, AddressRegex)
-            .Build(dto, x => new EmailAddress(dto.Address, dto.IsPrimary, dto.Label));
+            .WithFaultIfNotPopulated($"{propertyName}.{nameof(Address)}", resource.Address)
+            .WithFaultIfNotMatchingPattern($"{propertyName}.{nameof(Address)}", resource.Address, AddressRegex)
+            .Build(resource, x => new EmailAddress(resource.Address, resource.IsPrimary, resource.Label));
 
-    public static OneOf<Maybe<EmailAddress>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, EmailAddressDto? dto)
+    public static OneOf<Maybe<EmailAddress>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, EmailAddressResource? resource)
     {
-        if (dto is null)
+        if (resource is null)
         {
             return Maybe<EmailAddress>.None;
         }
 
-        return CreateMandatory(propertyName, dto).ToMaybe();
+        return CreateMandatory(propertyName, resource).ToMaybe();
     }
     
     public override int CompareTo(object? obj)

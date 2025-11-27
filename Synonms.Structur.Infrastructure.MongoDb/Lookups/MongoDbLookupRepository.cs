@@ -1,8 +1,9 @@
 using MongoDB.Driver;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Domain.Lookups;
+using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Lookups;
 
 public class MongoDbLookupRepository<TLookup> : ILookupRepository<TLookup>
     where TLookup : Lookup

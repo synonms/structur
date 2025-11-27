@@ -7,16 +7,25 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
+using Synonms.Structur.Application.Tenants;
 using Synonms.Structur.Application.Tenants.Persistence;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Domain.Events;
 using Synonms.Structur.Domain.Transactions;
+using Synonms.Structur.Infrastructure.MongoDb.Aggregates;
+using Synonms.Structur.Infrastructure.MongoDb.Events;
+using Synonms.Structur.Infrastructure.MongoDb.Serialisation;
+using Synonms.Structur.Infrastructure.MongoDb.Tenants;
 
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Hosting;
 
 public static class HostApplicationBuilderExtensions
 {
-    public static MongoDbBuilder AddStructurMongoDb(this IHostApplicationBuilder builder, MongoDatabaseConfiguration mongoDatabaseConfiguration, string connectionStringName, params Assembly[] domainAssemblies)
+    public static MongoDbBuilder AddStructurMongoDb(this IHostApplicationBuilder builder, MongoDatabaseConfiguration mongoDatabaseConfiguration, string connectionStringName, params Assembly[] domainAssemblies) =>
+        AddStructurMongoDb<NoStructurTenant>(builder, mongoDatabaseConfiguration, connectionStringName, domainAssemblies);
+
+    public static MongoDbBuilder AddStructurMongoDb<TTenant>(this IHostApplicationBuilder builder, MongoDatabaseConfiguration mongoDatabaseConfiguration, string connectionStringName, params Assembly[] domainAssemblies)
+        where TTenant : StructurTenant
     {
         ConventionPack conventionPack = [new IgnoreExtraElementsConvention(true)];
         ConventionRegistry.Register("IgnoreExtraElements", conventionPack, type => true);
@@ -37,7 +46,14 @@ public static class HostApplicationBuilderExtensions
         builder.Services.AddScoped<IDomainTransaction, NoOpDomainTransaction>();
         
         builder.Services.AddScoped(typeof(IWriteAggregateRepository<>), typeof(MongoDbWriteAggregateRepository<>));
-        builder.Services.AddScoped(typeof(IReadAggregateRepository<>), typeof(MongoDbReadAggregateRepository<>));
+        if (typeof(TTenant) == typeof(NoStructurTenant))
+        {
+            builder.Services.AddScoped(typeof(IReadAggregateRepository<>), typeof(MongoDbReadAggregateRepository<>));
+        }
+        else
+        {
+            builder.Services.AddScoped(typeof(IReadAggregateRepository<>), typeof(MongoDbMultiTenantReadAggregateRepository<>));
+        }
         builder.Services.AddScoped(typeof(IDomainEventRepository<>), typeof(MongoDbDomainEventRepository<>));
         builder.Services.AddScoped(typeof(ITenantRepository<>), typeof(MongoDbTenantRepository<>));
 

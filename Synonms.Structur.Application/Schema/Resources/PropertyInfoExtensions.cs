@@ -32,6 +32,11 @@ public static class PropertyInfoExtensions
                 return ResourcePropertyType.EmbeddedChildResourceCollection;
             }
 
+            if (resourcePropertyEnumerableElementType.IsValueObjectResource())
+            {
+                return ResourcePropertyType.ValueObjectResourceCollection;
+            }
+
             return ResourcePropertyType.VanillaCollection;
         }
         
@@ -48,6 +53,11 @@ public static class PropertyInfoExtensions
         if (propertyInfo.PropertyType.IsChildResource())
         {
             return ResourcePropertyType.EmbeddedChildResource;
+        }
+
+        if (propertyInfo.PropertyType.IsValueObjectResource())
+        {
+            return ResourcePropertyType.ValueObjectResource;
         }
 
         if (propertyInfo.PropertyType.IsLookupResource())

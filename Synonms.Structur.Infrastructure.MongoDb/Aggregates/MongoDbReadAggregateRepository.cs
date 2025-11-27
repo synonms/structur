@@ -4,8 +4,9 @@ using MongoDB.Driver.Linq;
 using Synonms.Structur.Core.Collections;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Aggregates;
 
 public class MongoDbReadAggregateRepository<TAggregateRoot> : IReadAggregateRepository<TAggregateRoot>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>

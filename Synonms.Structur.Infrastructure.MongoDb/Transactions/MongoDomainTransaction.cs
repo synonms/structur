@@ -1,7 +1,7 @@
 using MongoDB.Driver;
 using Synonms.Structur.Domain.Transactions;
 
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Transactions;
 
 public class MongoDomainTransaction : IDomainTransaction
 {

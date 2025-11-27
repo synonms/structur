@@ -1,4 +1,4 @@
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Hosting;
 
 public class MongoDatabaseConfiguration
 {

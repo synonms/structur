@@ -10,6 +10,8 @@ public enum ResourcePropertyType
     EmbeddedLookupResource,             // LookupResource
     RelatedResource,                    // EntityId<TAggregateRoot>
     RelatedResourceCollection,          // IEnumerable<EntityId<TAggregateRoot>>
+    ValueObjectResource,                // ValueObjectResource
+    ValueObjectResourceCollection,      // IEnumerable<ValueObjectResource>
     VanillaCollection,                  // IEnumerable<string> etc.
     VanillaScalar                       // string, int etc.
 }

@@ -2,8 +2,10 @@
 using MongoDB.Driver;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Domain.Transactions;
+using Synonms.Structur.Infrastructure.MongoDb.Hosting;
+using Synonms.Structur.Infrastructure.MongoDb.Transactions;
 
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Aggregates;
 
 public class MongoDbWriteAggregateRepository<TAggregateRoot> : IWriteAggregateRepository<TAggregateRoot>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>

@@ -11,5 +11,12 @@ public abstract class AggregateRoot<TAggregateRoot> : Entity<TAggregateRoot>
     {
     }
 
+    protected AggregateRoot(EntityId<TAggregateRoot> id, Guid tenantId) : base(id)
+    {
+        TenantId = tenantId;
+    }
+
+    public Guid TenantId { get; private set; } = Guid.Empty;
+    
     public EntityTag EntityTag { get; private set; } = EntityTag.New();
 }

@@ -2,13 +2,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using Synonms.Structur.Domain.ValueObjects;
 
-namespace Synonms.Structur.Infrastructure.MongoDb.Serialisers;
+namespace Synonms.Structur.Infrastructure.MongoDb.Serialisation;
 
-public class CurrencyBsonSerialiser : IBsonSerializer<Currency?>
+public class SalutationBsonSerialiser : IBsonSerializer<Salutation?>
 {
-    public Type ValueType => typeof(Currency);
+    public Type ValueType => typeof(Salutation);
 
-    public Currency? Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+    public Salutation? Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
     {
         if (context.Reader.CurrentBsonType is BsonType.Null)
         {
@@ -16,13 +16,13 @@ public class CurrencyBsonSerialiser : IBsonSerializer<Currency?>
             return null;
         }
         
-        return Currency.Convert(context.Reader.ReadString());
+        return Salutation.Convert(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>
         Deserialize(context, args);
 
-    public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Currency? value)
+    public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Salutation? value)
     {
         if (value is null)
         {
@@ -40,13 +40,13 @@ public class CurrencyBsonSerialiser : IBsonSerializer<Currency?>
         {
             context.Writer.WriteNull();
         }
-        else if (value is Currency valueObject)
+        else if (value is Salutation valueObject)
         {
             Serialize(context, args, valueObject);
         }
         else
         {
-            throw new NotSupportedException($"{nameof(CurrencyBsonSerialiser)} does not support serialisation of {value.GetType().Name}.");
+            throw new NotSupportedException($"{nameof(SalutationBsonSerialiser)} does not support serialisation of {value.GetType().Name}.");
         }
     }
 }

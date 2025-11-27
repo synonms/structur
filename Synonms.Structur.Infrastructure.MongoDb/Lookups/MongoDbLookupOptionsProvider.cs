@@ -2,8 +2,9 @@ using MongoDB.Driver;
 using Synonms.Structur.Application.Lookups;
 using Synonms.Structur.Application.Schema.Forms;
 using Synonms.Structur.Domain.Lookups;
+using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 
-namespace Synonms.Structur.Infrastructure.MongoDb;
+namespace Synonms.Structur.Infrastructure.MongoDb.Lookups;
 
 public class MongoDbLookupOptionsProvider : ILookupOptionsProvider
 {
