@@ -183,7 +183,7 @@ public static class PropertyInfoExtensions
                 return null;
             }
     
-            if (elementType.IsResource() || elementType.IsChildResource())
+            if (elementType.IsResource() || elementType.IsChildResource() || elementType.IsValueObjectResource())
             {
                 object? resource = Activator.CreateInstance(elementType);
     
@@ -211,7 +211,7 @@ public static class PropertyInfoExtensions
 
     private static IEnumerable<FormField>? GetFormFieldForm(this PropertyInfo propertyInfo, object instance, ILookupOptionsProvider lookupOptionsProvider)
     {
-        if (propertyInfo.PropertyType.IsResource() || propertyInfo.PropertyType.IsChildResource())
+        if (propertyInfo.PropertyType.IsResource() || propertyInfo.PropertyType.IsChildResource() || propertyInfo.PropertyType.IsValueObjectResource())
         {
             object? value = propertyInfo.GetValue(instance);
             
