@@ -10,11 +10,11 @@ public abstract class AggregateCreatedDomainEvent<TAggregateRoot, TResource> : D
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource
 {
-    protected AggregateCreatedDomainEvent(EntityId<TAggregateRoot> aggregateId, TResource resource) : base(aggregateId)
+    protected AggregateCreatedDomainEvent(EntityId<TAggregateRoot> aggregateId, TResource resource, Guid tenantId) : base(aggregateId, tenantId)
     {
         Resource = resource;
     }
-    
+
     public TResource Resource { get; protected set; }
 
     public override Task<Result<TAggregateRoot>> ApplyAsync(TAggregateRoot? aggregateRoot)

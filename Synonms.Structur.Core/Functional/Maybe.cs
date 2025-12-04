@@ -76,20 +76,24 @@ public readonly partial struct Maybe<T>
             ? this
             : None;
 
-    public void IfNone(Action noneAction)
+    public Maybe<T> IfNone(Action noneAction)
     {
         if (IsNone)
         {
             noneAction();
         }
+
+        return this;
     }
 
-    public void IfSome(Action<T> someAction)
+    public Maybe<T> IfSome(Action<T> someAction)
     {
         if (IsSome)
         {
             someAction(_value);
         }
+
+        return this;
     }
 
     public void Match(Action<T> someAction, Action noneAction)

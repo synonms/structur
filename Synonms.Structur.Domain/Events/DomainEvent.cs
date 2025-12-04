@@ -6,6 +6,8 @@ namespace Synonms.Structur.Domain.Events;
 
 public abstract class DomainEvent : Entity<DomainEvent>
 {
+    public Guid TenantId { get; set; }
+    
     public abstract string AggregateType { get; }
     
     public DateTime Timestamp { get; private set; } = DateTime.UtcNow;
@@ -16,8 +18,9 @@ public abstract class DomainEvent : Entity<DomainEvent>
 public abstract class DomainEvent<TAggregateRoot> : DomainEvent
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
 {
-    protected DomainEvent(EntityId<TAggregateRoot> aggregateId)
+    protected DomainEvent(EntityId<TAggregateRoot> aggregateId, Guid tenantId)
     {
+        TenantId = tenantId;
         AggregateId = aggregateId;
     }
     

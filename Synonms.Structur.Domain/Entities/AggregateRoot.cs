@@ -3,11 +3,11 @@ namespace Synonms.Structur.Domain.Entities;
 public abstract class AggregateRoot<TAggregateRoot> : Entity<TAggregateRoot>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
 {
-    protected AggregateRoot()
+    protected AggregateRoot() : this(EntityId<TAggregateRoot>.Uninitialised, Guid.Empty)
     {
     }
     
-    protected AggregateRoot(EntityId<TAggregateRoot> id) : base(id)
+    protected AggregateRoot(EntityId<TAggregateRoot> id) : this(id, Guid.Empty)
     {
     }
 
@@ -16,7 +16,7 @@ public abstract class AggregateRoot<TAggregateRoot> : Entity<TAggregateRoot>
         TenantId = tenantId;
     }
 
-    public Guid TenantId { get; private set; } = Guid.Empty;
+    public Guid TenantId { get; private set; }
     
     public EntityTag EntityTag { get; private set; } = EntityTag.New();
 }

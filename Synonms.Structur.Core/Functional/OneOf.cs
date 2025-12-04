@@ -74,6 +74,20 @@ public partial class OneOf<TLeft, TRight>
             ? Enumerable.Empty<TRight>()
             : new[] {_rightValue};
 
+    public OneOf<TLeft, TRight> IfLeft(Action<TLeft> leftAction)
+    {
+        Match(leftAction.Invoke, _ => { });
+        
+        return this;
+    }
+    
+    public OneOf<TLeft, TRight> IfRight(Action<TRight> rightAction)
+    {
+        Match(_ => { }, rightAction.Invoke);
+        
+        return this;
+    }
+
     public override int GetHashCode() =>
         IsLeft
             ? EqualityComparer<TLeft>.Default.GetHashCode(_leftValue!)

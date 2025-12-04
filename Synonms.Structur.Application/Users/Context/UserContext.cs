@@ -1,9 +1,19 @@
 namespace Synonms.Structur.Application.Users.Context;
 
-public class UserContext<TUser>
+public class UserContext
+{
+    protected UserContext(StructurUser? authenticatedUser)
+    {
+        BaseAuthenticatedUser = authenticatedUser;
+    }
+
+    public StructurUser? BaseAuthenticatedUser { get; }
+}
+
+public class UserContext<TUser> : UserContext
     where TUser : StructurUser
 {
-    private UserContext(TUser? authenticatedUser)
+    private UserContext(TUser? authenticatedUser) : base(authenticatedUser)
     {
         AuthenticatedUser = authenticatedUser;
     }

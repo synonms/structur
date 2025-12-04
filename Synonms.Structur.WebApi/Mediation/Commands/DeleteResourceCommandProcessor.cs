@@ -44,30 +44,19 @@ public class DeleteResourceCommandProcessor<TAggregateRoot, TResource> : IComman
             
             return Maybe<TAggregateRoot>.None;
         });
-        
-        Maybe<Fault> deleteOutcome = await filterOutcome.MatchAsync(
-            async aggregateRoot => 
-            {
-                DomainEvent<TAggregateRoot> deletedEvent = _domainEventFactory.GenerateDeletedEvent(aggregateRoot.Id);
 
-                return await deletedEvent.ApplyAsync(aggregateRoot)
+        Maybe<Fault> deleteOutcome = await filterOutcome
+            .MatchAsync(async aggregateRoot => await _domainEventFactory.GenerateDeletedEvent(aggregateRoot.Id)
+                .BindAsync(async deletedEvent => await deletedEvent.ApplyAsync(aggregateRoot)
                     .BindAsync(async deletedAggregateRoot => await _domainEventRepository.CreateAsync(deletedEvent, cancellationToken)
                         .BiBindAsync(async () =>
                         {
                             await _writeAggregateRepository.UpdateAsync(deletedAggregateRoot, cancellationToken);
 
                             return Maybe<Fault>.None;
-                        }));
-            },
-            () =>
-            {
-                EntityNotFoundFault fault = new ("{0} with id '{1}' not found.", nameof(TAggregateRoot), command.Id);
-
-                return Maybe<Fault>.SomeAsync(fault);
-            });
-
-        DeleteResourceCommandResponse<TAggregateRoot> response = new ();
+                        }))),
+                () => Maybe<Fault>.SomeAsync(new EntityNotFoundFault("{0} with id '{1}' not found.", nameof(TAggregateRoot), command.Id)));
         
-        return response;
+        return deleteOutcome.ToResult(() => new DeleteResourceCommandResponse<TAggregateRoot>());
     }
 }

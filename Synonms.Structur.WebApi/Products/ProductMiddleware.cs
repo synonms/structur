@@ -4,6 +4,7 @@ using Synonms.Structur.Application.Products;
 using Synonms.Structur.Application.Products.Context;
 using Synonms.Structur.Application.Products.Resolution;
 using Synonms.Structur.Application.Users;
+using Synonms.Structur.Core.Functional;
 
 namespace Synonms.Structur.WebApi.Products;
 
@@ -12,50 +13,56 @@ public class ProductMiddleware<TUser, TProduct> : IMiddleware
     where TProduct : StructurProduct
 {
     private readonly ILogger<ProductMiddleware<TUser, TProduct>> _logger;
-    private readonly IProductContextFactory<TProduct> _productContextFactory;
-    private readonly IProductContextAccessor<TProduct> _productContextAccessor;
+    private readonly IProductContext<TProduct> _productContext;
     private readonly IProductIdResolver _productIdResolver;
 
     public ProductMiddleware(
         ILogger<ProductMiddleware<TUser, TProduct>> logger,
-        IProductContextFactory<TProduct> productContextFactory, 
-        IProductContextAccessor<TProduct> productContextAccessor, 
+        IProductContext<TProduct> productContext, 
         IProductIdResolver productIdResolver)
     {
         _logger = logger;
-        _productContextFactory = productContextFactory;
-        _productContextAccessor = productContextAccessor;
+        _productContext = productContext;
         _productIdResolver = productIdResolver;
     }
     
     public async Task InvokeAsync(HttpContext httpContext, RequestDelegate next)
     {
-        _logger.LogDebug("Executing Product Middleware...");
+        _logger.LogTrace("{ClassName}.{FunctionName}", nameof(ProductMiddleware<TUser, TProduct>), nameof(InvokeAsync));
         
-        if (_productContextAccessor.ProductContext is not null)
+        if (typeof(TProduct) == typeof(NoStructurProduct))
         {
-            _logger.LogDebug("Product Context already present - Product middleware complete.");
+            _logger.LogDebug("No Product required - Product middleware complete.");
             await next(httpContext);
             return;
         }
-
-        Guid? selectedProductId = null;
         
-        (await _productIdResolver.ResolveAsync())
-            .Match(
-                productId =>
+        if (_productContext.HasProduct())
+        {
+            _logger.LogDebug("Product already present - Product middleware complete.");
+            await next(httpContext);
+            return;
+        }
+        
+        await _productIdResolver.ResolveAsync()
+            .MatchAsync(
+                async productId =>
                 {
-                    _logger.LogDebug("Successfully resolved Product Id {productId}.", productId);
-                    selectedProductId = productId;
+                    _logger.LogInformation("Successfully determined Product Id {ProductId} from request.", productId);
+                    
+                    await _productContext.SelectProductAsync(productId, CancellationToken.None);
+
+                    if (_productContext.HasProduct())
+                    {
+                        _logger.LogInformation("Successfully resolved Product Id {ProductId}.", productId);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Unable to resolve Product Id {ProductId}.", productId);
+                    }
                 },
-                () => 
-                {
-                    _logger.LogDebug("Failed to resolve Product Id.");
-                });
+                () => _logger.LogWarning("Failed to determine Product Id from request."));
 
-        _productContextAccessor.ProductContext = await _productContextFactory.CreateAsync(selectedProductId, CancellationToken.None);
-        
-        _logger.LogDebug("Product middleware complete.");
         await next(httpContext);
     }
 }

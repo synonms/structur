@@ -29,4 +29,18 @@ public partial class Result<TSuccess> : OneOf<TSuccess, Fault>
 
     public Maybe<Fault> Bind(Func<TSuccess, Maybe<Fault>> successFunc) =>
         Match(successFunc, error => error);
+    
+    public Result<TSuccess> IfSuccess(Action<TSuccess> successAction)
+    {
+        Match(successAction.Invoke, _ => { });
+        
+        return this;
+    }
+    
+    public Result<TSuccess> IfFailure(Action<Fault> failureAction)
+    {
+        Match(_ => { }, failureAction.Invoke);
+        
+        return this;
+    }
 }

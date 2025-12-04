@@ -9,13 +9,13 @@ namespace Synonms.Structur.Infrastructure.MongoDb.Aggregates;
 public class MongoDbMultiTenantReadAggregateRepository<TAggregateRoot> : MongoDbReadAggregateRepository<TAggregateRoot>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
 {
-    private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ITenantContext _tenantContext;
     
-    public MongoDbMultiTenantReadAggregateRepository(ITenantContextAccessor tenantContextAccessor, IMongoClient mongoClient, MongoDatabaseConfiguration mongoDatabaseConfiguration)
+    public MongoDbMultiTenantReadAggregateRepository(ITenantContext tenantContext, IMongoClient mongoClient, MongoDatabaseConfiguration mongoDatabaseConfiguration)
      : base(mongoClient, mongoDatabaseConfiguration)
     {
-        _tenantContextAccessor = tenantContextAccessor;
+        _tenantContext = tenantContext;
     }
 
-    public override Expression<Func<TAggregateRoot, bool>> GlobalFilter => x => x.TenantId == _tenantContextAccessor.BaseTenantContext!.BaseSelectedTenant!.Id;
+    public override Expression<Func<TAggregateRoot, bool>> GlobalFilter => x => x.TenantId == (_tenantContext.GetTenantId() ?? Guid.Empty);
 }

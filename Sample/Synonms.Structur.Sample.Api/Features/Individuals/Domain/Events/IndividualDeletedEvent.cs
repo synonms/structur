@@ -6,7 +6,7 @@ namespace Synonms.Structur.Sample.Api.Features.Individuals.Domain.Events;
 
 public class IndividualDeletedEvent : AggregateDeletedDomainEvent<Individual>
 {
-    public IndividualDeletedEvent(EntityId<Individual> aggregateId) : base(aggregateId)
+    public IndividualDeletedEvent(EntityId<Individual> aggregateId, Guid tenantId) : base(aggregateId, tenantId)
     {
     }
 

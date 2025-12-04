@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Synonms.Structur.Application.Schema.Errors;
 using Synonms.Structur.Application.Tenants;
 using Synonms.Structur.Application.Tenants.Context;
 using Synonms.Structur.Application.Tenants.Resolution;
 using Synonms.Structur.Application.Users;
+using Synonms.Structur.Core.Functional;
 
 namespace Synonms.Structur.WebApi.Tenants;
 
@@ -12,50 +14,59 @@ public class TenantMiddleware<TUser, TTenant> : IMiddleware
     where TTenant : StructurTenant
 {
     private readonly ILogger<TenantMiddleware<TUser, TTenant>> _logger;
-    private readonly ITenantContextFactory<TTenant> _tenantContextFactory;
-    private readonly ITenantContextAccessor<TTenant> _tenantContextAccessor;
+    private readonly ITenantContext<TTenant> _tenantContext;
     private readonly ITenantIdResolver _tenantIdResolver;
+    private readonly IErrorCollectionDocumentFactory _errorCollectionDocumentFactory;
 
     public TenantMiddleware(
         ILogger<TenantMiddleware<TUser, TTenant>> logger,
-        ITenantContextFactory<TTenant> tenantContextFactory, 
-        ITenantContextAccessor<TTenant> tenantContextAccessor, 
-        ITenantIdResolver tenantIdResolver)
+        ITenantContext<TTenant> tenantContext, 
+        ITenantIdResolver tenantIdResolver,
+        IErrorCollectionDocumentFactory errorCollectionDocumentFactory)
     {
         _logger = logger;
-        _tenantContextFactory = tenantContextFactory;
-        _tenantContextAccessor = tenantContextAccessor;
+        _tenantContext = tenantContext;
         _tenantIdResolver = tenantIdResolver;
+        _errorCollectionDocumentFactory = errorCollectionDocumentFactory;
     }
     
     public async Task InvokeAsync(HttpContext httpContext, RequestDelegate next)
     {
-        _logger.LogDebug("Executing Tenant Middleware...");
+        _logger.LogTrace("{ClassName}.{FunctionName}", nameof(TenantMiddleware<TUser, TTenant>), nameof(InvokeAsync));
         
-        if (_tenantContextAccessor.TenantContext is not null)
+        if (typeof(TTenant) == typeof(NoStructurTenant))
         {
-            _logger.LogDebug("Tenant Context already present - Tenant middleware complete.");
+            _logger.LogDebug("No Tenant required - Tenant middleware complete.");
+            await next(httpContext);
+            return;
+        }
+        
+        if (_tenantContext.HasTenant())
+        {
+            _logger.LogDebug("Tenant already present - Tenant middleware complete.");
             await next(httpContext);
             return;
         }
 
-        Guid? selectedTenantId = null;
-        
-        (await _tenantIdResolver.ResolveAsync())
-            .Match(
-                tenantId =>
+        await _tenantIdResolver.ResolveAsync()
+            .MatchAsync(
+                async tenantId =>
                 {
-                    _logger.LogDebug("Successfully resolved Tenant Id {tenantId}.", tenantId);
-                    selectedTenantId = tenantId;
-                },
-                () => 
-                {
-                    _logger.LogDebug("Failed to resolve Tenant Id.");
-                });
+                    _logger.LogInformation("Successfully determined Tenant Id {TenantId} from request.", tenantId);
+                    
+                    await _tenantContext.SelectTenantAsync(tenantId, CancellationToken.None);
 
-        _tenantContextAccessor.TenantContext = await _tenantContextFactory.CreateAsync(selectedTenantId, CancellationToken.None);
-        
-        _logger.LogDebug("Tenant middleware complete.");
+                    if (_tenantContext.HasTenant())
+                    {
+                        _logger.LogInformation("Successfully resolved Tenant Id {TenantId}.", tenantId);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Unable to resolve Tenant Id {TenantId}.", tenantId);
+                    }
+                },
+                () => _logger.LogWarning("Failed to determine Tenant Id from request."));
+
         await next(httpContext);
     }
 }

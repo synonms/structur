@@ -12,6 +12,25 @@ namespace Synonms.Structur.WebApi.Hypermedia.Default;
 
 public class DefaultOutputFormatter : TextOutputFormatter
 {
+    public static readonly JsonSerializerOptions JsonSerializerOptions = new ()
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { 
+            new DateOnlyJsonConverter(),
+            new OptionalDateOnlyJsonConverter(),
+            new TimeOnlyJsonConverter(),
+            new OptionalTimeOnlyJsonConverter(),
+            new DefaultCustomJsonConverterFactory(),
+            new DefaultLinkJsonConverter(),
+            new DefaultFormDocumentJsonConverter(),
+            new DefaultFormFieldJsonConverter(),
+            new DefaultPaginationJsonConverter(),
+            new DefaultErrorCollectionDocumentJsonConverter(),
+            new DefaultErrorJsonConverter()
+        }
+    };
+
     public DefaultOutputFormatter()
     {
         SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(MediaTypes.Any));
@@ -26,26 +45,7 @@ public class DefaultOutputFormatter : TextOutputFormatter
 
     public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
     {
-        JsonSerializerOptions jsonSerializerOptions = new ()
-        {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            Converters = { 
-                new DateOnlyJsonConverter(),
-                new OptionalDateOnlyJsonConverter(),
-                new TimeOnlyJsonConverter(),
-                new OptionalTimeOnlyJsonConverter(),
-                new DefaultCustomJsonConverterFactory(),
-                new DefaultLinkJsonConverter(),
-                new DefaultFormDocumentJsonConverter(),
-                new DefaultFormFieldJsonConverter(),
-                new DefaultPaginationJsonConverter(),
-                new DefaultErrorCollectionDocumentJsonConverter(),
-                new DefaultErrorJsonConverter()
-            }
-        };
-
-        string json = JsonSerializer.Serialize(context.Object, jsonSerializerOptions);
+        string json = JsonSerializer.Serialize(context.Object, JsonSerializerOptions);
 
         await context.HttpContext.Response.WriteAsync(json, selectedEncoding);
     }

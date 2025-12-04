@@ -8,7 +8,7 @@ namespace Synonms.Structur.WebApi.Domain;
 public abstract class AggregateDeletedDomainEvent<TAggregateRoot> : DomainEvent<TAggregateRoot>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
 {
-    protected AggregateDeletedDomainEvent(EntityId<TAggregateRoot> aggregateId) : base(aggregateId)
+    protected AggregateDeletedDomainEvent(EntityId<TAggregateRoot> aggregateId, Guid tenantId) : base(aggregateId, tenantId)
     {
     }
     

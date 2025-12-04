@@ -8,12 +8,12 @@ namespace Synonms.Structur.Sample.Api.Features.Individuals.Domain.Events;
 
 public class IndividualCreatedEvent : AggregateCreatedDomainEvent<Individual, IndividualResource>
 {
-    public IndividualCreatedEvent(EntityId<Individual> aggregateId, IndividualResource resource) : base(aggregateId, resource)
+    public IndividualCreatedEvent(EntityId<Individual> aggregateId, IndividualResource resource, Guid tenantId) : base(aggregateId, resource, tenantId)
     {
     }
     
     public override Result<Individual> CreateAggregate(IndividualResource resource) => 
-        Individual.Create(resource);
+        Individual.Create(TenantId, resource);
 
     public override void Replay(Projection projection)
     {

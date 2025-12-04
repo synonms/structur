@@ -46,12 +46,15 @@ public static class HostApplicationBuilderExtensions
         builder.Services.AddScoped<IDomainTransaction, NoOpDomainTransaction>();
         
         builder.Services.AddScoped(typeof(IWriteAggregateRepository<>), typeof(MongoDbWriteAggregateRepository<>));
+        Console.WriteLine($"Tenant type: {typeof(TTenant).Name}");
         if (typeof(TTenant) == typeof(NoStructurTenant))
         {
+            Console.WriteLine("Adding Read Repository type: MongoDbReadAggregateRepository");
             builder.Services.AddScoped(typeof(IReadAggregateRepository<>), typeof(MongoDbReadAggregateRepository<>));
         }
         else
         {
+            Console.WriteLine("Adding Read Repository type: MongoDbMultiTenantReadAggregateRepository");
             builder.Services.AddScoped(typeof(IReadAggregateRepository<>), typeof(MongoDbMultiTenantReadAggregateRepository<>));
         }
         builder.Services.AddScoped(typeof(IDomainEventRepository<>), typeof(MongoDbDomainEventRepository<>));

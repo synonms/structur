@@ -37,19 +37,15 @@ public class UpdateResourceCommandProcessor<TAggregateRoot, TResource> : IComman
                 });
 
         Result<TAggregateRoot> editOutcome = await findOutcome
-            .BindAsync(async aggregateRoot =>
-            {
-                DomainEvent<TAggregateRoot> updatedEvent = _domainEventFactory.GenerateUpdatedEvent(command.Resource);
-
-                return await updatedEvent.ApplyAsync(aggregateRoot)
-                    .BindAsync(async updatedAggregateRoot => await _domainEventRepository.CreateAsync(updatedEvent, cancellationToken) 
+            .BindAsync(async aggregateRoot => await _domainEventFactory.GenerateUpdatedEvent(command.Resource)
+                .BindAsync(async updatedEvent => await updatedEvent.ApplyAsync(aggregateRoot)
+                    .BindAsync(async updatedAggregateRoot => await _domainEventRepository.CreateAsync(updatedEvent, cancellationToken)
                         .ToResultAsync(async () =>
                         {
                             await _writeAggregateRepository.UpdateAsync(updatedAggregateRoot, cancellationToken);
 
                             return Result<TAggregateRoot>.Success(updatedAggregateRoot);
-                        }));
-            });
+                        }))));
 
         return editOutcome.Bind(aggregateRoot =>
         {

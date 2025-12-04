@@ -9,7 +9,7 @@ namespace Synonms.Structur.Sample.Api.Features.Individuals.Domain.Events;
 
 public class IndividualUpdatedEvent: AggregateUpdatedDomainEvent<Individual, IndividualResource>
 {
-    public IndividualUpdatedEvent(EntityId<Individual> aggregateId, IndividualResource resource) : base(aggregateId, resource)
+    public IndividualUpdatedEvent(EntityId<Individual> aggregateId, IndividualResource resource, Guid tenantId) : base(aggregateId, resource, tenantId)
     {
     }
 

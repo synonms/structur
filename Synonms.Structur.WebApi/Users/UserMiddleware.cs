@@ -60,7 +60,8 @@ public class UserMiddleware<TUser> : IMiddleware
                 });
         
         _userContextAccessor.UserContext = userContext;
-        
+        _userContextAccessor.BaseUserContext = _userContextAccessor.UserContext;
+
         _logger.LogDebug("User middleware complete.");
         await next(httpContext);
     }

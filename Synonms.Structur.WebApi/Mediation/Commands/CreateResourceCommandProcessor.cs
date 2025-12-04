@@ -29,21 +29,21 @@ public class CreateResourceCommandProcessor<TAggregateRoot, TResource> : IComman
     {
         Maybe<TAggregateRoot> existingOutcome = await _readAggregateRepository.FindAsync((EntityId<TAggregateRoot>)command.Resource.Id, cancellationToken);
 
-        Result<TAggregateRoot> createOutcome = await existingOutcome.MatchAsync(
-            existingAggregate => Result<TAggregateRoot>.FailureAsync(new DomainRuleFault("{entityType} Id '{id}' already exists.", nameof(TAggregateRoot), command.Resource.Id)), 
-            async () =>
-            {
-                DomainEvent<TAggregateRoot> createdEvent = _domainEventFactory.GenerateCreatedEvent(command.Resource);
-
-                return await createdEvent.ApplyAsync(null)
+        Result<DomainEvent<TAggregateRoot>> generateEventOutcome = existingOutcome
+            .Match(
+                existingAggregate => Result<DomainEvent<TAggregateRoot>>.Failure(new DomainRuleFault("{entityType} Id '{id}' already exists.", nameof(TAggregateRoot), command.Resource.Id)), 
+                () => _domainEventFactory.GenerateCreatedEvent(command.Resource));
+        
+        Result<TAggregateRoot> createOutcome = await generateEventOutcome
+            .BindAsync(async createdEvent => 
+                await createdEvent.ApplyAsync(null)
                     .BindAsync(async aggregateRoot => await _domainEventRepository.CreateAsync(createdEvent, cancellationToken)
                         .ToResultAsync(async () =>
                         {
                             await _writeAggregateRepository.AddAsync(aggregateRoot, cancellationToken);
 
                             return Result<TAggregateRoot>.Success(aggregateRoot);
-                        }));
-            });
+                        })));
         
         return createOutcome.Bind(aggregateRoot =>
         {

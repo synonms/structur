@@ -11,7 +11,7 @@ public abstract class AggregateUpdatedDomainEvent<TAggregateRoot, TResource> : D
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource
 {
-    protected AggregateUpdatedDomainEvent(EntityId<TAggregateRoot> aggregateId, TResource resource) : base(aggregateId)
+    protected AggregateUpdatedDomainEvent(EntityId<TAggregateRoot> aggregateId, TResource resource, Guid tenantId) : base(aggregateId, tenantId)
     {
         Resource = resource;
     }

@@ -223,8 +223,7 @@ public static class ServiceCollectionExtensions
     {
         serviceCollection.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
-        serviceCollection.RegisterAllImplementationsOf(typeof(IDomainEventFactory<,>), serviceCollection.AddSingleton, assemblies);
-        
+        serviceCollection.RegisterAllImplementationsOf(typeof(IDomainEventFactory<,>), serviceCollection.AddScoped, assemblies);
         serviceCollection.RegisterAllImplementationsOf(typeof(IDomainService), serviceCollection.AddScoped, assemblies);
         serviceCollection.RegisterAllImplementationsOf(typeof(IReadAggregateRepository<>), serviceCollection.AddScoped, assemblies);
 
@@ -246,6 +245,7 @@ public static class ServiceCollectionExtensions
     {
         serviceCollection.AddScoped<UserMiddleware<TUser>>();
         serviceCollection.AddScoped<IUserContextAccessor<TUser>, UserContextAccessor<TUser>>();
+        serviceCollection.AddScoped<IUserContextAccessor>(sp => sp.GetRequiredService<IUserContextAccessor<TUser>>());
         serviceCollection.AddScoped<IUserContextFactory<TUser>, UserContextFactory<TUser>>();
         serviceCollection.AddScoped<IUserIdResolver, UserIdResolver>();
 
@@ -264,8 +264,8 @@ public static class ServiceCollectionExtensions
         where TTenant : StructurTenant
     {
         serviceCollection.AddScoped<TenantMiddleware<TUser, TTenant>>();
-        serviceCollection.AddScoped<ITenantContextAccessor<TTenant>, TenantContextAccessor<TTenant>>();
-        serviceCollection.AddScoped<ITenantContextFactory<TTenant>, TenantContextFactory<TTenant>>();
+        serviceCollection.AddScoped<ITenantContext<TTenant>, TenantContext<TTenant>>();
+        serviceCollection.AddScoped<ITenantContext>(sp => sp.GetRequiredService<ITenantContext<TTenant>>());
         serviceCollection.AddScoped<ITenantIdResolver, TenantIdResolver>();
 
         serviceCollection.AddScoped<ITenantIdResolutionStrategy, HeaderTenantIdResolutionStrategy>();
@@ -284,8 +284,8 @@ public static class ServiceCollectionExtensions
         where TProduct : StructurProduct
     {
         serviceCollection.AddScoped<ProductMiddleware<TUser, TProduct>>();
-        serviceCollection.AddScoped<IProductContextAccessor<TProduct>, ProductContextAccessor<TProduct>>();
-        serviceCollection.AddScoped<IProductContextFactory<TProduct>, ProductContextFactory<TProduct>>();
+        serviceCollection.AddScoped<IProductContext<TProduct>, ProductContext<TProduct>>();
+        serviceCollection.AddScoped<IProductContext>(sp => sp.GetRequiredService<IProductContext<TProduct>>());
         serviceCollection.AddScoped<IProductIdResolver, ProductIdResolver>();
 
         serviceCollection.AddScoped<IProductIdResolutionStrategy, HeaderProductIdResolutionStrategy>();

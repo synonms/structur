@@ -1,12 +1,11 @@
 using System.Reflection;
 using Serilog;
 using Serilog.Extensions.Logging;
-using Synonms.Structur.Infrastructure.MongoDb;
 using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 using Synonms.Structur.Sample.Api;
 using Synonms.Structur.Sample.Api.Data;
 using Synonms.Structur.Sample.Api.Features.Individuals.Domain;
-using Synonms.Structur.Sample.Api.Features.Widgets.Domain;
+using Synonms.Structur.Sample.Api.Infrastructure;
 using Synonms.Structur.WebApi.Controllers;
 using Synonms.Structur.WebApi.DependencyInjection;
 using Synonms.Structur.WebApi.Hosting;
@@ -24,7 +23,7 @@ if (!isGeneratingOpenApiFile)
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(webApplicationBuilder.Configuration)
     .Enrich.FromLogContext()
-    .Enrich.WithProperty("Application", "Strucutr Sample API")
+    .Enrich.WithProperty("Application", "Structur Sample API")
     .CreateBootstrapLogger();
 
 ILoggerFactory loggerFactory = new SerilogLoggerFactory(Log.Logger);
@@ -50,23 +49,23 @@ StructurOptions structurOptions = new()
     UseEmptyLookups = true
 };
 
-webApplicationBuilder.Services.AddStructur(structurOptions);
+webApplicationBuilder.Services.AddStructur<SampleUser, SampleProduct, SampleTenant>(structurOptions);
 
 Dictionary<Type, string> collectionNamesByAggregateType = new()
 {
-    {typeof(Widget), "widgets"},
     {typeof(Individual), "individuals"},
 };
 MongoDatabaseConfiguration mongoDatabaseConfiguration = new("synonms-structur-sample-mongodb", collectionNamesByAggregateType);
 
 if (!isGeneratingOpenApiFile)
 {
-    webApplicationBuilder.AddStructurMongoDb(mongoDatabaseConfiguration, "synonms-structur-sample-mongodb", SampleApiProject.Assembly);
+    webApplicationBuilder.AddStructurMongoDb<SampleTenant>(mongoDatabaseConfiguration, "synonms-structur-sample-mongodb", SampleApiProject.Assembly)
+        .WithPipelineRepositories();
 }
 
 WebApplication app = webApplicationBuilder.Build();
 
-app.UseStructur(structurOptions);
+app.UseStructur<SampleUser, SampleProduct, SampleTenant>(structurOptions);
 
 if (app.Environment.IsDevelopment())
 {
