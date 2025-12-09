@@ -17,6 +17,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Synonms.Structur.Sample.Api\Synonms.Structur.Sample.Api.csproj" />
+      <ProjectReference Include="..\Synonms.Structur.Sample.Ui\Synonms.Structur.Sample.Ui.csproj" />
     </ItemGroup>
 
 </Project>

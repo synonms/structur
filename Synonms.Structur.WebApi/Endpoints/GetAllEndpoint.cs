@@ -13,7 +13,6 @@ using Synonms.Structur.Core.Functional;
 using Synonms.Structur.WebApi.Cors;
 using Synonms.Structur.WebApi.Http;
 using Synonms.Structur.WebApi.Mediation.Queries;
-using Synonms.Structur.WebApi.Routing;
 
 namespace Synonms.Structur.WebApi.Endpoints;
 

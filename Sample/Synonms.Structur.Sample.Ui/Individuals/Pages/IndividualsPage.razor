@@ -1,0 +1,178 @@
+@page "/individuals"
+
+<PageTitle>Individuals</PageTitle>
+
+<CarbonBlazorPane Title="Individuals">
+    @if (_individuals is null)
+    {
+        <CarbonBlazorLoadingSpinner></CarbonBlazorLoadingSpinner>
+    }
+    else
+    {
+        <CarbonBlazorDataTable @ref="@_dataTable" TModel="Value" Models="@_individuals" TotalSize="@_individuals.Count" Offset="0" PageLimit="10" ShouldFillPane="true">
+            <ToolbarButtons>
+                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="XS" OnClick="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.ExtraSmall))"></CarbonBlazorButton>
+                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="S" OnClick="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.Small))"></CarbonBlazorButton>
+                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="M" OnClick="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.Medium))"></CarbonBlazorButton>
+                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="L" OnClick="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.Large))"></CarbonBlazorButton>
+                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="XL" OnClick="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.ExtraLarge))"></CarbonBlazorButton>
+                <CarbonBlazorButton Display="CarbonBlazorButtonDisplay.TextAndIcon" Icon="CarbonBlazorIcon.Add" Text="Add" OnClick="@OnAddClicked"></CarbonBlazorButton>
+            </ToolbarButtons>
+            <HeaderRowTemplate>
+                <CarbonBlazorDataTableHeaderCell>Id</CarbonBlazorDataTableHeaderCell>
+                <CarbonBlazorDataTableHeaderCell>Forename</CarbonBlazorDataTableHeaderCell>
+                <CarbonBlazorDataTableHeaderCell>Surname</CarbonBlazorDataTableHeaderCell>
+                <CarbonBlazorDataTableHeaderCell>Email</CarbonBlazorDataTableHeaderCell>
+                <CarbonBlazorDataTableHeaderCell></CarbonBlazorDataTableHeaderCell>
+            </HeaderRowTemplate>
+            <DataRowTemplate>
+                <CarbonBlazorDataTableDataCell>@context.Id</CarbonBlazorDataTableDataCell>
+                <CarbonBlazorDataTableDataCell>@context.Forename</CarbonBlazorDataTableDataCell>
+                <CarbonBlazorDataTableDataCell>@context.Surname</CarbonBlazorDataTableDataCell>
+                <CarbonBlazorDataTableDataCell>@context.EmailAddresses.FirstOrDefault(x => x.IsPrimary)?.Address</CarbonBlazorDataTableDataCell>
+                <CarbonBlazorDataTableDataCell>
+                    <CarbonBlazorButtonSet Style="justify-content: end;">
+                        <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.IconOnly" Icon="CarbonBlazorIcon.Search" OnClick="@(() => ViewIndividual(context))"></CarbonBlazorButton>
+                        <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.IconOnly" Icon="CarbonBlazorIcon.Edit" OnClick="@(() => EditIndividual(context))"></CarbonBlazorButton>
+                    </CarbonBlazorButtonSet>
+                </CarbonBlazorDataTableDataCell>
+            </DataRowTemplate>
+        </CarbonBlazorDataTable>
+    }
+</CarbonBlazorPane>
+
+<CarbonBlazorModal @ref="@_addModal" Size="CarbonBlazorModalSize.Large" Title="Add Individual" Label="Add a new individual to the Payments platform.">
+    <CarbonBlazorForm TModel="IndividualResourceRequest" Model="@_createIndividualRequest" ValidationFunc="@ValidateForm" ValidSubmitCallback="@OnValidSubmitAsync">
+        <CarbonBlazorTextInput Label="Reference" @bind-Value="@_createIndividualRequest.TenantReference" FieldIdentifier="@_tenantReferenceFieldIdentifier"></CarbonBlazorTextInput>
+        <CarbonBlazorTextInput Label="Salutation" @bind-Value="@_createIndividualRequest.Salutation" FieldIdentifier="@_salutationFieldIdentifier"></CarbonBlazorTextInput>
+        <CarbonBlazorTextInput Label="Forename" @bind-Value="@_createIndividualRequest.Forename" FieldIdentifier="@_forenameFieldIdentifier"></CarbonBlazorTextInput>
+        <CarbonBlazorTextInput Label="Surname" @bind-Value="@_createIndividualRequest.Surname" FieldIdentifier="@_surnameFieldIdentifier"></CarbonBlazorTextInput>
+        <CarbonBlazorTextInput Label="Primary Email" @bind-Value="@_emailAddress" FieldIdentifier="@_emailFieldIdentifier"></CarbonBlazorTextInput>
+        <CarbonBlazorTextInput Label="Primary Telephone" @bind-Value="@_telephoneNumber" FieldIdentifier="@_telephoneNumberFieldIdentifier"></CarbonBlazorTextInput>
+    </CarbonBlazorForm>
+</CarbonBlazorModal>
+
+@code {
+    private CarbonBlazorDataTable<Value> _dataTable = null!;
+    private CarbonBlazorModal _addModal = null!;
+    private List<Value>? _individuals;
+    private IndividualResourceRequest _createIndividualRequest = new();
+    private string _emailAddress = string.Empty;
+    private string _telephoneNumber = string.Empty;
+
+    private FieldIdentifier _tenantReferenceFieldIdentifier;
+    private FieldIdentifier _salutationFieldIdentifier;
+    private FieldIdentifier _forenameFieldIdentifier;
+    private FieldIdentifier _surnameFieldIdentifier;
+    private FieldIdentifier _emailFieldIdentifier;
+    private FieldIdentifier _telephoneNumberFieldIdentifier;
+
+    [Inject]
+    public IStructurSampleOpenApiClient StructurSampleOpenApiClient { get; set; } = null!;
+
+    [Inject]
+    public INotificationBroker NotificationBroker { get; set; } = null!;
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        _tenantReferenceFieldIdentifier = FieldIdentifier.Create(() => _createIndividualRequest.TenantReference);
+        _salutationFieldIdentifier = FieldIdentifier.Create(() => _createIndividualRequest.Salutation);
+        _forenameFieldIdentifier = FieldIdentifier.Create(() => _createIndividualRequest.Forename);
+        _surnameFieldIdentifier = FieldIdentifier.Create(() => _createIndividualRequest.Surname);
+        _emailFieldIdentifier = FieldIdentifier.Create(() => _emailAddress);
+        _telephoneNumberFieldIdentifier = FieldIdentifier.Create(() => _telephoneNumber);
+
+        await RefreshIndividualsAsync();
+    }
+
+    private async Task RefreshIndividualsAsync()
+    {
+        try
+        {
+            StructurSampleApiResponse<IndividualResourceCollectionResponse_Default> response = await StructurSampleOpenApiClient.Individuals_GetAllAsync();
+            
+            _individuals = response.Result.Value.ToList();
+        }
+        catch (ApiException apiException)
+        {
+            Console.WriteLine($"[EXCEPTION] GetIndividuals request failed ({apiException.StatusCode}): {apiException.Message}");
+            NotificationBroker.Send("API Error", $"GetIndividuals request failed ({apiException.StatusCode}).", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Error);
+        }
+    }
+
+    private async Task OnAddClicked()
+    {
+        _createIndividualRequest = new IndividualResourceRequest
+        {
+            Id = Guid.NewGuid(),
+            TenantReference = "IND" + DateTime.UtcNow.ToString("yyyyMMddHHmmss") // TODO: Generate better reference
+        };
+
+        await _addModal.Show();
+    }
+
+    private void ViewIndividual(Value individual) =>
+        NavigationManager.NavigateTo("individuals/" + individual.Id);
+
+    private void EditIndividual(Value individual) =>
+        NavigationManager.NavigateTo("individuals/" + individual.Id + "/edit");
+
+    private IEnumerable<ValidationOutcome> ValidateForm(IndividualResourceRequest request)
+    {
+        List<ValidationOutcome> validationOutcomes = [];
+
+        if (string.IsNullOrWhiteSpace(request.TenantReference))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_tenantReferenceFieldIdentifier, "Reference must be populated"));
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Forename))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_forenameFieldIdentifier, "Forename must be populated"));
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Surname))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_surnameFieldIdentifier, "Surname must be populated"));
+        }
+
+        if (string.IsNullOrWhiteSpace(_emailAddress))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_emailFieldIdentifier, "Email must be populated"));
+        }
+
+        return validationOutcomes;
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        await _addModal.Hide();
+
+        _createIndividualRequest.EmailAddresses = [new EmailAddresses { Address = _emailAddress, IsPrimary = true }];
+        _createIndividualRequest.TelephoneNumbers = string.IsNullOrWhiteSpace(_telephoneNumber) ? [] : [new TelephoneNumbers { Number = _telephoneNumber, IsPrimary = true }];
+        
+        try
+        {
+            StructurSampleApiResponse response = await StructurSampleOpenApiClient.Individuals_CreateAsync(_createIndividualRequest);
+
+            NotificationBroker.Send("Success", "Individual create request succeeded", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Success);
+
+            await RefreshIndividualsAsync();
+
+            if (_individuals is not null)
+            {
+                _dataTable.RefreshData(_individuals, _individuals.Count, 0, 20);
+            }
+        }
+        catch (ApiException apiException)
+        {
+            Console.WriteLine($"[EXCEPTION] CreateIndividual request failed ({apiException.StatusCode}): {apiException.Response}");
+            NotificationBroker.Send("API Error", $"CreateIndividual request failed ({apiException.StatusCode}).", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Error);
+        }
+    }
+}

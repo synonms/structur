@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Synonms.Structur.Core.Attributes;
 using Synonms.Structur.WebApi.Serialisation.Default;
@@ -6,32 +7,6 @@ namespace Synonms.Structur.WebApi.OpenApi.Default;
 
 public static class DefaultOpenApiSchemaFactory
 {
-    public static OpenApiSchema CreateForForm(StructurResourceAttribute resourceAttribute)
-    {
-        Dictionary<string, OpenApiSchema> properties = OpenApiSchemaFactory.GenerateResourceProperties(resourceAttribute);
-
-        OpenApiSchema schema = new()
-        {
-            Type = "object",
-            Properties = properties
-        };
-        
-        return schema;
-    }
-    
-    public static OpenApiSchema CreateForResource(StructurResourceAttribute resourceAttribute)
-    {
-        Dictionary<string, OpenApiSchema> properties = OpenApiSchemaFactory.GenerateResourceProperties(resourceAttribute);
-
-        OpenApiSchema schema = new()
-        {
-            Type = "object",
-            Properties = properties
-        };
-        
-        return schema;
-    }
-
     public static OpenApiSchema CreateForFormField() =>
         new()
         {
@@ -74,4 +49,8 @@ public static class DefaultOpenApiSchemaFactory
                 { DefaultPropertyNames.Links.Method, new OpenApiSchema() { Type = "string" } }
             }                          
         };
+    
+    public static OpenApiSchema CreateForResource(ILogger logger, StructurResourceAttribute resourceAttribute) =>
+        OpenApiSchemaFactory.GenerateResourceSchema(logger, resourceAttribute);
+    
 }

@@ -33,7 +33,7 @@ StructurOptions structurOptions = new()
     Assemblies = [SampleApiProject.Assembly],
     CorsConfiguration = corsPolicyBuilder =>
     {
-        corsPolicyBuilder.WithOrigins("https://localhost:5003", "https://localhost:6003")
+        corsPolicyBuilder.WithOrigins("https://localhost:7004")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()

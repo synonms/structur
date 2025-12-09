@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.0.9">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="NSwag.ApiDescription.Client" Version="14.4.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <OpenApiReference Include="../Synonms.Structur.Sample.Api/OpenApi/v1.json" OutputPath="StructurSampleClient.cs">
+            <ClassName>StructurSampleOpenApiClient</ClassName>
+            <CodeGenerator>NSwagCSharp</CodeGenerator>
+            <Options> /JsonLibrary:SystemTextJson /UseBaseUrl:false /GenerateClientInterfaces:true /WrapResponses:true /ResponseClass:StructurSampleApiResponse /GenerateOptionalParameters:true /ExposeJsonSerializerSettings:true</Options>
+        </OpenApiReference>
+    </ItemGroup>
+    
+</Project>

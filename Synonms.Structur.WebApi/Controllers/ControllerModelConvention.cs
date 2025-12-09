@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Synonms.Structur.Application.Iana;
 using Synonms.Structur.Application.Routing;
 using Synonms.Structur.Core.Attributes;
-using Synonms.Structur.WebApi.Routing;
 
 namespace Synonms.Structur.WebApi.Controllers;
 

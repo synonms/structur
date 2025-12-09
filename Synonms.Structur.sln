@@ -24,6 +24,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1876969C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Domain.Tests.Unit", "Tests\Synonms.Structur.Domain.Tests.Unit\Synonms.Structur.Domain.Tests.Unit.csproj", "{8EB8DC3F-B1DF-4D2B-B64B-A27187271576}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Sample.ClientApi", "Sample\Synonms.Structur.Sample.ClientApi\Synonms.Structur.Sample.ClientApi.csproj", "{E0952B27-8235-449E-AD16-046947C025A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Sample.Ui", "Sample\Synonms.Structur.Sample.Ui\Synonms.Structur.Sample.Ui.csproj", "{34018D94-317E-4E37-A69C-D3C0A3AD28FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,11 +74,21 @@ Global
 		{8EB8DC3F-B1DF-4D2B-B64B-A27187271576}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EB8DC3F-B1DF-4D2B-B64B-A27187271576}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EB8DC3F-B1DF-4D2B-B64B-A27187271576}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0952B27-8235-449E-AD16-046947C025A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0952B27-8235-449E-AD16-046947C025A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0952B27-8235-449E-AD16-046947C025A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0952B27-8235-449E-AD16-046947C025A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34018D94-317E-4E37-A69C-D3C0A3AD28FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34018D94-317E-4E37-A69C-D3C0A3AD28FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34018D94-317E-4E37-A69C-D3C0A3AD28FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34018D94-317E-4E37-A69C-D3C0A3AD28FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F2C046BC-22E8-4781-B9EF-0547E5536C20} = {437DD44B-A17C-4416-B058-D50499BBDF6A}
 		{4E9ADC40-E99F-4689-A596-5D77DB4E39BE} = {437DD44B-A17C-4416-B058-D50499BBDF6A}
 		{E03337A6-7A75-4E85-981F-EA9457EF6F7D} = {437DD44B-A17C-4416-B058-D50499BBDF6A}
 		{8EB8DC3F-B1DF-4D2B-B64B-A27187271576} = {1876969C-8CB5-42AF-93A9-A09ECA70FB02}
+		{E0952B27-8235-449E-AD16-046947C025A3} = {437DD44B-A17C-4416-B058-D50499BBDF6A}
+		{34018D94-317E-4E37-A69C-D3C0A3AD28FC} = {437DD44B-A17C-4416-B058-D50499BBDF6A}
 	EndGlobalSection
 EndGlobal

@@ -100,7 +100,7 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
                 AggregateRootPropertyValue = aggregateRootPropertyValue
             };
 
-            switch (resourcePropertyInfo.GetResourcePropertyType())
+            switch (resourcePropertyInfo.PropertyType.GetResourcePropertyType())
             {
                 case ResourcePropertyType.EmbeddedResource:
                     MapEmbeddedResource(propertyDetails);

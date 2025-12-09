@@ -72,7 +72,7 @@ public class DefaultChildResourceMapper<TAggregateMember, TChildResource> : IChi
                 AggregateMemberPropertyValue = aggregateMemberPropertyValue
             };
 
-            switch (childResourcePropertyInfo.GetResourcePropertyType())
+            switch (childResourcePropertyInfo.PropertyType.GetResourcePropertyType())
             {
                 case ResourcePropertyType.EmbeddedResource:
                     MapEmbeddedResource(propertyDetails);

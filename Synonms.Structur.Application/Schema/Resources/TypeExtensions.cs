@@ -60,7 +60,72 @@ public static class TypeExtensions
         
         return DataTypeConstants.Object;
     }
+
+    public static ResourcePropertyType GetResourcePropertyType(this Type propertyType)
+    {
+        if (propertyType.IsArrayOrEnumerable())
+        {
+            Type? resourcePropertyEnumerableElementType = propertyType.GetArrayOrEnumerableElementType();
+
+            if (resourcePropertyEnumerableElementType is null)
+            {
+                return ResourcePropertyType.Unknown;
+            }
+
+            if (resourcePropertyEnumerableElementType.IsEntityId())
+            {
+                return ResourcePropertyType.RelatedResourceCollection;
+            }
+
+            if (resourcePropertyEnumerableElementType.IsResource())
+            {
+                return ResourcePropertyType.EmbeddedResourceCollection;
+            }
+
+            if (resourcePropertyEnumerableElementType.IsChildResource())
+            {
+                return ResourcePropertyType.EmbeddedChildResourceCollection;
+            }
+
+            if (resourcePropertyEnumerableElementType.IsValueObjectResource())
+            {
+                return ResourcePropertyType.ValueObjectResourceCollection;
+            }
+
+            return ResourcePropertyType.VanillaCollection;
+        }
+        
+        if (propertyType.IsEntityId())
+        {
+            return ResourcePropertyType.RelatedResource;
+        }
+
+        if (propertyType.IsResource())
+        {
+            return ResourcePropertyType.EmbeddedResource;
+        }
+
+        if (propertyType.IsChildResource())
+        {
+            return ResourcePropertyType.EmbeddedChildResource;
+        }
+
+        if (propertyType.IsValueObjectResource())
+        {
+            return ResourcePropertyType.ValueObjectResource;
+        }
+
+        if (propertyType.IsLookupResource())
+        {
+            return ResourcePropertyType.EmbeddedLookupResource;
+        }
+
+        return ResourcePropertyType.VanillaScalar;
+    }
     
+    public static IEnumerable<PropertyInfo> GetPublicInstanceProperties(this Type type) =>
+        type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
     public static IEnumerable<PropertyInfo> GetPublicInstanceProperties(this Type type, string[] excludePropertyNames) =>
         type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .Where(propertyInfo => excludePropertyNames.Contains(propertyInfo.Name) is false);

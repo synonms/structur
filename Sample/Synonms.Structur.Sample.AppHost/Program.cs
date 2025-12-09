@@ -11,6 +11,11 @@ IResourceBuilder<MongoDBDatabaseResource> mongodb = mongo.AddDatabase("synonms-s
 
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Synonms_Structur_Sample_Api>("synonms-structur-sample-api")
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", builder.Environment.EnvironmentName)
-    .WithReference(mongodb).WaitFor(mongodb);
+    .WithReference(mongodb).WaitFor(mongodb)
+    .WithIconName("SettingsCogMultiple");
+
+builder.AddProject<Projects.Synonms_Structur_Sample_Ui>("synonms-structur-sample-ui")
+    .WithReference(api).WaitFor(api)
+    .WithIconName("ShareScreenPerson");
 
 builder.Build().Run();

@@ -6,7 +6,6 @@ using Synonms.Structur.Application.Routing;
 using Synonms.Structur.Application.Schema.Forms;
 using Synonms.Structur.Application.Schema.Resources;
 using Synonms.Structur.WebApi.Cors;
-using Synonms.Structur.WebApi.Routing;
 
 namespace Synonms.Structur.WebApi.Endpoints;
 

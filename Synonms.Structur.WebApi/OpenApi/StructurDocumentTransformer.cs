@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Synonms.Structur.Application.Iana;
 using Synonms.Structur.Application.Routing;
@@ -16,10 +17,12 @@ namespace Synonms.Structur.WebApi.OpenApi;
 
 public class StructurDocumentTransformer : IOpenApiDocumentTransformer
 {
+    private readonly ILogger<StructurDocumentTransformer> _logger;
     private readonly IResourceDirectory _resourceDirectory;
 
-    public StructurDocumentTransformer(IResourceDirectory resourceDirectory)
+    public StructurDocumentTransformer(ILogger<StructurDocumentTransformer> logger, IResourceDirectory resourceDirectory)
     {
+        _logger = logger;
         _resourceDirectory = resourceDirectory;
     }
     
@@ -36,7 +39,7 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
                 continue;
             }
             
-            OpenApiOperation getAllOperation = GetAllOperation(collectionName, resourceAttribute);
+            OpenApiOperation getAllOperation = GetAllOperation(openApiDocument, collectionName, resourceAttribute);
 
             OpenApiPathItem resourceCollectionPathItem = new() 
             {
@@ -48,11 +51,11 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
             
             if (resourceAttribute.IsCreateDisabled is false)
             {
-                OpenApiOperation postOperation = PostOperation(collectionName, resourceAttribute);
+                OpenApiOperation postOperation = PostOperation(openApiDocument, collectionName, resourceAttribute);
 
                 resourceCollectionPathItem.Operations.Add(OperationType.Post, postOperation);
                 
-                OpenApiOperation createFormOperation = CreateFormOperation(collectionName, resourceAttribute);
+                OpenApiOperation createFormOperation = CreateFormOperation(openApiDocument, collectionName, resourceAttribute);
                 
                 OpenApiPathItem createFormPathItem = new() 
                 {
@@ -67,7 +70,7 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
 
             openApiDocument.Paths.Add("/" + collectionName, resourceCollectionPathItem);
             
-            OpenApiOperation getByIdOperation = GetByIdOperation(collectionName, resourceAttribute);
+            OpenApiOperation getByIdOperation = GetByIdOperation(openApiDocument, collectionName, resourceAttribute);
             
             OpenApiPathItem resourcePathItem = new() 
             {
@@ -88,11 +91,11 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
 
             if (resourceAttribute.IsUpdateDisabled is false)
             {
-                OpenApiOperation putOperation = PutOperation(collectionName, resourceAttribute);
+                OpenApiOperation putOperation = PutOperation(openApiDocument, collectionName, resourceAttribute);
 
                 resourcePathItem.Operations.Add(OperationType.Put, putOperation);
                 
-                OpenApiOperation editFormOperation = EditFormOperation(collectionName, resourceAttribute);
+                OpenApiOperation editFormOperation = EditFormOperation(openApiDocument, collectionName, resourceAttribute);
                 
                 OpenApiPathItem editFormPathItem = new() 
                 {
@@ -127,36 +130,13 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
         return Task.CompletedTask;
     }
 
-    private static string CollectionNameToTag(string collectionName)
-    {
-        string[] tokens = collectionName.Split('-', StringSplitOptions.RemoveEmptyEntries);
-
-        StringBuilder stringBuilder = new();
-
-        bool hasTokens = false;
-        
-        foreach (string token in tokens)
-        {
-            if (hasTokens)
-            {
-                stringBuilder.Append(' ');
-            }
-            stringBuilder.Append(token.ToPascalCase());
-            hasTokens = true;
-        }
-
-        return stringBuilder.ToString();
-    }
-
-    private static OpenApiOperation CreateFormOperation(string collectionName, StructurResourceAttribute resourceAttribute)
+    private OpenApiOperation CreateFormOperation(OpenApiDocument openApiDocument, string collectionName, StructurResourceAttribute resourceAttribute)
     {
         OpenApiOperation createFormOperation = new()
         {
+            OperationId = CollectionNameToOperationPrefix(collectionName) + ".CreateForm",
             Summary = "Get a form describing how to add a new resource to a collection.",
-            Tags = new List<OpenApiTag>
-            {
-                new OpenApiTag { Name = CollectionNameToTag(collectionName) }
-            }
+            Tags = GetTagsForCollection(collectionName)
         };
 
         Dictionary<string, OpenApiSchema> defaultCreateFormProperties = new()
@@ -170,6 +150,8 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
             },
             { IanaLinkRelationConstants.Self, IonOpenApiSchemaFactory.CreateForLink() }
         };
+
+        OpenApiSchema defaultSchema = GetOrCreateSchemaForForms(openApiDocument, resourceAttribute, defaultCreateFormProperties, "Default");
 
         Dictionary<string, OpenApiSchema> ionCreateFormProperties = new()
         {
@@ -186,29 +168,15 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
             { IanaLinkRelationConstants.Self, IonOpenApiSchemaFactory.CreateForLink() }
         };
 
+        OpenApiSchema ionSchema = GetOrCreateSchemaForForms(openApiDocument, resourceAttribute, ionCreateFormProperties, "Ion");
+
         createFormOperation.Responses.Add("200", new OpenApiResponse()
         {
             Description = "Success",
             Content = new Dictionary<string, OpenApiMediaType>
             {
-                [MediaTypes.Json] = new OpenApiMediaType
-                    {
-                        Schema = new OpenApiSchema
-                        {
-                            Type = "object",
-                            AdditionalPropertiesAllowed = true,
-                            Properties = defaultCreateFormProperties,
-                        }
-                    },
-                [MediaTypes.Ion] = new OpenApiMediaType
-                    {
-                        Schema = new OpenApiSchema
-                        {
-                            Type = "object",
-                            AdditionalPropertiesAllowed = true,
-                            Properties = ionCreateFormProperties,
-                        }
-                    }
+                [MediaTypes.Json] = new() { Schema = defaultSchema },
+                [MediaTypes.Ion] = new() { Schema = ionSchema }
             }
         });
 
@@ -231,18 +199,16 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
         return createFormOperation;
     }
 
-    private static OpenApiOperation DeleteOperation(string collectionName, StructurResourceAttribute resourceAttribute)
+    private OpenApiOperation DeleteOperation(string collectionName, StructurResourceAttribute resourceAttribute)
     {
         OpenApiOperation deleteOperation = new()
         {
+            OperationId = CollectionNameToOperationPrefix(collectionName) + ".Delete",
             Summary = "Deletes an existing resource.",
-            Tags = new List<OpenApiTag>
-            {
-                new OpenApiTag { Name = CollectionNameToTag(collectionName) }
-            }
+            Tags = GetTagsForCollection(collectionName)
         };
 
-        deleteOperation.Responses.Add("204", new OpenApiResponse()
+        deleteOperation.Responses.Add("204", new OpenApiResponse
         {
             Description = "Successfully deleted"
         });
@@ -266,15 +232,13 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
         return deleteOperation;
     }
     
-    private static OpenApiOperation EditFormOperation(string collectionName, StructurResourceAttribute resourceAttribute)
+    private OpenApiOperation EditFormOperation(OpenApiDocument openApiDocument, string collectionName, StructurResourceAttribute resourceAttribute)
     {
         OpenApiOperation editFormOperation = new()
         {
+            OperationId = CollectionNameToOperationPrefix(collectionName) + ".EditForm",
             Summary = "Get a form describing how to update an existing resource.",
-            Tags = new List<OpenApiTag>
-            {
-                new OpenApiTag { Name = CollectionNameToTag(collectionName) }
-            }
+            Tags = GetTagsForCollection(collectionName)
         };
 
         Dictionary<string, OpenApiSchema> defaultCreateFormProperties = new()
@@ -288,6 +252,8 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
             },
             { IanaLinkRelationConstants.Self, IonOpenApiSchemaFactory.CreateForLink() }
         };
+
+        OpenApiSchema defaultSchema = GetOrCreateSchemaForForms(openApiDocument, resourceAttribute, defaultCreateFormProperties, "Default");
 
         Dictionary<string, OpenApiSchema> ionCreateFormProperties = new()
         {
@@ -304,29 +270,15 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
             { IanaLinkRelationConstants.Self, IonOpenApiSchemaFactory.CreateForLink() }
         };
 
-        editFormOperation.Responses.Add("200", new OpenApiResponse()
+        OpenApiSchema ionSchema = GetOrCreateSchemaForForms(openApiDocument, resourceAttribute, ionCreateFormProperties, "Ion");
+
+        editFormOperation.Responses.Add("200", new OpenApiResponse
         {
             Description = "Success",
             Content = new Dictionary<string, OpenApiMediaType>
             {
-                [MediaTypes.Json] = new OpenApiMediaType
-                    {
-                        Schema = new OpenApiSchema
-                        {
-                            Type = "object",
-                            AdditionalPropertiesAllowed = true,
-                            Properties = defaultCreateFormProperties,
-                        }
-                    },
-                [MediaTypes.Ion] = new OpenApiMediaType
-                    {
-                        Schema = new OpenApiSchema
-                        {
-                            Type = "object",
-                            AdditionalPropertiesAllowed = true,
-                            Properties = ionCreateFormProperties,
-                        }
-                    }
+                [MediaTypes.Json] = new() { Schema = defaultSchema },
+                [MediaTypes.Ion] = new() { Schema = ionSchema }
             }
         });
 
@@ -348,16 +300,14 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
 
         return editFormOperation;
     }
-        
-    private static OpenApiOperation GetAllOperation(string collectionName, StructurResourceAttribute resourceAttribute)
+
+    private OpenApiOperation GetAllOperation(OpenApiDocument openApiDocument, string collectionName, StructurResourceAttribute resourceAttribute)
     {
         OpenApiOperation getAllOperation = new()
         {
+            OperationId = CollectionNameToOperationPrefix(collectionName) + ".GetAll",
             Summary = "Get a paged collection of resources.",
-            Tags = new List<OpenApiTag>
-            {
-                new OpenApiTag { Name = CollectionNameToTag(collectionName) }
-            }
+            Tags = GetTagsForCollection(collectionName)
         };
 
         Dictionary<string, OpenApiSchema> defaultResourceCollectionDocumentProperties = new()
@@ -366,21 +316,23 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
                 DefaultPropertyNames.Value, new OpenApiSchema
                 {
                     Type = "array", 
-                    Items = DefaultOpenApiSchemaFactory.CreateForResource(resourceAttribute)
+                    Items = DefaultOpenApiSchemaFactory.CreateForResource(_logger, resourceAttribute)
                 }
             },
             { DefaultPropertyNames.Pagination.Offset, new OpenApiSchema() { Type = "integer" } },
             { DefaultPropertyNames.Pagination.Limit, new OpenApiSchema() { Type = "integer" } },
             { DefaultPropertyNames.Pagination.Size, new OpenApiSchema() { Type = "integer" } }
         };
-
+        
+        OpenApiSchema defaultSchema = GetOrCreateSchemaForOutgoingResource(openApiDocument, resourceAttribute, defaultResourceCollectionDocumentProperties, "Default", true);
+        
         Dictionary<string, OpenApiSchema> ionResourceCollectionDocumentProperties = new()
         {
             {
                 IonPropertyNames.Value, new OpenApiSchema()
                 {
                     Type = "array", 
-                    Items = IonOpenApiSchemaFactory.CreateForResource(resourceAttribute)
+                    Items = IonOpenApiSchemaFactory.CreateForResource(_logger, resourceAttribute)
                 }
             },
             { IanaLinkRelationConstants.Self, IonOpenApiSchemaFactory.CreateForLink() },
@@ -392,35 +344,21 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
             { "limit", new OpenApiSchema() { Type = "integer" } },
             { "size", new OpenApiSchema() { Type = "integer" } }
         };
+        
+        OpenApiSchema ionSchema = GetOrCreateSchemaForOutgoingResource(openApiDocument, resourceAttribute, ionResourceCollectionDocumentProperties, "Ion", true);
 
         if (resourceAttribute.IsCreateDisabled is false)
         {
             ionResourceCollectionDocumentProperties.Add("create-form", IonOpenApiSchemaFactory.CreateForLink());
         }
         
-        getAllOperation.Responses.Add("200", new OpenApiResponse()
+        getAllOperation.Responses.Add("200", new OpenApiResponse
         {
             Description = "Success",
             Content = new Dictionary<string, OpenApiMediaType>
             {
-                [MediaTypes.Json] = new OpenApiMediaType
-                    {
-                        Schema = new OpenApiSchema
-                        {
-                            Type = "object",
-                            AdditionalPropertiesAllowed = true,
-                            Properties = defaultResourceCollectionDocumentProperties,
-                        }
-                    },
-                [MediaTypes.Ion] = new OpenApiMediaType
-                    {
-                        Schema = new OpenApiSchema
-                        {
-                            Type = "object",
-                            AdditionalPropertiesAllowed = true,
-                            Properties = ionResourceCollectionDocumentProperties,
-                        }
-                    }
+                [MediaTypes.Json] = new() { Schema = defaultSchema },
+                [MediaTypes.Ion] = new() { Schema = ionSchema }
             }
         });
 
@@ -443,52 +381,38 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
         return getAllOperation;
     }
 
-    private static OpenApiOperation GetByIdOperation(string collectionName, StructurResourceAttribute resourceAttribute)
+    private OpenApiOperation GetByIdOperation(OpenApiDocument openApiDocument, string collectionName, StructurResourceAttribute resourceAttribute)
     {
         OpenApiOperation getByIdOperation = new()
         {
+            OperationId = CollectionNameToOperationPrefix(collectionName) + ".GetById",
             Summary = "Get an individual resource by Id.",
-            Tags = new List<OpenApiTag>
-            {
-                new OpenApiTag { Name = CollectionNameToTag(collectionName) }
-            }
+            Tags = GetTagsForCollection(collectionName)
         };
 
         Dictionary<string, OpenApiSchema> defaultResourceDocumentProperties = new()
         {
-            { DefaultPropertyNames.Value, DefaultOpenApiSchemaFactory.CreateForResource(resourceAttribute) },
+            { DefaultPropertyNames.Value, DefaultOpenApiSchemaFactory.CreateForResource(_logger, resourceAttribute) },
             { IanaLinkRelationConstants.Self, DefaultOpenApiSchemaFactory.CreateForLink() }
         };
 
+        OpenApiSchema defaultSchema = GetOrCreateSchemaForOutgoingResource(openApiDocument, resourceAttribute, defaultResourceDocumentProperties, "Default");
+
         Dictionary<string, OpenApiSchema> ionResourceDocumentProperties = new()
         {
-            { IonPropertyNames.Value, IonOpenApiSchemaFactory.CreateForResource(resourceAttribute) },
+            { IonPropertyNames.Value, IonOpenApiSchemaFactory.CreateForResource(_logger, resourceAttribute) },
             { IanaLinkRelationConstants.Self, IonOpenApiSchemaFactory.CreateForLink() }
         };
-        
+
+        OpenApiSchema ionSchema = GetOrCreateSchemaForOutgoingResource(openApiDocument, resourceAttribute, ionResourceDocumentProperties, "Ion");
+
         getByIdOperation.Responses.Add("200", new OpenApiResponse()
         {
             Description = "Success",
             Content = new Dictionary<string, OpenApiMediaType>
             {
-                [MediaTypes.Json] = new OpenApiMediaType
-                    {
-                        Schema = new OpenApiSchema
-                        {
-                            Type = "object",
-                            AdditionalPropertiesAllowed = true,
-                            Properties = defaultResourceDocumentProperties,
-                        }
-                    },
-                [MediaTypes.Ion] = new OpenApiMediaType
-                    {
-                        Schema = new OpenApiSchema
-                        {
-                            Type = "object",
-                            AdditionalPropertiesAllowed = true,
-                            Properties = ionResourceDocumentProperties,
-                        }
-                    }
+                [MediaTypes.Json] = new() { Schema = defaultSchema },
+                [MediaTypes.Ion] = new() { Schema = ionSchema }
             }
         });
 
@@ -510,43 +434,32 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
 
         return getByIdOperation;
     }
-        
-    private static OpenApiOperation PostOperation(string collectionName, StructurResourceAttribute resourceAttribute)
+    
+    private OpenApiOperation PostOperation(OpenApiDocument openApiDocument, string collectionName, StructurResourceAttribute resourceAttribute)
     {
+        OpenApiSchema schema = GetOrCreateSchemaForIncomingResource(openApiDocument, resourceAttribute);
+        
+        OpenApiMediaType mediaType = new()
+        {
+            Schema = schema
+        };
+        
         OpenApiOperation postOperation = new()
         {
+            OperationId = CollectionNameToOperationPrefix(collectionName) + ".Create",
             Summary = "Add a new resource to a collection.",
-            Tags = new List<OpenApiTag>
-            {
-                new OpenApiTag { Name = CollectionNameToTag(collectionName) }
-            },
+            Tags = GetTagsForCollection(collectionName),
             RequestBody = new OpenApiRequestBody
             {
                 Content = new Dictionary<string, OpenApiMediaType>
                 {
-                    [MediaTypes.Json] = new OpenApiMediaType
-                    {
-                        Schema = new OpenApiSchema
-                        {
-                            Type = "object",
-                            AdditionalPropertiesAllowed = true,
-                            Properties = OpenApiSchemaFactory.GenerateResourceProperties(resourceAttribute)
-                        }
-                    },
-                    [MediaTypes.Ion] = new OpenApiMediaType
-                    {
-                        Schema = new OpenApiSchema
-                        {
-                            Type = "object",
-                            AdditionalPropertiesAllowed = true,
-                            Properties = OpenApiSchemaFactory.GenerateResourceProperties(resourceAttribute)
-                        }
-                    }
+                    [MediaTypes.Json] = mediaType,
+                    [MediaTypes.Ion] = mediaType
                 }
             }
         };
 
-        postOperation.Responses.Add("201", new OpenApiResponse()
+        postOperation.Responses.Add("201", new OpenApiResponse
         {
             Description = "Successfully created"
         });
@@ -570,42 +483,31 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
         return postOperation;
     }
     
-    private static OpenApiOperation PutOperation(string collectionName, StructurResourceAttribute resourceAttribute)
+    private OpenApiOperation PutOperation(OpenApiDocument openApiDocument, string collectionName, StructurResourceAttribute resourceAttribute)
     {
+        OpenApiSchema schema = GetOrCreateSchemaForIncomingResource(openApiDocument, resourceAttribute);
+        
+        OpenApiMediaType mediaType = new()
+        {
+            Schema = schema
+        };
+        
         OpenApiOperation putOperation = new()
         {
+            OperationId = CollectionNameToOperationPrefix(collectionName) + ".Update",
             Summary = "Updates an existing resource.",
-            Tags = new List<OpenApiTag>
-            {
-                new OpenApiTag { Name = CollectionNameToTag(collectionName) }
-            },
+            Tags = GetTagsForCollection(collectionName),
             RequestBody = new OpenApiRequestBody
             {
                 Content = new Dictionary<string, OpenApiMediaType>
                 {
-                    [MediaTypes.Json] = new OpenApiMediaType
-                    {
-                        Schema = new OpenApiSchema
-                        {
-                            Type = "object",
-                            AdditionalPropertiesAllowed = true,
-                            Properties = OpenApiSchemaFactory.GenerateResourceProperties(resourceAttribute)
-                        }
-                    },
-                    [MediaTypes.Ion] = new OpenApiMediaType
-                    {
-                        Schema = new OpenApiSchema
-                        {
-                            Type = "object",
-                            AdditionalPropertiesAllowed = true,
-                            Properties = OpenApiSchemaFactory.GenerateResourceProperties(resourceAttribute)
-                        }
-                    }
+                    [MediaTypes.Json] = mediaType,
+                    [MediaTypes.Ion] = mediaType
                 }
             }
         };
 
-        putOperation.Responses.Add("204", new OpenApiResponse()
+        putOperation.Responses.Add("204", new OpenApiResponse
         {
             Description = "Successfully updated"
         });
@@ -627,5 +529,164 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
         }
 
         return putOperation;
+    }
+    
+    /// <summary>
+    /// Converts collection urls like "users" or "employee-contracts" to Pascal cased spaced tag names like "Users" or "Employee Contracts".
+    /// </summary>
+    /// <param name="collectionName">Lower case hyphenated url</param>
+    /// <returns></returns>
+    private static List<OpenApiTag> GetTagsForCollection(string collectionName)
+    {
+        string[] tokens = collectionName.Split('-', StringSplitOptions.RemoveEmptyEntries);
+
+        StringBuilder stringBuilder = new();
+
+        bool hasTokens = false;
+        
+        foreach (string token in tokens)
+        {
+            if (hasTokens)
+            {
+                stringBuilder.Append(' ');
+            }
+            stringBuilder.Append(token.ToPascalCase());
+            hasTokens = true;
+        }
+
+        OpenApiTag tag = new()
+        {
+            Name = stringBuilder.ToString()
+        };
+
+        return [tag];
+    }
+    
+    /// <summary>
+    /// Converts collection urls like "users" or "employee-contracts" to Pascal cased closed operation prefix names like "Users" or "EmployeeContracts".
+    /// </summary>
+    /// <param name="collectionName">Lower case hyphenated url</param>
+    /// <returns></returns>
+    private static string CollectionNameToOperationPrefix(string collectionName)
+    {
+        string[] tokens = collectionName.Split('-', StringSplitOptions.RemoveEmptyEntries);
+
+        StringBuilder stringBuilder = new();
+
+        foreach (string token in tokens)
+        {
+            stringBuilder.Append(token.ToPascalCase());
+        }
+
+        return stringBuilder.ToString();
+    }
+    
+    private OpenApiSchema GetOrCreateSchemaForIncomingResource(OpenApiDocument openApiDocument, StructurResourceAttribute resourceAttribute)
+    {
+        string componentSchemaName = resourceAttribute.ResourceType.Name + "Request";
+
+        if (openApiDocument.Components is null)
+        {
+            openApiDocument.Components = new OpenApiComponents();
+        }
+
+        if (openApiDocument.Components.Schemas is null)
+        {
+            openApiDocument.Components.Schemas = new Dictionary<string, OpenApiSchema>();
+        }
+        
+        if (openApiDocument.Components.Schemas.ContainsKey(componentSchemaName) is false)
+        {
+            OpenApiSchema componentSchema = OpenApiSchemaFactory.GenerateResourceSchema(_logger, resourceAttribute);
+
+            openApiDocument.Components.Schemas.Add(componentSchemaName, componentSchema);
+        }
+        
+        OpenApiSchema schemaWithReference = new()
+        {
+            Reference = new OpenApiReference
+            {
+                Type = ReferenceType.Schema,
+                Id = componentSchemaName
+            }
+        };
+        
+        return schemaWithReference;
+    }
+    
+    private static OpenApiSchema GetOrCreateSchemaForOutgoingResource(OpenApiDocument openApiDocument, StructurResourceAttribute resourceAttribute, Dictionary<string, OpenApiSchema> documentPropertiesForMediaType, string mediaTypeSuffix, bool isCollection = false)
+    {
+        string componentSchemaName = resourceAttribute.ResourceType.Name + (isCollection ? "Collection" : string.Empty) + "Response_" + mediaTypeSuffix;
+
+        if (openApiDocument.Components is null)
+        {
+            openApiDocument.Components = new OpenApiComponents();
+        }
+
+        if (openApiDocument.Components.Schemas is null)
+        {
+            openApiDocument.Components.Schemas = new Dictionary<string, OpenApiSchema>();
+        }
+
+        if (openApiDocument.Components.Schemas.ContainsKey(componentSchemaName) is false)
+        {
+            OpenApiSchema componentSchema = new()
+            {
+                Type = "object",
+                AdditionalPropertiesAllowed = true,
+                Properties = documentPropertiesForMediaType
+            };
+
+            openApiDocument.Components.Schemas.Add(componentSchemaName, componentSchema);
+        }
+        
+        OpenApiSchema schemaWithReference = new()
+        {
+            Reference = new OpenApiReference
+            {
+                Type = ReferenceType.Schema,
+                Id = componentSchemaName
+            }
+        };
+        
+        return schemaWithReference;
+    }
+    
+    private static OpenApiSchema GetOrCreateSchemaForForms(OpenApiDocument openApiDocument, StructurResourceAttribute resourceAttribute, Dictionary<string, OpenApiSchema> documentPropertiesForMediaType, string mediaTypeSuffix)
+    {
+        string componentSchemaName = resourceAttribute.ResourceType.Name + "Form_" + mediaTypeSuffix;
+
+        if (openApiDocument.Components is null)
+        {
+            openApiDocument.Components = new OpenApiComponents();
+        }
+
+        if (openApiDocument.Components.Schemas is null)
+        {
+            openApiDocument.Components.Schemas = new Dictionary<string, OpenApiSchema>();
+        }
+
+        if (openApiDocument.Components.Schemas.ContainsKey(componentSchemaName) is false)
+        {
+            OpenApiSchema componentSchema = new()
+            {
+                Type = "object",
+                AdditionalPropertiesAllowed = true,
+                Properties = documentPropertiesForMediaType
+            };
+
+            openApiDocument.Components.Schemas.Add(componentSchemaName, componentSchema);
+        }
+        
+        OpenApiSchema schemaWithReference = new()
+        {
+            Reference = new OpenApiReference
+            {
+                Type = ReferenceType.Schema,
+                Id = componentSchemaName
+            }
+        };
+        
+        return schemaWithReference;
     }
 }

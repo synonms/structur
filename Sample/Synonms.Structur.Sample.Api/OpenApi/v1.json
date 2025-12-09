@@ -1,0 +1,1165 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Synonms.Structur.Sample.Api | v1",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/Health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "Root"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/individuals/create-form": {
+      "get": {
+        "tags": [
+          "Individuals"
+        ],
+        "summary": "Get a form describing how to add a new resource to a collection.",
+        "operationId": "Individuals.CreateForm",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualResourceForm_Default"
+                }
+              },
+              "application/ion+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualResourceForm_Ion"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/individuals": {
+      "get": {
+        "tags": [
+          "Individuals"
+        ],
+        "summary": "Get a paged collection of resources.",
+        "operationId": "Individuals.GetAll",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualResourceCollectionResponse_Default"
+                }
+              },
+              "application/ion+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualResourceCollectionResponse_Ion"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Individuals"
+        ],
+        "summary": "Add a new resource to a collection.",
+        "operationId": "Individuals.Create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IndividualResourceRequest"
+              }
+            },
+            "application/ion+json": {
+              "schema": {
+                "$ref": "#/components/schemas/IndividualResourceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created"
+          }
+        }
+      }
+    },
+    "/individuals/{id}/edit-form": {
+      "get": {
+        "tags": [
+          "Individuals"
+        ],
+        "summary": "Get a form describing how to update an existing resource.",
+        "operationId": "Individuals.EditForm",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualResourceForm_Default"
+                }
+              },
+              "application/ion+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualResourceForm_Ion"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "Unique identifier of the resource."
+        }
+      ]
+    },
+    "/individuals/{id}": {
+      "get": {
+        "tags": [
+          "Individuals"
+        ],
+        "summary": "Get an individual resource by Id.",
+        "operationId": "Individuals.GetById",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualResourceResponse_Default"
+                }
+              },
+              "application/ion+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualResourceResponse_Ion"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Individuals"
+        ],
+        "summary": "Updates an existing resource.",
+        "operationId": "Individuals.Update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IndividualResourceRequest"
+              }
+            },
+            "application/ion+json": {
+              "schema": {
+                "$ref": "#/components/schemas/IndividualResourceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successfully updated"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Individuals"
+        ],
+        "summary": "Deletes an existing resource.",
+        "operationId": "Individuals.Delete",
+        "responses": {
+          "204": {
+            "description": "Successfully deleted"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "Unique identifier of the resource."
+        }
+      ]
+    }
+  },
+  "components": {
+    "schemas": {
+      "IndividualResourceCollectionResponse_Default": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "required": [
+                "tenantReference",
+                "friendlyId",
+                "forename",
+                "surname",
+                "emailAddresses",
+                "telephoneNumbers",
+                "isDeleted"
+              ],
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "tenantReference": {
+                  "type": "string",
+                  "format": ""
+                },
+                "friendlyId": {
+                  "type": "string",
+                  "format": ""
+                },
+                "salutation": {
+                  "type": "string",
+                  "format": ""
+                },
+                "forename": {
+                  "type": "string",
+                  "format": ""
+                },
+                "surname": {
+                  "type": "string",
+                  "format": ""
+                },
+                "emailAddresses": {
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "address",
+                      "isPrimary"
+                    ],
+                    "type": "object",
+                    "properties": {
+                      "address": {
+                        "type": "string",
+                        "format": ""
+                      },
+                      "isPrimary": {
+                        "type": "boolean",
+                        "format": ""
+                      },
+                      "label": {
+                        "type": "string",
+                        "format": ""
+                      }
+                    }
+                  }
+                },
+                "telephoneNumbers": {
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "number",
+                      "isPrimary"
+                    ],
+                    "type": "object",
+                    "properties": {
+                      "number": {
+                        "type": "string",
+                        "format": ""
+                      },
+                      "isPrimary": {
+                        "type": "boolean",
+                        "format": ""
+                      },
+                      "label": {
+                        "type": "string",
+                        "format": ""
+                      }
+                    }
+                  }
+                },
+                "isDeleted": {
+                  "type": "boolean",
+                  "format": ""
+                }
+              }
+            }
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "integer"
+          }
+        }
+      },
+      "IndividualResourceCollectionResponse_Ion": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "required": [
+                "tenantReference",
+                "friendlyId",
+                "forename",
+                "surname",
+                "emailAddresses",
+                "telephoneNumbers",
+                "isDeleted"
+              ],
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "tenantReference": {
+                  "type": "string",
+                  "format": ""
+                },
+                "friendlyId": {
+                  "type": "string",
+                  "format": ""
+                },
+                "salutation": {
+                  "type": "string",
+                  "format": ""
+                },
+                "forename": {
+                  "type": "string",
+                  "format": ""
+                },
+                "surname": {
+                  "type": "string",
+                  "format": ""
+                },
+                "emailAddresses": {
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "address",
+                      "isPrimary"
+                    ],
+                    "type": "object",
+                    "properties": {
+                      "address": {
+                        "type": "string",
+                        "format": ""
+                      },
+                      "isPrimary": {
+                        "type": "boolean",
+                        "format": ""
+                      },
+                      "label": {
+                        "type": "string",
+                        "format": ""
+                      }
+                    }
+                  }
+                },
+                "telephoneNumbers": {
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "number",
+                      "isPrimary"
+                    ],
+                    "type": "object",
+                    "properties": {
+                      "number": {
+                        "type": "string",
+                        "format": ""
+                      },
+                      "isPrimary": {
+                        "type": "boolean",
+                        "format": ""
+                      },
+                      "label": {
+                        "type": "string",
+                        "format": ""
+                      }
+                    }
+                  }
+                },
+                "isDeleted": {
+                  "type": "boolean",
+                  "format": ""
+                },
+                "self": {
+                  "type": "object",
+                  "properties": {
+                    "href": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "rel": {
+                      "type": "string"
+                    },
+                    "method": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "edit-form": {
+                  "type": "object",
+                  "properties": {
+                    "href": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "rel": {
+                      "type": "string"
+                    },
+                    "method": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "delete": {
+                  "type": "object",
+                  "properties": {
+                    "href": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "rel": {
+                      "type": "string"
+                    },
+                    "method": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "first": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "previous": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "next": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "last": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "create-form": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "IndividualResourceRequest": {
+        "required": [
+          "tenantReference",
+          "friendlyId",
+          "forename",
+          "surname",
+          "emailAddresses",
+          "telephoneNumbers",
+          "isDeleted"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tenantReference": {
+            "type": "string",
+            "format": ""
+          },
+          "friendlyId": {
+            "type": "string",
+            "format": ""
+          },
+          "salutation": {
+            "type": "string",
+            "format": ""
+          },
+          "forename": {
+            "type": "string",
+            "format": ""
+          },
+          "surname": {
+            "type": "string",
+            "format": ""
+          },
+          "emailAddresses": {
+            "type": "array",
+            "items": {
+              "required": [
+                "address",
+                "isPrimary"
+              ],
+              "type": "object",
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "format": ""
+                },
+                "isPrimary": {
+                  "type": "boolean",
+                  "format": ""
+                },
+                "label": {
+                  "type": "string",
+                  "format": ""
+                }
+              }
+            }
+          },
+          "telephoneNumbers": {
+            "type": "array",
+            "items": {
+              "required": [
+                "number",
+                "isPrimary"
+              ],
+              "type": "object",
+              "properties": {
+                "number": {
+                  "type": "string",
+                  "format": ""
+                },
+                "isPrimary": {
+                  "type": "boolean",
+                  "format": ""
+                },
+                "label": {
+                  "type": "string",
+                  "format": ""
+                }
+              }
+            }
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "format": ""
+          }
+        }
+      },
+      "IndividualResourceForm_Default": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "desc": {
+                  "type": "string"
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "etype": {
+                  "type": "string"
+                },
+                "eform": {
+                  "type": "array"
+                },
+                "form": {
+                  "type": "array"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "max": { },
+                "maxlength": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "maxsize": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "min": { },
+                "minlength": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "minsize": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "mutable": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array"
+                },
+                "pattern": {
+                  "type": "string"
+                },
+                "placeholder": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "secret": {
+                  "type": "boolean"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "value": { },
+                "visible": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "IndividualResourceForm_Ion": {
+        "type": "object",
+        "properties": {
+          "href": {
+            "type": "string",
+            "format": "uri"
+          },
+          "rel": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "desc": {
+                  "type": "string"
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "etype": {
+                  "type": "string"
+                },
+                "eform": {
+                  "type": "array"
+                },
+                "form": {
+                  "type": "array"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "max": { },
+                "maxlength": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "maxsize": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "min": { },
+                "minlength": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "minsize": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "mutable": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array"
+                },
+                "pattern": {
+                  "type": "string"
+                },
+                "placeholder": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "secret": {
+                  "type": "boolean"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "value": { },
+                "visible": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "IndividualResourceResponse_Default": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "required": [
+              "tenantReference",
+              "friendlyId",
+              "forename",
+              "surname",
+              "emailAddresses",
+              "telephoneNumbers",
+              "isDeleted"
+            ],
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "tenantReference": {
+                "type": "string",
+                "format": ""
+              },
+              "friendlyId": {
+                "type": "string",
+                "format": ""
+              },
+              "salutation": {
+                "type": "string",
+                "format": ""
+              },
+              "forename": {
+                "type": "string",
+                "format": ""
+              },
+              "surname": {
+                "type": "string",
+                "format": ""
+              },
+              "emailAddresses": {
+                "type": "array",
+                "items": {
+                  "required": [
+                    "address",
+                    "isPrimary"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "type": "string",
+                      "format": ""
+                    },
+                    "isPrimary": {
+                      "type": "boolean",
+                      "format": ""
+                    },
+                    "label": {
+                      "type": "string",
+                      "format": ""
+                    }
+                  }
+                }
+              },
+              "telephoneNumbers": {
+                "type": "array",
+                "items": {
+                  "required": [
+                    "number",
+                    "isPrimary"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "number": {
+                      "type": "string",
+                      "format": ""
+                    },
+                    "isPrimary": {
+                      "type": "boolean",
+                      "format": ""
+                    },
+                    "label": {
+                      "type": "string",
+                      "format": ""
+                    }
+                  }
+                }
+              },
+              "isDeleted": {
+                "type": "boolean",
+                "format": ""
+              }
+            }
+          },
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "IndividualResourceResponse_Ion": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "required": [
+              "tenantReference",
+              "friendlyId",
+              "forename",
+              "surname",
+              "emailAddresses",
+              "telephoneNumbers",
+              "isDeleted"
+            ],
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "tenantReference": {
+                "type": "string",
+                "format": ""
+              },
+              "friendlyId": {
+                "type": "string",
+                "format": ""
+              },
+              "salutation": {
+                "type": "string",
+                "format": ""
+              },
+              "forename": {
+                "type": "string",
+                "format": ""
+              },
+              "surname": {
+                "type": "string",
+                "format": ""
+              },
+              "emailAddresses": {
+                "type": "array",
+                "items": {
+                  "required": [
+                    "address",
+                    "isPrimary"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "type": "string",
+                      "format": ""
+                    },
+                    "isPrimary": {
+                      "type": "boolean",
+                      "format": ""
+                    },
+                    "label": {
+                      "type": "string",
+                      "format": ""
+                    }
+                  }
+                }
+              },
+              "telephoneNumbers": {
+                "type": "array",
+                "items": {
+                  "required": [
+                    "number",
+                    "isPrimary"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "number": {
+                      "type": "string",
+                      "format": ""
+                    },
+                    "isPrimary": {
+                      "type": "boolean",
+                      "format": ""
+                    },
+                    "label": {
+                      "type": "string",
+                      "format": ""
+                    }
+                  }
+                }
+              },
+              "isDeleted": {
+                "type": "boolean",
+                "format": ""
+              },
+              "self": {
+                "type": "object",
+                "properties": {
+                  "href": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "rel": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "type": "string"
+                  }
+                }
+              },
+              "edit-form": {
+                "type": "object",
+                "properties": {
+                  "href": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "rel": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "type": "string"
+                  }
+                }
+              },
+              "delete": {
+                "type": "object",
+                "properties": {
+                  "href": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "rel": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health"
+    },
+    {
+      "name": "Root"
+    }
+  ]
+}

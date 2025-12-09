@@ -1,4 +1,4 @@
-using System.Reflection;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Synonms.Structur.Core.Attributes;
 using Synonms.Structur.WebApi.Serialisation.Ion;
@@ -38,45 +38,6 @@ public static class IonOpenApiSchemaFactory
             }                          
         };
     
-    public static OpenApiSchema CreateForResource(StructurResourceAttribute resourceAttribute)
-    {
-        Dictionary<string, OpenApiSchema> properties = OpenApiSchemaFactory.GenerateResourceProperties(resourceAttribute);
-
-        foreach (PropertyInfo propertyInfo in resourceAttribute.ResourceType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
-        {
-            if (propertyInfo.Name.Equals("id", StringComparison.OrdinalIgnoreCase)
-                || propertyInfo.Name.Equals("CreatedAt", StringComparison.OrdinalIgnoreCase)
-                || propertyInfo.Name.Equals("UpdatedAt", StringComparison.OrdinalIgnoreCase)
-                || propertyInfo.Name.Equals("SelfLink", StringComparison.OrdinalIgnoreCase)
-                || propertyInfo.Name.Equals("Links", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            // TODO: Add any other links
-        }
-        
-        properties.Add("self", CreateForLink());
-
-        if (resourceAttribute.IsUpdateDisabled is false)
-        {
-            properties.Add("edit-form", CreateForLink());
-        }
-
-        if (resourceAttribute.IsDeleteDisabled is false)
-        {
-            properties.Add("delete", CreateForLink());
-        }
-
-        OpenApiSchema schema = new()
-        {
-            Type = "object",
-            Properties = properties
-        };
-        
-        return schema;
-    }
-    
     public static OpenApiSchema CreateForLink() =>
         new()
         {
@@ -88,4 +49,23 @@ public static class IonOpenApiSchemaFactory
                 { IonPropertyNames.Links.Method, new OpenApiSchema() { Type = "string" } }
             }
         };
+    
+    public static OpenApiSchema CreateForResource(ILogger logger, StructurResourceAttribute resourceAttribute)
+    {
+        OpenApiSchema schema = OpenApiSchemaFactory.GenerateResourceSchema(logger, resourceAttribute);
+        
+        schema.Properties.Add("self", CreateForLink());
+
+        if (resourceAttribute.IsUpdateDisabled is false)
+        {
+            schema.Properties.Add("edit-form", CreateForLink());
+        }
+
+        if (resourceAttribute.IsDeleteDisabled is false)
+        {
+            schema.Properties.Add("delete", CreateForLink());
+        }
+        
+        return schema;
+    }
 }

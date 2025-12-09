@@ -1,0 +1,26 @@
+﻿@using Structur.Sample.Ui.Infrastructure
+
+@inherits LayoutComponentBase
+
+<CarbonBlazorShell ProductName="@TenantContextAccessor.SelectedTenantName" Theme="CarbonBlazorTheme.Gray10" HeaderThemeOverride="CarbonBlazorTheme.Gray100" SidebarThemeOverride="CarbonBlazorTheme.White">
+    <UserPanel>
+        <CarbonBlazorHeaderActionLink NavigationItem="@NavigationItem.Create("Login", "/authentication/login")" />
+    </UserPanel>
+    <SwitcherPanel>
+        <CarbonBlazorHeaderActionLink NavigationItem="@NavigationItem.Create("LA Lakers", string.Empty)" OnClick="@(() => TenantContextAccessor.SetLaLakers())" />
+        <CarbonBlazorHeaderActionLink NavigationItem="@NavigationItem.Create("Tottenham", string.Empty)" OnClick="@(() => TenantContextAccessor.SetTottenhamHotspur())" />
+    </SwitcherPanel>
+    <SideNav>
+        <CarbonBlazorSidebarLink NavigationItem="@NavigationItem.Create(CarbonBlazorIcon.Dashboard, "Dashboard", "/")" />
+        <CarbonBlazorSidebarLink NavigationItem="@NavigationItem.Create(CarbonBlazorIcon.Group, "Individuals", "/individuals")" />
+    </SideNav>
+    
+    <Body>@Body</Body>
+</CarbonBlazorShell>
+
+@code {
+
+    [Inject]
+    public required TenantContextAccessor TenantContextAccessor { get; set; }
+
+}

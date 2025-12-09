@@ -4,6 +4,8 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <OpenApiGenerateDocumentsOptions>--file-name v1</OpenApiGenerateDocumentsOptions>
+        <OpenApiDocumentsDirectory>OpenApi</OpenApiDocumentsDirectory>
     </PropertyGroup>
 
     <ItemGroup>

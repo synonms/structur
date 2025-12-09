@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Application.Iana;
