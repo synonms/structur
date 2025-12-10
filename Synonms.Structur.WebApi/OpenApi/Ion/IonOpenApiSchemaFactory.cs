@@ -50,21 +50,24 @@ public static class IonOpenApiSchemaFactory
             }
         };
     
-    public static OpenApiSchema CreateForResource(ILogger logger, StructurResourceAttribute resourceAttribute)
+    public static OpenApiSchema GetOrCreateSchemaReferenceForResource(ILogger logger, OpenApiDocument openApiDocument, StructurResourceAttribute resourceAttribute)
     {
-        OpenApiSchema schema = OpenApiSchemaFactory.GenerateResourceSchema(logger, resourceAttribute);
-        
-        schema.Properties.Add("self", CreateForLink());
+        Dictionary<string, OpenApiSchema> additionalProperties = new()
+        {
+            { "self", CreateForLink() }
+        };
 
         if (resourceAttribute.IsUpdateDisabled is false)
         {
-            schema.Properties.Add("edit-form", CreateForLink());
+            additionalProperties.Add("edit-form", CreateForLink());
         }
 
         if (resourceAttribute.IsDeleteDisabled is false)
         {
-            schema.Properties.Add("delete", CreateForLink());
+            additionalProperties.Add("delete", CreateForLink());
         }
+        
+        OpenApiSchema schema = OpenApiSchemaFactory.GetOrCreateSchemaReferenceForResource(logger, openApiDocument, resourceAttribute, resourceAttribute.ResourceType.Name + "_Ion", additionalProperties);
         
         return schema;
     }

@@ -114,6 +114,18 @@
         ],
         "summary": "Get a form describing how to update an existing resource.",
         "operationId": "Individuals.EditForm",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Unique identifier of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -131,14 +143,7 @@
             }
           }
         }
-      },
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "description": "Unique identifier of the resource."
-        }
-      ]
+      }
     },
     "/individuals/{id}": {
       "get": {
@@ -147,6 +152,18 @@
         ],
         "summary": "Get an individual resource by Id.",
         "operationId": "Individuals.GetById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Unique identifier of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -171,6 +188,18 @@
         ],
         "summary": "Updates an existing resource.",
         "operationId": "Individuals.Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Unique identifier of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -197,125 +226,126 @@
         ],
         "summary": "Deletes an existing resource.",
         "operationId": "Individuals.Delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Unique identifier of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "204": {
             "description": "Successfully deleted"
           }
         }
-      },
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "description": "Unique identifier of the resource."
-        }
-      ]
+      }
     }
   },
   "components": {
     "schemas": {
+      "EmailAddressResource": {
+        "required": [
+          "address",
+          "isPrimary"
+        ],
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "format": ""
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "format": ""
+          },
+          "label": {
+            "type": "string",
+            "format": ""
+          }
+        }
+      },
+      "TelephoneNumberResource": {
+        "required": [
+          "number",
+          "isPrimary"
+        ],
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "string",
+            "format": ""
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "format": ""
+          },
+          "label": {
+            "type": "string",
+            "format": ""
+          }
+        }
+      },
+      "IndividualResource_Default": {
+        "required": [
+          "tenantReference",
+          "friendlyId",
+          "forename",
+          "surname",
+          "emailAddresses",
+          "telephoneNumbers"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantReference": {
+            "type": "string",
+            "format": ""
+          },
+          "friendlyId": {
+            "type": "string",
+            "format": ""
+          },
+          "salutation": {
+            "type": "string",
+            "format": ""
+          },
+          "forename": {
+            "type": "string",
+            "format": ""
+          },
+          "surname": {
+            "type": "string",
+            "format": ""
+          },
+          "emailAddresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailAddressResource"
+            }
+          },
+          "telephoneNumbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TelephoneNumberResource"
+            }
+          }
+        }
+      },
       "IndividualResourceCollectionResponse_Default": {
         "type": "object",
         "properties": {
           "value": {
             "type": "array",
             "items": {
-              "required": [
-                "tenantReference",
-                "friendlyId",
-                "forename",
-                "surname",
-                "emailAddresses",
-                "telephoneNumbers",
-                "isDeleted"
-              ],
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "createdAt": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "updatedAt": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "tenantReference": {
-                  "type": "string",
-                  "format": ""
-                },
-                "friendlyId": {
-                  "type": "string",
-                  "format": ""
-                },
-                "salutation": {
-                  "type": "string",
-                  "format": ""
-                },
-                "forename": {
-                  "type": "string",
-                  "format": ""
-                },
-                "surname": {
-                  "type": "string",
-                  "format": ""
-                },
-                "emailAddresses": {
-                  "type": "array",
-                  "items": {
-                    "required": [
-                      "address",
-                      "isPrimary"
-                    ],
-                    "type": "object",
-                    "properties": {
-                      "address": {
-                        "type": "string",
-                        "format": ""
-                      },
-                      "isPrimary": {
-                        "type": "boolean",
-                        "format": ""
-                      },
-                      "label": {
-                        "type": "string",
-                        "format": ""
-                      }
-                    }
-                  }
-                },
-                "telephoneNumbers": {
-                  "type": "array",
-                  "items": {
-                    "required": [
-                      "number",
-                      "isPrimary"
-                    ],
-                    "type": "object",
-                    "properties": {
-                      "number": {
-                        "type": "string",
-                        "format": ""
-                      },
-                      "isPrimary": {
-                        "type": "boolean",
-                        "format": ""
-                      },
-                      "label": {
-                        "type": "string",
-                        "format": ""
-                      }
-                    }
-                  }
-                },
-                "isDeleted": {
-                  "type": "boolean",
-                  "format": ""
-                }
-              }
+              "$ref": "#/components/schemas/IndividualResource_Default"
             }
           },
           "offset": {
@@ -329,153 +359,107 @@
           }
         }
       },
+      "IndividualResource_Ion": {
+        "required": [
+          "tenantReference",
+          "friendlyId",
+          "forename",
+          "surname",
+          "emailAddresses",
+          "telephoneNumbers"
+        ],
+        "type": "object",
+        "properties": {
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "edit-form": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "delete": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantReference": {
+            "type": "string",
+            "format": ""
+          },
+          "friendlyId": {
+            "type": "string",
+            "format": ""
+          },
+          "salutation": {
+            "type": "string",
+            "format": ""
+          },
+          "forename": {
+            "type": "string",
+            "format": ""
+          },
+          "surname": {
+            "type": "string",
+            "format": ""
+          },
+          "emailAddresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailAddressResource"
+            }
+          },
+          "telephoneNumbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TelephoneNumberResource"
+            }
+          }
+        }
+      },
       "IndividualResourceCollectionResponse_Ion": {
         "type": "object",
         "properties": {
           "value": {
             "type": "array",
             "items": {
-              "required": [
-                "tenantReference",
-                "friendlyId",
-                "forename",
-                "surname",
-                "emailAddresses",
-                "telephoneNumbers",
-                "isDeleted"
-              ],
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "createdAt": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "updatedAt": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "tenantReference": {
-                  "type": "string",
-                  "format": ""
-                },
-                "friendlyId": {
-                  "type": "string",
-                  "format": ""
-                },
-                "salutation": {
-                  "type": "string",
-                  "format": ""
-                },
-                "forename": {
-                  "type": "string",
-                  "format": ""
-                },
-                "surname": {
-                  "type": "string",
-                  "format": ""
-                },
-                "emailAddresses": {
-                  "type": "array",
-                  "items": {
-                    "required": [
-                      "address",
-                      "isPrimary"
-                    ],
-                    "type": "object",
-                    "properties": {
-                      "address": {
-                        "type": "string",
-                        "format": ""
-                      },
-                      "isPrimary": {
-                        "type": "boolean",
-                        "format": ""
-                      },
-                      "label": {
-                        "type": "string",
-                        "format": ""
-                      }
-                    }
-                  }
-                },
-                "telephoneNumbers": {
-                  "type": "array",
-                  "items": {
-                    "required": [
-                      "number",
-                      "isPrimary"
-                    ],
-                    "type": "object",
-                    "properties": {
-                      "number": {
-                        "type": "string",
-                        "format": ""
-                      },
-                      "isPrimary": {
-                        "type": "boolean",
-                        "format": ""
-                      },
-                      "label": {
-                        "type": "string",
-                        "format": ""
-                      }
-                    }
-                  }
-                },
-                "isDeleted": {
-                  "type": "boolean",
-                  "format": ""
-                },
-                "self": {
-                  "type": "object",
-                  "properties": {
-                    "href": {
-                      "type": "string",
-                      "format": "uri"
-                    },
-                    "rel": {
-                      "type": "string"
-                    },
-                    "method": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "edit-form": {
-                  "type": "object",
-                  "properties": {
-                    "href": {
-                      "type": "string",
-                      "format": "uri"
-                    },
-                    "rel": {
-                      "type": "string"
-                    },
-                    "method": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "delete": {
-                  "type": "object",
-                  "properties": {
-                    "href": {
-                      "type": "string",
-                      "format": "uri"
-                    },
-                    "rel": {
-                      "type": "string"
-                    },
-                    "method": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
+              "$ref": "#/components/schemas/IndividualResource_Ion"
             }
           },
           "self": {
@@ -586,22 +570,13 @@
           "forename",
           "surname",
           "emailAddresses",
-          "telephoneNumbers",
-          "isDeleted"
+          "telephoneNumbers"
         ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
           },
           "tenantReference": {
             "type": "string",
@@ -626,54 +601,14 @@
           "emailAddresses": {
             "type": "array",
             "items": {
-              "required": [
-                "address",
-                "isPrimary"
-              ],
-              "type": "object",
-              "properties": {
-                "address": {
-                  "type": "string",
-                  "format": ""
-                },
-                "isPrimary": {
-                  "type": "boolean",
-                  "format": ""
-                },
-                "label": {
-                  "type": "string",
-                  "format": ""
-                }
-              }
+              "$ref": "#/components/schemas/EmailAddressResource"
             }
           },
           "telephoneNumbers": {
             "type": "array",
             "items": {
-              "required": [
-                "number",
-                "isPrimary"
-              ],
-              "type": "object",
-              "properties": {
-                "number": {
-                  "type": "string",
-                  "format": ""
-                },
-                "isPrimary": {
-                  "type": "boolean",
-                  "format": ""
-                },
-                "label": {
-                  "type": "string",
-                  "format": ""
-                }
-              }
+              "$ref": "#/components/schemas/TelephoneNumberResource"
             }
-          },
-          "isDeleted": {
-            "type": "boolean",
-            "format": ""
           }
         }
       },
@@ -875,102 +810,7 @@
         "type": "object",
         "properties": {
           "value": {
-            "required": [
-              "tenantReference",
-              "friendlyId",
-              "forename",
-              "surname",
-              "emailAddresses",
-              "telephoneNumbers",
-              "isDeleted"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string",
-                "format": "uuid"
-              },
-              "createdAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updatedAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "tenantReference": {
-                "type": "string",
-                "format": ""
-              },
-              "friendlyId": {
-                "type": "string",
-                "format": ""
-              },
-              "salutation": {
-                "type": "string",
-                "format": ""
-              },
-              "forename": {
-                "type": "string",
-                "format": ""
-              },
-              "surname": {
-                "type": "string",
-                "format": ""
-              },
-              "emailAddresses": {
-                "type": "array",
-                "items": {
-                  "required": [
-                    "address",
-                    "isPrimary"
-                  ],
-                  "type": "object",
-                  "properties": {
-                    "address": {
-                      "type": "string",
-                      "format": ""
-                    },
-                    "isPrimary": {
-                      "type": "boolean",
-                      "format": ""
-                    },
-                    "label": {
-                      "type": "string",
-                      "format": ""
-                    }
-                  }
-                }
-              },
-              "telephoneNumbers": {
-                "type": "array",
-                "items": {
-                  "required": [
-                    "number",
-                    "isPrimary"
-                  ],
-                  "type": "object",
-                  "properties": {
-                    "number": {
-                      "type": "string",
-                      "format": ""
-                    },
-                    "isPrimary": {
-                      "type": "boolean",
-                      "format": ""
-                    },
-                    "label": {
-                      "type": "string",
-                      "format": ""
-                    }
-                  }
-                }
-              },
-              "isDeleted": {
-                "type": "boolean",
-                "format": ""
-              }
-            }
+            "$ref": "#/components/schemas/IndividualResource_Default"
           },
           "self": {
             "type": "object",
@@ -993,147 +833,7 @@
         "type": "object",
         "properties": {
           "value": {
-            "required": [
-              "tenantReference",
-              "friendlyId",
-              "forename",
-              "surname",
-              "emailAddresses",
-              "telephoneNumbers",
-              "isDeleted"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string",
-                "format": "uuid"
-              },
-              "createdAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updatedAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "tenantReference": {
-                "type": "string",
-                "format": ""
-              },
-              "friendlyId": {
-                "type": "string",
-                "format": ""
-              },
-              "salutation": {
-                "type": "string",
-                "format": ""
-              },
-              "forename": {
-                "type": "string",
-                "format": ""
-              },
-              "surname": {
-                "type": "string",
-                "format": ""
-              },
-              "emailAddresses": {
-                "type": "array",
-                "items": {
-                  "required": [
-                    "address",
-                    "isPrimary"
-                  ],
-                  "type": "object",
-                  "properties": {
-                    "address": {
-                      "type": "string",
-                      "format": ""
-                    },
-                    "isPrimary": {
-                      "type": "boolean",
-                      "format": ""
-                    },
-                    "label": {
-                      "type": "string",
-                      "format": ""
-                    }
-                  }
-                }
-              },
-              "telephoneNumbers": {
-                "type": "array",
-                "items": {
-                  "required": [
-                    "number",
-                    "isPrimary"
-                  ],
-                  "type": "object",
-                  "properties": {
-                    "number": {
-                      "type": "string",
-                      "format": ""
-                    },
-                    "isPrimary": {
-                      "type": "boolean",
-                      "format": ""
-                    },
-                    "label": {
-                      "type": "string",
-                      "format": ""
-                    }
-                  }
-                }
-              },
-              "isDeleted": {
-                "type": "boolean",
-                "format": ""
-              },
-              "self": {
-                "type": "object",
-                "properties": {
-                  "href": {
-                    "type": "string",
-                    "format": "uri"
-                  },
-                  "rel": {
-                    "type": "string"
-                  },
-                  "method": {
-                    "type": "string"
-                  }
-                }
-              },
-              "edit-form": {
-                "type": "object",
-                "properties": {
-                  "href": {
-                    "type": "string",
-                    "format": "uri"
-                  },
-                  "rel": {
-                    "type": "string"
-                  },
-                  "method": {
-                    "type": "string"
-                  }
-                }
-              },
-              "delete": {
-                "type": "object",
-                "properties": {
-                  "href": {
-                    "type": "string",
-                    "format": "uri"
-                  },
-                  "rel": {
-                    "type": "string"
-                  },
-                  "method": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
+            "$ref": "#/components/schemas/IndividualResource_Ion"
           },
           "self": {
             "type": "object",

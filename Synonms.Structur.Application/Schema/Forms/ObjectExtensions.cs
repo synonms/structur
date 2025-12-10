@@ -9,9 +9,9 @@ public static class ObjectExtensions
     private static readonly string[] FormsIgnorePropertyNames =
     {
         nameof(Resource.Id),
-        nameof(Resource.IsDeleted),
+/*        nameof(Resource.IsDeleted),
         nameof(Resource.CreatedAt),
-        nameof(Resource.UpdatedAt),
+        nameof(Resource.UpdatedAt),*/
         nameof(Resource.SelfLink),
         nameof(Resource.Links)
     };

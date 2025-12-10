@@ -35,86 +35,89 @@ public static class OpenApiSchemaFactory
         { typeof(Uri), new PropertyDataType(OpenApiDataTypes.String, OpenApiStringFormats.Uri) }
     };
 
-    public static OpenApiSchema GenerateResourceSchema(ILogger logger, StructurResourceAttribute resourceAttribute)
-    {
-        Dictionary<string, OpenApiSchema> properties = new()
+    public static OpenApiSchema GetOrCreateSchemaReferenceForResource(ILogger logger, OpenApiDocument openApiDocument, StructurResourceAttribute resourceAttribute, string componentSchemaName, Dictionary<string, OpenApiSchema>? additionalProperties = null) =>
+        openApiDocument.GetOrCreateSchemaReference(componentSchemaName, () =>
         {
-            { "id", new OpenApiSchema { Type = "string", Format = "uuid" } },
-            { "createdAt", new OpenApiSchema { Type = "string", Format = "date-time" } },
-            { "updatedAt", new OpenApiSchema { Type = "string", Format = "date-time" } }
-        };
-        List<string> requiredProperties = [];
+            Dictionary<string, OpenApiSchema> properties = additionalProperties ?? new Dictionary<string, OpenApiSchema>();
 
-        string[] propertiesToExclude = [nameof(Resource.Id), nameof(Resource.CreatedAt), nameof(Resource.UpdatedAt), nameof(Resource.SelfLink), nameof(Resource.Links)];
+            properties.Add("id", new OpenApiSchema { Type = "string", Format = "uuid" });
+                /*            { "createdAt", new OpenApiSchema { Type = "string", Format = "date-time" } },
+                            { "updatedAt", new OpenApiSchema { Type = "string", Format = "date-time" } }*/
+                
+            List<string> requiredProperties = [];
 
-        foreach (PropertyInfo resourcePropertyInfo in resourceAttribute.ResourceType.GetPublicInstanceProperties(propertiesToExclude))
-        {
-            OpenApiSchema schema = GenerateSchemaForProperty(logger, resourcePropertyInfo.PropertyType);
+            string[] propertiesToExclude = [nameof(Resource.Id), /*nameof(Resource.CreatedAt), nameof(Resource.UpdatedAt),*/ nameof(Resource.SelfLink), nameof(Resource.Links)];
 
-            properties.Add(resourcePropertyInfo.Name.ToCamelCase(), schema);
-            
-            if (resourcePropertyInfo.IsNullable() is false)
+            foreach (PropertyInfo resourcePropertyInfo in resourceAttribute.ResourceType.GetPublicInstanceProperties(propertiesToExclude))
             {
-                requiredProperties.Add(resourcePropertyInfo.Name.ToCamelCase());
-            }
-        }
+                OpenApiSchema schema = GenerateSchemaForProperty(logger, openApiDocument, resourcePropertyInfo.PropertyType);
 
-        OpenApiSchema componentSchema = new()
-        {
-            Type = "object",
-            AdditionalPropertiesAllowed = true,
-            Properties = properties,
-            Required = requiredProperties.ToHashSet()
-        };
-        
-        return componentSchema;
-    }
+                properties.Add(resourcePropertyInfo.Name.ToCamelCase(), schema);
+
+                if (resourcePropertyInfo.IsNullable() is false)
+                {
+                    requiredProperties.Add(resourcePropertyInfo.Name.ToCamelCase());
+                }
+            }
+
+            OpenApiSchema componentSchema = new()
+            {
+                Type = "object",
+                AdditionalPropertiesAllowed = true,
+                Properties = properties,
+                Required = requiredProperties.ToHashSet()
+            };
+
+            return componentSchema;
+        });
     
-    private static OpenApiSchema GenerateSchemaForProperty(ILogger logger, Type propertyType) =>
+    private static OpenApiSchema GetOrCreateSchemaReferenceForResource(ILogger logger, OpenApiDocument openApiDocument, string componentSchemaName, Type objectType) =>
+        openApiDocument.GetOrCreateSchemaReference(componentSchemaName, () =>
+        {
+            Dictionary<string, OpenApiSchema> properties = new();
+            List<string> requiredProperties = [];
+
+            string[] propertiesToExclude =
+                [nameof(Resource.Id), /*nameof(Resource.IsDeleted), nameof(Resource.CreatedAt), nameof(Resource.UpdatedAt),*/ nameof(Resource.SelfLink), nameof(Resource.Links)];
+
+            foreach (PropertyInfo propertyInfo in objectType.GetPublicInstanceProperties(propertiesToExclude))
+            {
+                OpenApiSchema schema = GenerateSchemaForProperty(logger, openApiDocument, propertyInfo.PropertyType);
+
+                properties.Add(propertyInfo.Name.ToCamelCase(), schema);
+
+                if (propertyInfo.IsNullable() is false)
+                {
+                    requiredProperties.Add(propertyInfo.Name.ToCamelCase());
+                }
+            }
+
+            return new OpenApiSchema
+            {
+                Type = OpenApiDataTypes.Object,
+                Required = requiredProperties.ToHashSet(),
+                Properties = properties
+            };
+        });
+    
+    private static OpenApiSchema GenerateSchemaForProperty(ILogger logger, OpenApiDocument openApiDocument, Type propertyType) =>
         propertyType.GetResourcePropertyType() switch
         {
-            ResourcePropertyType.EmbeddedResource => CreateSchemaForObject(logger, propertyType),
-            ResourcePropertyType.EmbeddedChildResource => CreateSchemaForObject(logger, propertyType),
-            ResourcePropertyType.EmbeddedResourceCollection => CreateSchemaForArray(logger, propertyType),
-            ResourcePropertyType.EmbeddedChildResourceCollection => CreateSchemaForArray(logger, propertyType),
-            ResourcePropertyType.EmbeddedLookupResource => CreateSchemaForObject(logger, propertyType),
-            ResourcePropertyType.RelatedResource => CreateSchemaForObject(logger, propertyType),
-            ResourcePropertyType.RelatedResourceCollection => CreateSchemaForArray(logger, propertyType),
-            ResourcePropertyType.ValueObjectResource => CreateSchemaForObject(logger, propertyType),
-            ResourcePropertyType.ValueObjectResourceCollection => CreateSchemaForArray(logger, propertyType),
-            ResourcePropertyType.VanillaCollection => CreateSchemaForArray(logger, propertyType),
+            ResourcePropertyType.EmbeddedResource => GetOrCreateSchemaReferenceForResource(logger, openApiDocument, propertyType.Name, propertyType),
+            ResourcePropertyType.EmbeddedChildResource => GetOrCreateSchemaReferenceForResource(logger, openApiDocument, propertyType.Name, propertyType),
+            ResourcePropertyType.EmbeddedResourceCollection => CreateSchemaForArray(logger, openApiDocument, propertyType),
+            ResourcePropertyType.EmbeddedChildResourceCollection => CreateSchemaForArray(logger, openApiDocument, propertyType),
+            ResourcePropertyType.EmbeddedLookupResource => GetOrCreateSchemaReferenceForResource(logger, openApiDocument, propertyType.Name, propertyType),
+            ResourcePropertyType.RelatedResource => GetOrCreateSchemaReferenceForResource(logger, openApiDocument, propertyType.Name, propertyType),
+            ResourcePropertyType.RelatedResourceCollection => CreateSchemaForArray(logger, openApiDocument, propertyType),
+            ResourcePropertyType.ValueObjectResource => GetOrCreateSchemaReferenceForResource(logger, openApiDocument, propertyType.Name, propertyType),
+            ResourcePropertyType.ValueObjectResourceCollection => CreateSchemaForArray(logger, openApiDocument, propertyType),
+            ResourcePropertyType.VanillaCollection => CreateSchemaForArray(logger, openApiDocument, propertyType),
             ResourcePropertyType.VanillaScalar => CreateSchemaForScalar(logger, propertyType),
             _ => new OpenApiSchema()
         };
-        
-    private static OpenApiSchema CreateSchemaForObject(ILogger logger, Type objectType)
-    {
-        Dictionary<string, OpenApiSchema> properties = new();
-        List<string> requiredProperties = [];
-
-        string[] propertiesToExclude = [nameof(Resource.Id), nameof(Resource.IsDeleted), nameof(Resource.CreatedAt), nameof(Resource.UpdatedAt), nameof(Resource.SelfLink), nameof(Resource.Links)];
-
-        foreach (PropertyInfo propertyInfo in objectType.GetPublicInstanceProperties(propertiesToExclude))
-        {
-            OpenApiSchema schema = GenerateSchemaForProperty(logger, propertyInfo.PropertyType);
-
-            properties.Add(propertyInfo.Name.ToCamelCase(), schema);
-
-            if (propertyInfo.IsNullable() is false)
-            {
-                requiredProperties.Add(propertyInfo.Name.ToCamelCase());
-            }
-        }
-
-        return new OpenApiSchema
-        {
-            Type = OpenApiDataTypes.Object, 
-            Required = requiredProperties.ToHashSet(),
-            Properties = properties
-        };;
-    }
     
-    private static OpenApiSchema CreateSchemaForArray(ILogger logger, Type arrayType)
+    private static OpenApiSchema CreateSchemaForArray(ILogger logger, OpenApiDocument openApiDocument, Type arrayType)
     {
         Type? elementType = arrayType.GetArrayOrEnumerableElementType();
 
@@ -128,7 +131,7 @@ public static class OpenApiSchemaFactory
         return new OpenApiSchema
         {
             Type = OpenApiDataTypes.Array, 
-            Items = GenerateSchemaForProperty(logger, elementType)
+            Items = GenerateSchemaForProperty(logger, openApiDocument, elementType)
         };
     }
     

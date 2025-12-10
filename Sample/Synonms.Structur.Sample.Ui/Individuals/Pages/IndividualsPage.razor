@@ -9,7 +9,7 @@
     }
     else
     {
-        <CarbonBlazorDataTable @ref="@_dataTable" TModel="Value" Models="@_individuals" TotalSize="@_individuals.Count" Offset="0" PageLimit="10" ShouldFillPane="true">
+        <CarbonBlazorDataTable @ref="@_dataTable" TModel="IndividualResource_Default" Models="@_individuals" TotalSize="@_individuals.Count" Offset="0" PageLimit="10" ShouldFillPane="true">
             <ToolbarButtons>
                 <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="XS" OnClick="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.ExtraSmall))"></CarbonBlazorButton>
                 <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="S" OnClick="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.Small))"></CarbonBlazorButton>
@@ -53,9 +53,9 @@
 </CarbonBlazorModal>
 
 @code {
-    private CarbonBlazorDataTable<Value> _dataTable = null!;
+    private CarbonBlazorDataTable<IndividualResource_Default> _dataTable = null!;
     private CarbonBlazorModal _addModal = null!;
-    private List<Value>? _individuals;
+    private List<IndividualResource_Default>? _individuals;
     private IndividualResourceRequest _createIndividualRequest = new();
     private string _emailAddress = string.Empty;
     private string _telephoneNumber = string.Empty;
@@ -116,10 +116,10 @@
         await _addModal.Show();
     }
 
-    private void ViewIndividual(Value individual) =>
+    private void ViewIndividual(IndividualResource_Default individual) =>
         NavigationManager.NavigateTo("individuals/" + individual.Id);
 
-    private void EditIndividual(Value individual) =>
+    private void EditIndividual(IndividualResource_Default individual) =>
         NavigationManager.NavigateTo("individuals/" + individual.Id + "/edit");
 
     private IEnumerable<ValidationOutcome> ValidateForm(IndividualResourceRequest request)
@@ -153,8 +153,8 @@
     {
         await _addModal.Hide();
 
-        _createIndividualRequest.EmailAddresses = [new EmailAddresses { Address = _emailAddress, IsPrimary = true }];
-        _createIndividualRequest.TelephoneNumbers = string.IsNullOrWhiteSpace(_telephoneNumber) ? [] : [new TelephoneNumbers { Number = _telephoneNumber, IsPrimary = true }];
+        _createIndividualRequest.EmailAddresses = [new EmailAddressResource { Address = _emailAddress, IsPrimary = true }];
+        _createIndividualRequest.TelephoneNumbers = string.IsNullOrWhiteSpace(_telephoneNumber) ? [] : [new TelephoneNumberResource { Number = _telephoneNumber, IsPrimary = true }];
         
         try
         {

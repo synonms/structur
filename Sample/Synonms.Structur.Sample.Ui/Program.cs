@@ -23,6 +23,7 @@ builder.Services.AddTransient<IStructurSampleOpenApiClient>(sp =>
     };
  
     httpClient.DefaultRequestHeaders.Add("X-Structur-Tenant-ID", tenantContextAccessor.SelectedTenantId.ToString());
+    httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
 
     return new StructurSampleOpenApiClient(httpClient);
 });

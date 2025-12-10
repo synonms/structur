@@ -50,7 +50,6 @@ public static class DefaultOpenApiSchemaFactory
             }                          
         };
     
-    public static OpenApiSchema CreateForResource(ILogger logger, StructurResourceAttribute resourceAttribute) =>
-        OpenApiSchemaFactory.GenerateResourceSchema(logger, resourceAttribute);
-    
+    public static OpenApiSchema GetOrCreateSchemaReferenceForResource(ILogger logger, OpenApiDocument openApiDocument, StructurResourceAttribute resourceAttribute) =>
+        OpenApiSchemaFactory.GetOrCreateSchemaReferenceForResource(logger, openApiDocument, resourceAttribute, resourceAttribute.ResourceType.Name + "_Default");
 }

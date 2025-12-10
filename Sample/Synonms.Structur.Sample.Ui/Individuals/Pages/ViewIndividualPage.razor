@@ -1,0 +1,109 @@
+@page "/individuals/{id:guid}"
+
+<PageTitle>Individual</PageTitle>
+
+<CarbonBlazorStack FlexDirection="FlexDirection.Column" Gap="2rem">
+    <CarbonBlazorPane Title="Individual">
+        @if (_individual is null)
+        {
+            <CarbonBlazorLoadingSpinner></CarbonBlazorLoadingSpinner>
+        }
+        else
+        {
+            <CarbonBlazorForm TModel="IndividualResource_Default" Model="@_individual" IsReadOnly="true" CancelCallback="@OnCancelClicked" EditCallback="@OnEditClicked">
+                <CarbonBlazorTextInput Label="Reference" @bind-Value="@_individual.TenantReference" IsReadOnly="true" FieldIdentifier="@FieldIdentifier.Create(() => _individual.TenantReference)"></CarbonBlazorTextInput>
+                <CarbonBlazorTextInput Label="Friendly Id" @bind-Value="@_individual.FriendlyId" IsReadOnly="true" FieldIdentifier="@FieldIdentifier.Create(() => _individual.FriendlyId)"></CarbonBlazorTextInput>
+                <CarbonBlazorTextInput Label="Salutation" @bind-Value="@_individual.Salutation" IsReadOnly="true" FieldIdentifier="@FieldIdentifier.Create(() => _individual.Salutation)"></CarbonBlazorTextInput>
+                <CarbonBlazorTextInput Label="Forename" @bind-Value="@_individual.Forename" IsReadOnly="true" FieldIdentifier="@FieldIdentifier.Create(() => _individual.Forename)"></CarbonBlazorTextInput>
+                <CarbonBlazorTextInput Label="Surname" @bind-Value="@_individual.Surname" IsReadOnly="true" FieldIdentifier="@FieldIdentifier.Create(() => _individual.Surname)"></CarbonBlazorTextInput>
+                
+                <CarbonBlazorDataTable TModel="EmailAddressResource" Models="@_individual.EmailAddresses" IsFilterEnabled="false" Title="Email Addresses">
+                    <HeaderRowTemplate>
+                        <CarbonBlazorDataTableHeaderCell>Address</CarbonBlazorDataTableHeaderCell>
+                        <CarbonBlazorDataTableHeaderCell>Label</CarbonBlazorDataTableHeaderCell>
+                        <CarbonBlazorDataTableHeaderCell>Primary?</CarbonBlazorDataTableHeaderCell>
+                    </HeaderRowTemplate>
+                    <DataRowTemplate>
+                        <CarbonBlazorDataTableDataCell>@context.Address</CarbonBlazorDataTableDataCell>
+                        <CarbonBlazorDataTableDataCell>@context.Label</CarbonBlazorDataTableDataCell>
+                        <CarbonBlazorDataTableDataCell>@context.IsPrimary</CarbonBlazorDataTableDataCell>
+                    </DataRowTemplate>
+                </CarbonBlazorDataTable>
+                
+                <CarbonBlazorDataTable TModel="TelephoneNumberResource" Models="@_individual.TelephoneNumbers" IsFilterEnabled="false" Title="Telephone Numbers">
+                    <HeaderRowTemplate>
+                        <CarbonBlazorDataTableHeaderCell>Number</CarbonBlazorDataTableHeaderCell>
+                        <CarbonBlazorDataTableHeaderCell>Label</CarbonBlazorDataTableHeaderCell>
+                        <CarbonBlazorDataTableHeaderCell>Primary?</CarbonBlazorDataTableHeaderCell>
+                    </HeaderRowTemplate>
+                    <DataRowTemplate>
+                        <CarbonBlazorDataTableDataCell>@context.Number</CarbonBlazorDataTableDataCell>
+                        <CarbonBlazorDataTableDataCell>@context.Label</CarbonBlazorDataTableDataCell>
+                        <CarbonBlazorDataTableDataCell>@context.IsPrimary</CarbonBlazorDataTableDataCell>
+                    </DataRowTemplate>
+                </CarbonBlazorDataTable>
+                
+            </CarbonBlazorForm>
+        }
+    </CarbonBlazorPane>
+
+</CarbonBlazorStack>
+
+@code {
+    private IndividualResource_Default? _individual;
+    
+    [Inject] 
+    public IStructurSampleOpenApiClient StructurSampleOpenApiClient { get; set; } = null!;
+    
+    [Inject] 
+    public INotificationBroker NotificationBroker { get; set; } = null!;
+
+    [Inject] 
+    public NavigationManager NavigationManager { get; set; } = null!;
+
+    [Inject]
+    public TenantContextAccessor TenantContextAccessor { get; set; } = null!;
+
+    [Parameter] 
+    public Guid Id { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        Task[] tasks =
+        [
+            RefreshIndividualAsync()
+        ];
+
+        await Task.WhenAll(tasks);
+    }
+
+    private async Task RefreshIndividualAsync()
+    {
+        try
+        {
+            StructurSampleApiResponse<IndividualResourceResponse_Default>? response = await StructurSampleOpenApiClient.Individuals_GetByIdAsync(Id);
+
+            _individual = response.Result.Value;
+        }
+        catch (ApiException apiException)
+        {
+            Console.WriteLine($"[EXCEPTION] GetIndividual request failed ({apiException.StatusCode}): {apiException.Response}");
+            NotificationBroker.Send("API Error", $"GetIndividual request failed ({apiException.StatusCode}).", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Error);
+        }
+    }
+
+    private void OnCancelClicked() =>
+        NavigationManager.NavigateTo("individuals");
+
+    private void OnEditClicked()
+    {
+        if (_individual is null)
+        {
+            return;
+        }
+        
+        NavigationManager.NavigateTo("individuals/" + _individual.Id + "/edit");
+    }
+}

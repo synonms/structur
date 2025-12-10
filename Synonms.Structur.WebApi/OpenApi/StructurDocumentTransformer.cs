@@ -74,15 +74,6 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
             
             OpenApiPathItem resourcePathItem = new() 
             {
-                Parameters = new List<OpenApiParameter>()
-                {
-                    new OpenApiParameter()
-                    {
-                        Name = "id", 
-                        In = ParameterLocation.Path, 
-                        Description = "Unique identifier of the resource."
-                    } 
-                },
                 Operations = new Dictionary<OperationType, OpenApiOperation>()
                 {
                     [OperationType.Get] = getByIdOperation
@@ -99,15 +90,6 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
                 
                 OpenApiPathItem editFormPathItem = new() 
                 {
-                    Parameters = new List<OpenApiParameter>()
-                    {
-                        new OpenApiParameter()
-                        {
-                            Name = "id", 
-                            In = ParameterLocation.Path, 
-                            Description = "Unique identifier of the resource."
-                        } 
-                    },
                     Operations = new Dictionary<OperationType, OpenApiOperation>()
                     {
                         [OperationType.Get] = editFormOperation
@@ -205,7 +187,22 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
         {
             OperationId = CollectionNameToOperationPrefix(collectionName) + ".Delete",
             Summary = "Deletes an existing resource.",
-            Tags = GetTagsForCollection(collectionName)
+            Tags = GetTagsForCollection(collectionName),
+            Parameters = new List<OpenApiParameter>()
+            {
+                new OpenApiParameter()
+                {
+                    Name = "id", 
+                    In = ParameterLocation.Path, 
+                    Required = true,
+                    Description = "Unique identifier of the resource.",
+                    Schema = new OpenApiSchema
+                    {
+                        Type = "string",
+                        Format = "uuid"
+                    }
+                } 
+            }
         };
 
         deleteOperation.Responses.Add("204", new OpenApiResponse
@@ -238,10 +235,25 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
         {
             OperationId = CollectionNameToOperationPrefix(collectionName) + ".EditForm",
             Summary = "Get a form describing how to update an existing resource.",
-            Tags = GetTagsForCollection(collectionName)
+            Tags = GetTagsForCollection(collectionName),
+            Parameters = new List<OpenApiParameter>()
+            {
+                new OpenApiParameter()
+                {
+                    Name = "id", 
+                    In = ParameterLocation.Path, 
+                    Required = true,
+                    Description = "Unique identifier of the resource.",
+                    Schema = new OpenApiSchema
+                    {
+                        Type = "string",
+                        Format = "uuid"
+                    }
+                } 
+            }
         };
 
-        Dictionary<string, OpenApiSchema> defaultCreateFormProperties = new()
+        Dictionary<string, OpenApiSchema> defaultEditFormProperties = new()
         {
             {
                 DefaultPropertyNames.Value, new OpenApiSchema
@@ -253,7 +265,7 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
             { IanaLinkRelationConstants.Self, IonOpenApiSchemaFactory.CreateForLink() }
         };
 
-        OpenApiSchema defaultSchema = GetOrCreateSchemaForForms(openApiDocument, resourceAttribute, defaultCreateFormProperties, "Default");
+        OpenApiSchema defaultSchema = GetOrCreateSchemaForForms(openApiDocument, resourceAttribute, defaultEditFormProperties, "Default");
 
         Dictionary<string, OpenApiSchema> ionCreateFormProperties = new()
         {
@@ -316,7 +328,7 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
                 DefaultPropertyNames.Value, new OpenApiSchema
                 {
                     Type = "array", 
-                    Items = DefaultOpenApiSchemaFactory.CreateForResource(_logger, resourceAttribute)
+                    Items = DefaultOpenApiSchemaFactory.GetOrCreateSchemaReferenceForResource(_logger, openApiDocument, resourceAttribute)
                 }
             },
             { DefaultPropertyNames.Pagination.Offset, new OpenApiSchema() { Type = "integer" } },
@@ -332,7 +344,7 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
                 IonPropertyNames.Value, new OpenApiSchema()
                 {
                     Type = "array", 
-                    Items = IonOpenApiSchemaFactory.CreateForResource(_logger, resourceAttribute)
+                    Items = IonOpenApiSchemaFactory.GetOrCreateSchemaReferenceForResource(_logger, openApiDocument, resourceAttribute)
                 }
             },
             { IanaLinkRelationConstants.Self, IonOpenApiSchemaFactory.CreateForLink() },
@@ -387,12 +399,27 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
         {
             OperationId = CollectionNameToOperationPrefix(collectionName) + ".GetById",
             Summary = "Get an individual resource by Id.",
-            Tags = GetTagsForCollection(collectionName)
+            Tags = GetTagsForCollection(collectionName),
+            Parameters = new List<OpenApiParameter>()
+            {
+                new OpenApiParameter()
+                {
+                    Name = "id", 
+                    In = ParameterLocation.Path, 
+                    Required = true,
+                    Description = "Unique identifier of the resource.",
+                    Schema = new OpenApiSchema
+                    {
+                        Type = "string",
+                        Format = "uuid"
+                    }
+                } 
+            }
         };
 
         Dictionary<string, OpenApiSchema> defaultResourceDocumentProperties = new()
         {
-            { DefaultPropertyNames.Value, DefaultOpenApiSchemaFactory.CreateForResource(_logger, resourceAttribute) },
+            { DefaultPropertyNames.Value, DefaultOpenApiSchemaFactory.GetOrCreateSchemaReferenceForResource(_logger, openApiDocument, resourceAttribute) },
             { IanaLinkRelationConstants.Self, DefaultOpenApiSchemaFactory.CreateForLink() }
         };
 
@@ -400,7 +427,7 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
 
         Dictionary<string, OpenApiSchema> ionResourceDocumentProperties = new()
         {
-            { IonPropertyNames.Value, IonOpenApiSchemaFactory.CreateForResource(_logger, resourceAttribute) },
+            { IonPropertyNames.Value, IonOpenApiSchemaFactory.GetOrCreateSchemaReferenceForResource(_logger, openApiDocument, resourceAttribute) },
             { IanaLinkRelationConstants.Self, IonOpenApiSchemaFactory.CreateForLink() }
         };
 
@@ -504,6 +531,21 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
                     [MediaTypes.Json] = mediaType,
                     [MediaTypes.Ion] = mediaType
                 }
+            },
+            Parameters = new List<OpenApiParameter>()
+            {
+                new OpenApiParameter()
+                {
+                    Name = "id", 
+                    In = ParameterLocation.Path, 
+                    Required = true,
+                    Description = "Unique identifier of the resource.",
+                    Schema = new OpenApiSchema
+                    {
+                        Type = "string",
+                        Format = "uuid"
+                    }
+                } 
             }
         };
 
@@ -584,32 +626,8 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
     private OpenApiSchema GetOrCreateSchemaForIncomingResource(OpenApiDocument openApiDocument, StructurResourceAttribute resourceAttribute)
     {
         string componentSchemaName = resourceAttribute.ResourceType.Name + "Request";
-
-        if (openApiDocument.Components is null)
-        {
-            openApiDocument.Components = new OpenApiComponents();
-        }
-
-        if (openApiDocument.Components.Schemas is null)
-        {
-            openApiDocument.Components.Schemas = new Dictionary<string, OpenApiSchema>();
-        }
         
-        if (openApiDocument.Components.Schemas.ContainsKey(componentSchemaName) is false)
-        {
-            OpenApiSchema componentSchema = OpenApiSchemaFactory.GenerateResourceSchema(_logger, resourceAttribute);
-
-            openApiDocument.Components.Schemas.Add(componentSchemaName, componentSchema);
-        }
-        
-        OpenApiSchema schemaWithReference = new()
-        {
-            Reference = new OpenApiReference
-            {
-                Type = ReferenceType.Schema,
-                Id = componentSchemaName
-            }
-        };
+        OpenApiSchema schemaWithReference = OpenApiSchemaFactory.GetOrCreateSchemaReferenceForResource(_logger, openApiDocument, resourceAttribute, componentSchemaName);
         
         return schemaWithReference;
     }
@@ -618,36 +636,13 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
     {
         string componentSchemaName = resourceAttribute.ResourceType.Name + (isCollection ? "Collection" : string.Empty) + "Response_" + mediaTypeSuffix;
 
-        if (openApiDocument.Components is null)
-        {
-            openApiDocument.Components = new OpenApiComponents();
-        }
-
-        if (openApiDocument.Components.Schemas is null)
-        {
-            openApiDocument.Components.Schemas = new Dictionary<string, OpenApiSchema>();
-        }
-
-        if (openApiDocument.Components.Schemas.ContainsKey(componentSchemaName) is false)
-        {
-            OpenApiSchema componentSchema = new()
+        OpenApiSchema schemaWithReference = openApiDocument.GetOrCreateSchemaReference(componentSchemaName, () => 
+            new OpenApiSchema
             {
                 Type = "object",
                 AdditionalPropertiesAllowed = true,
                 Properties = documentPropertiesForMediaType
-            };
-
-            openApiDocument.Components.Schemas.Add(componentSchemaName, componentSchema);
-        }
-        
-        OpenApiSchema schemaWithReference = new()
-        {
-            Reference = new OpenApiReference
-            {
-                Type = ReferenceType.Schema,
-                Id = componentSchemaName
-            }
-        };
+            });
         
         return schemaWithReference;
     }
@@ -656,36 +651,13 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
     {
         string componentSchemaName = resourceAttribute.ResourceType.Name + "Form_" + mediaTypeSuffix;
 
-        if (openApiDocument.Components is null)
-        {
-            openApiDocument.Components = new OpenApiComponents();
-        }
-
-        if (openApiDocument.Components.Schemas is null)
-        {
-            openApiDocument.Components.Schemas = new Dictionary<string, OpenApiSchema>();
-        }
-
-        if (openApiDocument.Components.Schemas.ContainsKey(componentSchemaName) is false)
-        {
-            OpenApiSchema componentSchema = new()
+        OpenApiSchema schemaWithReference = openApiDocument.GetOrCreateSchemaReference(componentSchemaName, () => 
+            new OpenApiSchema()
             {
                 Type = "object",
                 AdditionalPropertiesAllowed = true,
                 Properties = documentPropertiesForMediaType
-            };
-
-            openApiDocument.Components.Schemas.Add(componentSchemaName, componentSchema);
-        }
-        
-        OpenApiSchema schemaWithReference = new()
-        {
-            Reference = new OpenApiReference
-            {
-                Type = ReferenceType.Schema,
-                Id = componentSchemaName
-            }
-        };
+            });
         
         return schemaWithReference;
     }
