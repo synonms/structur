@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Aspire.Hosting.Testing" Version="13.1.0" />
+      <PackageReference Include="Bogus" Version="35.6.5" />
+      <PackageReference Include="WireMock.Net.Testcontainers" Version="1.14.0" />
+      <PackageReference Include="xunit.v3.assert" Version="3.2.1" />
+      <PackageReference Include="xunit.v3.extensibility.core" Version="3.2.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Synonms.Structur.Application\Synonms.Structur.Application.csproj" />
+      <ProjectReference Include="..\Synonms.Structur.Domain\Synonms.Structur.Domain.csproj" />
+      <ProjectReference Include="..\Synonms.Structur.WebApi\Synonms.Structur.WebApi.csproj" />
+    </ItemGroup>
+
+</Project>

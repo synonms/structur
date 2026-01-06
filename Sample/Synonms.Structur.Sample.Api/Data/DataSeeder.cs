@@ -44,7 +44,7 @@ public class DataSeeder
 
     private void SetCollections(IMongoClient mongoClient)
     {
-        IMongoDatabase database = mongoClient.GetDatabase("synonms-structur-sample-mongodb");
+        IMongoDatabase database = mongoClient.GetDatabase(SampleDatabase.DatabaseName);
         
         _tenantsCollection ??= database.GetCollection<SampleTenant>(MongoDbConstants.Database.Collections.Tenants);
         _productsCollection ??= database.GetCollection<SampleProduct>(MongoDbConstants.Database.Collections.Products);

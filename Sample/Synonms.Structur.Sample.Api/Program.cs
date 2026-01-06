@@ -4,7 +4,6 @@ using Serilog.Extensions.Logging;
 using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 using Synonms.Structur.Sample.Api;
 using Synonms.Structur.Sample.Api.Data;
-using Synonms.Structur.Sample.Api.Features.Individuals.Domain;
 using Synonms.Structur.Sample.Api.Infrastructure;
 using Synonms.Structur.WebApi.Controllers;
 using Synonms.Structur.WebApi.DependencyInjection;
@@ -51,15 +50,9 @@ StructurOptions structurOptions = new()
 
 webApplicationBuilder.Services.AddStructur<SampleUser, SampleProduct, SampleTenant>(structurOptions);
 
-Dictionary<Type, string> collectionNamesByAggregateType = new()
-{
-    {typeof(Individual), "individuals"},
-};
-MongoDatabaseConfiguration mongoDatabaseConfiguration = new("synonms-structur-sample-mongodb", collectionNamesByAggregateType);
-
 if (!isGeneratingOpenApiFile)
 {
-    webApplicationBuilder.AddStructurMongoDb<SampleTenant>(mongoDatabaseConfiguration, "synonms-structur-sample-mongodb", SampleApiProject.Assembly)
+    webApplicationBuilder.AddStructurMongoDb<SampleTenant>(SampleDatabase.MongoDatabaseConfiguration, "synonms-structur-sample-mongodb", SampleApiProject.Assembly)
         .WithPipelineRepositories();
 }
 
