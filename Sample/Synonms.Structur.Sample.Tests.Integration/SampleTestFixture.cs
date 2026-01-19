@@ -9,6 +9,7 @@ using Synonms.Structur.Sample.AppHost;
 using Synonms.Structur.Testing;
 using Synonms.Structur.WebApi.Content;
 using Synonms.Structur.WebApi.Http;
+using Synonms.Structur.WebApi.Hypermedia.Default;
 
 [assembly: AssemblyFixture(typeof(Synonms.Structur.Sample.Tests.Integration.SampleTestFixture))]
 
@@ -19,10 +20,12 @@ public class SampleTestFixture() : StructurTestFixture(
     {
         EntryPoint = typeof(SampleAppHostProject),
         Environment = "IntegrationTest",
+        MediaType = MediaTypes.Json,
+        JsonSerializerOptions = DefaultOutputFormatter.JsonSerializerOptions,
         HttpClient = new StructurTestingOptions.HttpClientOptions
         {
             ApiResourceName = Resources.Api,
-            ApiEndpointName = "http",
+            ApiEndpointName = null,
             ConfigureBuilder = httpClientBuilder =>
             {
                 httpClientBuilder.AddStandardResilienceHandler();

@@ -18,6 +18,7 @@ public class IndividualResource : Resource
     }
 
     [StructurRequired]
+    [StructurImmutable]
     public string TenantReference { get; set; } = string.Empty;
 
     [StructurImmutable]

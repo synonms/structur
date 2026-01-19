@@ -1,8 +1,11 @@
+using System.Text.Json;
 using Aspire.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Synonms.Structur.WebApi.Content;
+using Synonms.Structur.WebApi.Hypermedia.Default;
 using WireMock.Net.Testcontainers;
 
 namespace Synonms.Structur.Testing;
@@ -53,6 +56,10 @@ public class StructurTestingOptions
     public required Type EntryPoint { get; set; }
     
     public string Environment { get; set; } = "Test";
+
+    public string MediaType { get; set; } = MediaTypes.Json;
+
+    public JsonSerializerOptions? JsonSerializerOptions { get; set; } = DefaultOutputFormatter.JsonSerializerOptions;
 
     public AppHostOptions AppHost { get; set; } = new();
     

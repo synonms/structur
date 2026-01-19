@@ -2,7 +2,7 @@ using System.Net;
 using System.Text.Json;
 using Synonms.Structur.Application.Iana;
 using Synonms.Structur.Application.Schema;
-using Synonms.Structur.Application.Schema.Resources;
+using Synonms.Structur.Application.Schema.Forms;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Testing.Assertions;
 using Synonms.Structur.Testing.Extensions;
@@ -10,19 +10,17 @@ using Xunit;
 
 namespace Synonms.Structur.Testing.Tests;
 
-public static class GetByIdTest<TAggregateRoot, TResource>
+public static class EditFormTest<TAggregateRoot>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
 {
-    public static GetByIdTestBuilder<TAggregateRoot, TResource> Create(StructurTestFixture testFixture, IGetByIdTestFeature<TAggregateRoot, TResource> testFeature) => 
+    public static EditFormTestBuilder<TAggregateRoot> Create(StructurTestFixture testFixture, IEditFormTestFeature<TAggregateRoot> testFeature) => 
         new(testFixture, testFeature);
 }
 
-public class GetByIdTestBuilder<TAggregateRoot, TResource> 
+public class EditFormTestBuilder<TAggregateRoot>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
 {
-    public GetByIdTestBuilder(StructurTestFixture testFixture, IGetByIdTestFeature<TAggregateRoot, TResource> testFeature)
+    public EditFormTestBuilder(StructurTestFixture testFixture, IEditFormTestFeature<TAggregateRoot> testFeature)
     {
         Arrange = new PreArrangeStep(testFixture, testFeature);
     }
@@ -32,10 +30,10 @@ public class GetByIdTestBuilder<TAggregateRoot, TResource>
     public class PreArrangeStep
     {
         private readonly StructurTestFixture _testFixture;
-        private readonly IGetByIdTestFeature<TAggregateRoot, TResource> _testFeature;
+        private readonly IEditFormTestFeature<TAggregateRoot> _testFeature;
         private readonly EntityId<TAggregateRoot> _id = EntityId<TAggregateRoot>.New();
-        
-        public PreArrangeStep(StructurTestFixture testFixture, IGetByIdTestFeature<TAggregateRoot, TResource> testFeature)
+
+        public PreArrangeStep(StructurTestFixture testFixture, IEditFormTestFeature<TAggregateRoot> testFeature)
         {
             _testFixture = testFixture;
             _testFeature = testFeature;
@@ -47,7 +45,7 @@ public class GetByIdTestBuilder<TAggregateRoot, TResource>
         public PostArrangeStep WithAggregate()
         {
             ArrangeAggregateInfo<TAggregateRoot> arrangeAggregateInfo = _testFeature.GenerateUniqueAggregate(_id);
-
+                
             TAggregateRoot persistedAggregateRoot = _testFeature.PersistAggregateAsync(_testFixture.ServiceScopeFactory, arrangeAggregateInfo).Result;
 
             return new PostArrangeStep(_testFixture, _testFeature, _id, persistedAggregateRoot);
@@ -56,7 +54,7 @@ public class GetByIdTestBuilder<TAggregateRoot, TResource>
     
     public class PostArrangeStep
     {
-        public PostArrangeStep(StructurTestFixture testFixture, IGetByIdTestFeature<TAggregateRoot, TResource> testFeature, EntityId<TAggregateRoot> id, TAggregateRoot? aggregateRoot)
+        public PostArrangeStep(StructurTestFixture testFixture, IEditFormTestFeature<TAggregateRoot> testFeature, EntityId<TAggregateRoot> id, TAggregateRoot? aggregateRoot)
         {
             Act = new ActStep(testFixture, testFeature, id, aggregateRoot);
         }
@@ -67,11 +65,11 @@ public class GetByIdTestBuilder<TAggregateRoot, TResource>
     public class ActStep
     {
         private readonly StructurTestFixture _testFixture;
-        private readonly IGetByIdTestFeature<TAggregateRoot, TResource> _testFeature;
-        private readonly TAggregateRoot? _aggregateRoot;
+        private readonly IEditFormTestFeature<TAggregateRoot> _testFeature;
         private readonly EntityId<TAggregateRoot> _id;
+        private readonly TAggregateRoot? _aggregateRoot;
 
-        public ActStep(StructurTestFixture testFixture, IGetByIdTestFeature<TAggregateRoot, TResource> testFeature, EntityId<TAggregateRoot> id, TAggregateRoot? aggregateRoot)
+        public ActStep(StructurTestFixture testFixture, IEditFormTestFeature<TAggregateRoot> testFeature, EntityId<TAggregateRoot> id, TAggregateRoot? aggregateRoot)
         {
             _testFixture = testFixture;
             _testFeature = testFeature;
@@ -81,6 +79,13 @@ public class GetByIdTestBuilder<TAggregateRoot, TResource>
 
         public AssertStep Assert =>
             new(_testFixture, _testFeature, _id, _aggregateRoot);
+        
+        public ActStep WithApiVersion(int apiVersion)
+        {
+            _testFixture.HttpClient.WithApiVersion(apiVersion);
+
+            return this;
+        }
 
         public ActStep WithAuthenticatedUser(string userId, params string[] permissions)
         {
@@ -88,60 +93,71 @@ public class GetByIdTestBuilder<TAggregateRoot, TResource>
             
             return this;
         }
+
+        // public ActStep WithEntityTag(EntityVersion entityVersion)
+        // {
+        //     _httpClient.WithEntityTag(entityVersion);
+        //     
+        //     return this;
+        // }
+        
+        public ActStep WithCorrelationId(Guid correlationId)
+        {
+            _testFixture.HttpClient.WithCorrelationId(correlationId);
+
+            return this;
+        }
     }
     
     public class AssertStep
     {
         private readonly StructurTestFixture _testFixture;
-        private readonly IGetByIdTestFeature<TAggregateRoot, TResource> _testFeature;
+        private readonly IEditFormTestFeature<TAggregateRoot> _testFeature;
         private readonly EntityId<TAggregateRoot> _id;
         private readonly TAggregateRoot? _aggregateRoot;
-        private readonly string _getByIdPath;
+        private readonly string _editFormPath;
 
-        public AssertStep(StructurTestFixture testFixture, IGetByIdTestFeature<TAggregateRoot, TResource> testFeature, EntityId<TAggregateRoot> id, TAggregateRoot? aggregateRoot)
+        public AssertStep(StructurTestFixture testFixture, IEditFormTestFeature<TAggregateRoot> testFeature, EntityId<TAggregateRoot> id, TAggregateRoot? aggregateRoot)
         {
             _testFixture = testFixture;
             _testFeature = testFeature;
             _id = id;
             _aggregateRoot = aggregateRoot;
 
-            _getByIdPath = _testFeature.CollectionPath + "/" + id.Value;
+            _editFormPath = testFeature.CollectionPath + "/" + id.Value + "/" + IanaLinkRelationConstants.Forms.Edit;
         }
-        
+
         public void SucceedsWith(HttpStatusCode httpStatusCode)
         {
-            Assert.True(_aggregateRoot is not null, "Entity not arranged when testing success path - call Arrange.WithAggregate() in test body.");
-            
-            HttpResponseMessage httpResponseMessage = _testFixture.HttpClient.GetAsync(_getByIdPath).Result;
+            Assert.True(_aggregateRoot is not null, "Aggregate not arranged when testing success path - call Arrange.WithAggregate() in test body.");
+
+            HttpResponseMessage httpResponseMessage = _testFixture.HttpClient.GetAsync(_editFormPath).Result;
 
             httpResponseMessage.AssertSuccess(httpStatusCode);
 
             string content = httpResponseMessage.Content.ReadAsStringAsync().Result;
 
-            ResourceDocument<TResource>? resourceDocument = JsonSerializer.Deserialize<ResourceDocument<TResource>>(content, _testFixture.JsonSerializerOptions);
+            FormDocument? formDocument = JsonSerializer.Deserialize<FormDocument>(content, _testFixture.JsonSerializerOptions);
 
-            if (resourceDocument is null)
+            if (formDocument is null)
             {
-                Assert.Fail($"Failed to deserialise {nameof(ResourceDocument<TResource>)} from response: {content}");
+                Assert.Fail($"Failed to deserialise {nameof(FormDocument)} from response: {content}");
                 return;
             }
 
-            _testFeature.ValidateResource(_aggregateRoot!, resourceDocument.Resource);
-            
-            // TODO: Test Resource Links
-//                AssertThat.Links(resource.Links).Presents(/*TODO*/);
+            _testFeature.ValidateEditForm(formDocument.Form, _aggregateRoot);
 
             Dictionary<string, Link> expectedLinks = new()
             {
-                [IanaLinkRelationConstants.Self] = Link.SelfLink(new Uri("/" + _getByIdPath, UriKind.Relative))
+                [IanaLinkRelationConstants.Self] = Link.SelfLink(new Uri("/" + _editFormPath, UriKind.Relative))
             };
 
-            AssertThat.Links(resourceDocument.Links).Presents(expectedLinks);
+            AssertThat.Links(formDocument.Links).Presents(expectedLinks);
         }
         
         public void FailsWith(HttpStatusCode httpStatusCode)
         {
-            HttpResponseMessage httpResponseMessage = _testFixture.HttpClient.GetAsync(_getByIdPath).Result;
+            HttpResponseMessage httpResponseMessage = _testFixture.HttpClient.GetAsync(_editFormPath).Result;
 
             httpResponseMessage.AssertFailure(httpStatusCode);
         }

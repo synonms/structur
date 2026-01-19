@@ -15,6 +15,7 @@ IResourceBuilder<MongoDBDatabaseResource> mongodb = mongo.AddDatabase(Resources.
 
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Synonms_Structur_Sample_Api>(Resources.Api)
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", builder.Environment.EnvironmentName)
+    .WithReference(mongo).WaitFor(mongo)
     .WithReference(mongodb).WaitFor(mongodb)
     .WithIconName("SettingsCogMultiple");
 

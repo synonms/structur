@@ -20,5 +20,5 @@ public class ErrorCollectionDocumentFactory : IErrorCollectionDocumentFactory
     }
 
     private static Error Map(Fault fault) =>
-        new (fault.Id, fault.Code, fault.Title, string.Format(fault.Detail, fault.Arguments), new ErrorSource(fault.Source.Pointer, fault.Source.Parameter));
+        new (fault.Id, fault.Code, fault.Title, /*string.Format(*/fault.Detail/*, fault.Arguments)*/, new ErrorSource(fault.Source.Pointer, fault.Source.Parameter));
 }

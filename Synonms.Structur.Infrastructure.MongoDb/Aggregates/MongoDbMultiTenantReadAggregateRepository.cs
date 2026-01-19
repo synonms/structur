@@ -17,5 +17,5 @@ public class MongoDbMultiTenantReadAggregateRepository<TAggregateRoot> : MongoDb
         _tenantContext = tenantContext;
     }
 
-    public override Expression<Func<TAggregateRoot, bool>> GlobalFilter => x => x.TenantId == (_tenantContext.GetTenantId() ?? Guid.Empty);
+    public override Expression<Func<TAggregateRoot, bool>> GlobalFilter => x => x.IsDeleted == false && x.TenantId == (_tenantContext.GetTenantId() ?? Guid.Empty);
 }

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Aspire.Hosting.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +14,8 @@ public abstract class StructurTestFixture(StructurTestingOptions options) : IAsy
         public WireMockContainer? WireMockContainer { get; set; }
     }
     
+    public string MediaType { get; } = options.MediaType;
+    public JsonSerializerOptions? JsonSerializerOptions { get; } = options.JsonSerializerOptions;
     public HttpClient HttpClient { get; private set; } = null!;
     public IServiceScopeFactory ServiceScopeFactory { get; private set; } = null!;
     protected AppHostPrerequisites Prerequisites { get; } = new();
@@ -99,23 +102,23 @@ public abstract class StructurTestFixture(StructurTestingOptions options) : IAsy
     
     private async Task WaitForHealthyResourcesAsync(IEnumerable<string> resourceNames, TimeSpan timeout)
     {
-        Task[] waitTasks = resourceNames.Select(resourceName => WaitForResourceAsync(resourceName, timeout)).ToArray();
+        using CancellationTokenSource cancellationTokenSource = new(timeout);
+        
+        Task[] waitTasks = resourceNames.Select(resourceName => WaitForResourceAsync(resourceName, cancellationTokenSource.Token)).ToArray();
 
         await Task.WhenAll(waitTasks);
     }
 
-    private async Task WaitForResourceAsync(string aspireResourceName, TimeSpan timeout)
+    private async Task WaitForResourceAsync(string aspireResourceName, CancellationToken cancellationToken)
     {
         if (AppHost?.Application is null)
         {
             throw new NullReferenceException("AppHost Application not initialised");
         }
 
-        using CancellationTokenSource cancellationTokenSource = new(timeout);
-
         try
         {
-            await AppHost.Application.ResourceNotifications.WaitForResourceHealthyAsync(aspireResourceName, cancellationTokenSource.Token);
+            await AppHost.Application.ResourceNotifications.WaitForResourceHealthyAsync(aspireResourceName, cancellationToken);
 
             TestContext.Current.SendDiagnosticMessage("SUCCESS: Resource '{0}' healthy", aspireResourceName);
         }

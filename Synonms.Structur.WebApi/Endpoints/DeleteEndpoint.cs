@@ -32,7 +32,7 @@ public class DeleteEndpoint<TAggregateRoot> : ControllerBase
         Result<DeleteResourceCommandResponse<TAggregateRoot>> response = await _commandHandler.HandleAsync(request);
 
         return response.Match<IActionResult>(
-            _ => StatusCode(StatusCodes.Status204NoContent),
+            _ => StatusCode(StatusCodes.Status200OK),
             fault => HttpResponseMapper.MapFault(fault));
     }
 }
