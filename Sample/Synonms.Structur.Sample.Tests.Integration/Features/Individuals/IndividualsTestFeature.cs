@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using Synonms.Structur.Application.Schema;
 using Synonms.Structur.Application.Schema.Forms;
+using Synonms.Structur.Application.Users;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Core.System;
 using Synonms.Structur.Domain.Entities;
@@ -26,6 +27,7 @@ public class IndividualsTestFeature :
     IEditFormTestFeature<Individual>
 {
     public string CollectionPath => "individuals";
+    private readonly IUserActionProvider _userActionProvider = new EmptyUserActionProvider();
 
     public IndividualResource GenerateInvalidResource(EntityId<Individual> id) =>
         new Faker<IndividualResource>()
@@ -54,7 +56,7 @@ public class IndividualsTestFeature :
     public ArrangeAggregateInfo<Individual> GenerateUniqueAggregate(EntityId<Individual> id)
     {
         IndividualResource resource = GenerateValidResource(id);
-        IndividualCreatedEvent createdEvent = new(id, resource, TestTenant.Id);
+        IndividualCreatedEvent createdEvent = new(_userActionProvider, id, resource, TestTenant.Id);
         Result<Individual> createdResult = createdEvent.ApplyAsync(null).Result;
             
         return createdResult.Match(

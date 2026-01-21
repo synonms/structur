@@ -24,6 +24,8 @@ public record UserAction : ValueObject<UserAction>
     public Guid ActionById { get; private set; }
     public string ActionByName { get; private set; }
 
+    public static UserAction Empty => new UserAction(DateTime.MinValue, Guid.Empty, string.Empty);
+    
     public static OneOf<UserAction, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, UserActionDto dto) =>
         ValueObject.CreateBuilder<UserAction>()
             .WithFaultIfNotPopulated($"{propertyName}.{nameof(ActionAt)}", dto.ActionAt)

@@ -79,7 +79,9 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddScoped<IRouteGenerator, HttpRouteGenerator>();
         serviceCollection.AddScoped(typeof(ICreateFormDocumentFactory<,>), typeof(CreateFormDocumentFactory<,>));
         serviceCollection.AddScoped(typeof(IEditFormDocumentFactory<,>), typeof(EditFormDocumentFactory<,>));
-        
+
+        serviceCollection.AddScoped<IUserActionProvider, EmptyUserActionProvider>();
+
         foreach ((string _, IResourceDirectory.AggregateRootLayout aggregateRootLayout) in resourceDirectory.GetAllRoots())
         { 
             serviceCollection

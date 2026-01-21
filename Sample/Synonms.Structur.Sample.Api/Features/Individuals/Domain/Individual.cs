@@ -13,13 +13,14 @@ public class Individual : AggregateRoot<Individual>
     public const int ForenameMaxLength = 100;
     public const int SurnameMaxLength = 100;
     
-    private Individual() : base(EntityId<Individual>.Uninitialised, Guid.Empty)
+    private Individual()
     {
     }
     
     private Individual(
         EntityId<Individual> id,
         Guid tenantId,
+        UserAction createdAction,
         ExternalReference tenantReference,
         FriendlyId friendlyId,
         Moniker forename,
@@ -27,7 +28,7 @@ public class Individual : AggregateRoot<Individual>
         List<EmailAddress> emailAddresses,
         List<TelephoneNumber> telephoneNumbers
         ) 
-        : base(id, tenantId)
+        : base(id, tenantId, createdAction)
     {
         TenantReference = tenantReference;
         FriendlyId = friendlyId;
@@ -51,8 +52,9 @@ public class Individual : AggregateRoot<Individual>
     
     public List<TelephoneNumber> TelephoneNumbers { get; private set; } = [];
     
-    internal Maybe<Fault> Update(IndividualResource resource) =>
+    internal Maybe<Fault> Update(IndividualResource resource, UserActionDto updatedActionDto) =>
         Entity.CreateBuilder<Individual>()
+            .WithMandatoryValueObject(updatedActionDto, x => UserAction.CreateMandatory(nameof(UpdatedAction), x), out UserAction updatedActionValueObject)
             .WithOptionalValueObject(resource.Salutation, x => Salutation.CreateOptional(nameof(Salutation), x), out Salutation? salutationValueObject)
             .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(nameof(Forename), x, ForenameMaxLength), out Moniker forenameValueObject)
             .WithMandatoryValueObject(resource.Surname, x => Moniker.CreateMandatory(nameof(Surname), x, SurnameMaxLength), out Moniker surnameValueObject)
@@ -61,17 +63,18 @@ public class Individual : AggregateRoot<Individual>
             .Build()
             .BiBind(() => 
             {
-                Salutation = salutationValueObject;
-                Forename = forenameValueObject;
-                Surname = surnameValueObject;
-                EmailAddresses = emailAddressValueObjects;
-                TelephoneNumbers = telephoneNumberValueObjects;
+                UpdateOptionalValue(x => x.Salutation, salutationValueObject, updatedActionValueObject);
+                UpdateMandatoryValue(x => x.Forename, forenameValueObject, updatedActionValueObject);
+                UpdateMandatoryValue(x => x.Surname, surnameValueObject, updatedActionValueObject);
+                UpdateMandatoryValue(x => x.EmailAddresses, emailAddressValueObjects, updatedActionValueObject);
+                UpdateMandatoryValue(x => x.TelephoneNumbers, telephoneNumberValueObjects, updatedActionValueObject);
 
                 return Maybe<Fault>.None;
             });
 
-    internal static Result<Individual> Create(Guid tenantId, IndividualResource resource) =>
+    internal static Result<Individual> Create(Guid tenantId, IndividualResource resource, UserActionDto createdActionDto) =>
         Entity.CreateBuilder<Individual>()
+            .WithMandatoryValueObject(createdActionDto, x => UserAction.CreateMandatory(nameof(CreatedAction), x), out UserAction createdActionValueObject)
             .WithMandatoryValueObject(resource.TenantReference, x => ExternalReference.CreateMandatory(nameof(TenantReference), x), out ExternalReference tenantReferenceValueObject)
             .WithOptionalValueObject(resource.Salutation, x => Salutation.CreateOptional(nameof(Salutation), x), out Salutation? salutationValueObject)
             .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(nameof(Forename), x), out Moniker forenameValueObject)
@@ -80,7 +83,7 @@ public class Individual : AggregateRoot<Individual>
             .WithValueObjectCollection(resource.TelephoneNumbers, x => TelephoneNumber.CreateMandatory(nameof(TelephoneNumber), x), out List<TelephoneNumber> telephoneNumberValueObjects)
             .Build()
             .ToResult(() =>
-                new Individual((EntityId<Individual>)resource.Id, tenantId, tenantReferenceValueObject, FriendlyId.New(), forenameValueObject, surnameValueObject, emailAddressValueObjects, telephoneNumberValueObjects)
+                new Individual((EntityId<Individual>)resource.Id, tenantId, createdActionValueObject, tenantReferenceValueObject, FriendlyId.New(), forenameValueObject, surnameValueObject, emailAddressValueObjects, telephoneNumberValueObjects)
                 {
                     Salutation = salutationValueObject
                 });

@@ -67,3 +67,20 @@ public abstract record DateOnlyValueObject<TValueObject> : ValueObject<TValueObj
     
     public override int CompareTo(TValueObject? other) => DateTime.Compare(Value.ToDateTime(TimeOnly.MinValue), other?.Value.ToDateTime(TimeOnly.MinValue) ?? DateTime.MinValue);
 }
+
+public abstract record IntValueObject<TValueObject> : ValueObject<TValueObject>
+    where TValueObject : IntValueObject<TValueObject>
+{
+    protected IntValueObject(int value)
+    {
+        Value = value;
+    }
+
+    public int Value { get; protected set; }
+
+    public static implicit operator int(IntValueObject<TValueObject> valueObject) => valueObject.Value;
+
+    public override int CompareTo(object? obj) => Value.CompareTo(obj);
+    
+    public override int CompareTo(TValueObject? other) => Value.CompareTo(other?.Value);
+}

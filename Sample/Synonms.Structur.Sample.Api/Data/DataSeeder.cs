@@ -1,5 +1,6 @@
 using MongoDB.Driver;
 using Synonms.Structur.Application.Schema;
+using Synonms.Structur.Application.Users;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Domain.Events;
@@ -27,7 +28,8 @@ public class DataSeeder
     {
         await using AsyncServiceScope serviceScope = webApplication.Services.CreateAsyncScope();
         IMongoClient mongoClient = serviceScope.ServiceProvider.GetRequiredService<IMongoClient>();
-
+        IUserActionProvider userActionProvider = serviceScope.ServiceProvider.GetRequiredService<IUserActionProvider>();
+        
         SetCollections(mongoClient);
 
         if (clearData)
@@ -39,7 +41,7 @@ public class DataSeeder
         await SeedProductsAsync();
         await SeedUsersAsync();
         
-        await SeedIndividualsAsync();
+        await SeedIndividualsAsync(userActionProvider);
     }
 
     private void SetCollections(IMongoClient mongoClient)
@@ -152,7 +154,7 @@ public class DataSeeder
         }
     }
     
-    private async Task SeedIndividualsAsync()
+    private async Task SeedIndividualsAsync(IUserActionProvider userActionProvider)
     {
         IndividualResource lebronResource = new(Guid.Parse("a9617306-ffa6-4355-9461-9dfcd6b702d4"), Link.EmptyLink())
         {
@@ -184,8 +186,8 @@ public class DataSeeder
             TelephoneNumbers = []
         };
         
-        IndividualCreatedEvent lebronCreatedEvent = new((EntityId<Individual>)lebronResource.Id, lebronResource, _lakersTenantId);
-        IndividualCreatedEvent lukaCreatedEvent = new((EntityId<Individual>)lukaResource.Id, lukaResource, _lakersTenantId);
+        IndividualCreatedEvent lebronCreatedEvent = new(userActionProvider, (EntityId<Individual>)lebronResource.Id, lebronResource, _lakersTenantId);
+        IndividualCreatedEvent lukaCreatedEvent = new(userActionProvider, (EntityId<Individual>)lukaResource.Id, lukaResource, _lakersTenantId);
         
         await CreateIndividualAsync(lebronCreatedEvent);
         await CreateIndividualAsync(lukaCreatedEvent);
@@ -220,8 +222,8 @@ public class DataSeeder
             TelephoneNumbers = []
         };
         
-        IndividualCreatedEvent glennCreatedEvent = new((EntityId<Individual>)glennResource.Id, glennResource, _spursTenantId);
-        IndividualCreatedEvent davidCreatedEvent = new((EntityId<Individual>)davidResource.Id, davidResource, _spursTenantId);
+        IndividualCreatedEvent glennCreatedEvent = new(userActionProvider, (EntityId<Individual>)glennResource.Id, glennResource, _spursTenantId);
+        IndividualCreatedEvent davidCreatedEvent = new(userActionProvider, (EntityId<Individual>)davidResource.Id, davidResource, _spursTenantId);
         
         await CreateIndividualAsync(glennCreatedEvent);
         await CreateIndividualAsync(davidCreatedEvent);

@@ -11,4 +11,7 @@
       <PackageReference Include="Scrutor" Version="7.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Synonms.Structur.Core.Tests.Unit" />
+    </ItemGroup>
 </Project>

@@ -20,8 +20,8 @@ public abstract class AggregateDeletedDomainEvent<TAggregateRoot> : DomainEvent<
             return Result<TAggregateRoot>.Failure(fault).AsAsync();
         }
 
-        aggregateRoot.MarkDeleted();
-        
-        return Result<TAggregateRoot>.SuccessAsync(aggregateRoot);
+        return DeleteAggregate(aggregateRoot).AsAsync();
     }
+    
+    public abstract Result<TAggregateRoot> DeleteAggregate(TAggregateRoot aggregateRoot);
 }

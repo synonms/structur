@@ -24,7 +24,7 @@ public class MongoDbReadAggregateRepository<TAggregateRoot> : IReadAggregateRepo
             .GetCollection<TAggregateRoot>(mongoDatabaseConfiguration.CollectionNamesByAggregateType[typeof(TAggregateRoot)]);
     }
     
-    public virtual Expression<Func<TAggregateRoot, bool>> GlobalFilter => x => x.IsDeleted == false;
+    public virtual Expression<Func<TAggregateRoot, bool>> GlobalFilter => x => x.DeletedAction == null;
     
     public async Task<bool> AnyAsync(Expression<Func<TAggregateRoot, bool>> predicate, CancellationToken cancellationToken) =>
         await _mongoCollection.Find(CombineFilters(predicate)).FirstOrDefaultAsync(cancellationToken) is not null;

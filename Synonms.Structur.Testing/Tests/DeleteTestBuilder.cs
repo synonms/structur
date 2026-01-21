@@ -134,7 +134,7 @@ public class DeleteTestBuilder<TAggregateRoot>
             TAggregateRoot? retrievedAggregateRoot = _testFeature.RetrieveAggregateAsync(_testFixture.ServiceScopeFactory, _id).Result;
 
             Assert.NotNull(retrievedAggregateRoot);
-            Assert.True(retrievedAggregateRoot.IsDeleted);
+            Assert.NotNull(retrievedAggregateRoot.DeletedAction);
         }
         
         public void FailsWith(HttpStatusCode httpStatusCode)

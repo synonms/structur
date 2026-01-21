@@ -25,7 +25,7 @@ public class MongoDbLookupOptionsProvider : ILookupOptionsProvider
         return lookups.Select(lookup => new FormFieldOption(lookup.Id.Value.ToString())
         {
             Label = lookup.LookupName,
-            IsEnabled = !lookup.IsDeleted
+            IsEnabled = lookup.DeletedAction == null
         });
     }
 }
