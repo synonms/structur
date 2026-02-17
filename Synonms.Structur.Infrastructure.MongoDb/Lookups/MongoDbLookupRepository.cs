@@ -1,5 +1,5 @@
 using MongoDB.Driver;
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Domain.Lookups;
 using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 

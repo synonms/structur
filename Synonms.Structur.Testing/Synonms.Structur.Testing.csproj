@@ -14,9 +14,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Synonms.Structur.Application\Synonms.Structur.Application.csproj" />
       <ProjectReference Include="..\Synonms.Structur.Domain\Synonms.Structur.Domain.csproj" />
-      <ProjectReference Include="..\Synonms.Structur.WebApi\Synonms.Structur.WebApi.csproj" />
+      <ProjectReference Include="..\Synonms.Structur.Api.Server\Synonms.Structur.Api.Server.csproj" />
     </ItemGroup>
 
 </Project>

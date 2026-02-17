@@ -1,4 +1,4 @@
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Domain.Aggregates;
 
 namespace Synonms.Structur.Testing;
 

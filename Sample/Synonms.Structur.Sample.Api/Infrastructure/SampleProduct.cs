@@ -1,4 +1,4 @@
-using Synonms.Structur.Application.Products;
+using Synonms.Structur.Api.Server.Products;
 
 namespace Synonms.Structur.Sample.Api.Infrastructure;
 

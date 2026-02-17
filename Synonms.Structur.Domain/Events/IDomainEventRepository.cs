@@ -1,6 +1,7 @@
+using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Domain.Aggregates;
 
 namespace Synonms.Structur.Domain.Events;
 

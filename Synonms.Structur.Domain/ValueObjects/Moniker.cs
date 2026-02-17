@@ -1,6 +1,5 @@
+using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
-using Synonms.Structur.Domain.Faults;
-using Synonms.Structur.Domain.Validation;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
@@ -35,6 +34,6 @@ public record Moniker : StringValueObject<Moniker>
     public static Moniker Convert(string value) =>
         CreateMandatory(nameof(Moniker), value, value.Length)
             .Match(
-                moniker => moniker,
+                valueObject => valueObject,
                 _ => new Moniker(string.Empty));
 }

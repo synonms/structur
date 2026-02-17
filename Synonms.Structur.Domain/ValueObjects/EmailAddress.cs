@@ -1,68 +1,34 @@
-using Synonms.Structur.Core.Attributes;
+using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
-using Synonms.Structur.Domain.Faults;
-using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Core.System.Text;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class EmailAddressResource : ValueObjectResource
+public record EmailAddress : StringValueObject<EmailAddress>
 {
-    [StructurRequired]
-    [StructurPattern(EmailAddress.AddressRegex)]
-    public required string Address { get; init; }
-    public required bool IsPrimary { get; init; }
-    public string? Label { get; init; }
-}
-
-public record EmailAddress : ValueObject<EmailAddress>
-{
-    public const string AddressRegex = "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_'+\\-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$";
-
-    private EmailAddress(string address, bool isPrimary, string? label)
+    private EmailAddress(string value) : base(value)
     {
-        Address = address;
-        IsPrimary = isPrimary;
-        Label = label;
     }
-    
-    public string Address { get; private set; }
 
-    public bool IsPrimary { get; private set; }
-    
-    public string? Label { get; private set; }
-
-    public static implicit operator string(EmailAddress emailAddress) => emailAddress.Address;
-
-    public static OneOf<EmailAddress, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, EmailAddressResource resource) =>
+    public static OneOf<EmailAddress, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         ValueObject.CreateBuilder<EmailAddress>()
-            .WithFaultIfNotPopulated($"{propertyName}.{nameof(Address)}", resource.Address)
-            .WithFaultIfNotMatchingPattern($"{propertyName}.{nameof(Address)}", resource.Address, AddressRegex)
-            .Build(resource, x => new EmailAddress(resource.Address, resource.IsPrimary, resource.Label));
+            .WithFaultIfNotPopulated(propertyName, value)
+            .WithFaultIfNotMatchingPattern(propertyName, value, RegularExpressions.EmailAddress)
+            .Build(value, x => new EmailAddress(x));
 
-    public static OneOf<Maybe<EmailAddress>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, EmailAddressResource? resource)
+    public static OneOf<Maybe<EmailAddress>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value)
     {
-        if (resource is null)
+        if (string.IsNullOrWhiteSpace(value))
         {
             return Maybe<EmailAddress>.None;
         }
 
-        return CreateMandatory(propertyName, resource).ToMaybe();
-    }
-    
-    public override int CompareTo(object? obj)
-    {
-        if (obj is null)
-        {
-            return 1;
-        }
-
-        if (obj is EmailAddress other)
-        {
-            return CompareTo(other);
-        }
-
-        return 0;
+        return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public override int CompareTo(EmailAddress? other) => Address.CompareTo(other?.Address ?? string.Empty);
+    public static EmailAddress Convert(string value) =>
+        CreateMandatory(nameof(EmailAddress), value)
+            .Match(
+                valueObject => valueObject,
+                _ => new EmailAddress(string.Empty));
 }

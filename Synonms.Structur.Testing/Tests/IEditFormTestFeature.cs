@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
-using Synonms.Structur.Application.Schema.Forms;
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Api.Core.Schema.Forms;
+using Synonms.Structur.Core.Entities;
+using Synonms.Structur.Domain.Aggregates;
 
 namespace Synonms.Structur.Testing.Tests;
 

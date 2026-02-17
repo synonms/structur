@@ -1,8 +1,9 @@
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Domain.Aggregates;
 using Synonms.Structur.Domain.Events;
 using Synonms.Structur.Domain.Transactions;
 using Synonms.Structur.Infrastructure.MongoDb.Hosting;

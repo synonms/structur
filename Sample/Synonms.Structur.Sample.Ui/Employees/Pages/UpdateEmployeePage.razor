@@ -1,0 +1,110 @@
+@page "/employees/{id:guid}/update"
+
+<PageTitle>Update Employee</PageTitle>
+
+<CarbonBlazorPane Title="Update Employee">
+    <EmployeeForm Model="_model" OperationType="OperationType.Update" ValidSubmitCallback="OnValidSubmitAsync"></EmployeeForm>
+</CarbonBlazorPane>
+
+@code {
+    private EmployeeResource? _model;
+    
+    [Inject]
+    public required TenantContextAccessor TenantContextAccessor { get; set; }
+
+    [Inject]
+    public required StructurHttpClient<EmployeeResource> EmployeesHttpClient { get; set; }
+
+    [Inject]
+    public INotificationBroker NotificationBroker { get; set; } = null!;
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = null!;
+
+    [Parameter]
+    public Guid Id { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        Task[] tasks =
+        [
+            RefreshEmployeeAsync()
+        ];
+
+        await Task.WhenAll(tasks);
+    }
+    
+    private async Task RefreshEmployeeAsync()
+    {
+        if (_model is null)
+        {
+            return;
+        }
+        
+        try
+        {
+            GetByIdRequest args = new()
+            {
+                TenantId = TenantContextAccessor.SelectedTenantId,
+                Id = Id
+            };
+            
+            Result<ResourceDocument<EmployeeResource>> result = await EmployeesHttpClient.GetByIdAsync(args);
+
+            result.Match(
+                document =>
+                {
+                    _model = document.Resource;
+                },
+                fault =>
+                {
+                    Console.WriteLine($"[FAULT] GetEmployee request returned fault: {fault}");
+                    NotificationBroker.Send("API Error", "GetEmployee request returned a fault.", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Error);
+                });
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine($"[EXCEPTION] GetEmployee request failed: {exception.Message}");
+            NotificationBroker.Send("API Error", "GetEmployee request threw an exception.", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Error);
+        }
+    }
+    
+    private async Task OnValidSubmitAsync()
+    {
+        if (_model is null)
+        {
+            return;
+        }
+        
+        try
+        {
+            PutRequest<EmployeeResource> request = new()
+            {
+                TenantId = TenantContextAccessor.SelectedTenantId,
+                Id = Id,
+                Resource = _model
+            };
+            
+            Result<PutResponse> result = await EmployeesHttpClient.PutAsync(request);
+
+            result.Match(
+                putResponse =>
+                {
+                    NotificationBroker.Send("Success", "Employee update request succeeded", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Success);
+                    NavigationManager.NavigateTo("employees/" + Id);
+                },
+                fault =>
+                {
+                    Console.WriteLine($"[FAULT] UpdateEmployee request returned fault: {fault}");
+                    NotificationBroker.Send("API Error", "UpdateEmployee request returned a fault.", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Error);
+                });
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine($"[EXCEPTION] UpdateEmployee request failed: {exception.Message}");
+            NotificationBroker.Send("API Error", "UpdateEmployee request threw an exception.", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Error);
+        }
+    }
+}

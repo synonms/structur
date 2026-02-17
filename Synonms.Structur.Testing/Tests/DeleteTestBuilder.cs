@@ -1,5 +1,6 @@
 using System.Net;
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Core.Entities;
+using Synonms.Structur.Domain.Aggregates;
 using Synonms.Structur.Testing.Extensions;
 using Xunit;
 

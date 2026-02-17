@@ -4,8 +4,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Core", "Sy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Domain", "Synonms.Structur.Domain\Synonms.Structur.Domain.csproj", "{4E7684B9-A8AB-4647-9A17-884585263768}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Application", "Synonms.Structur.Application\Synonms.Structur.Application.csproj", "{009FE411-F1EF-45E9-822A-6134675D16D3}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{437DD44B-A17C-4416-B058-D50499BBDF6A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Sample.AppHost", "Sample\Synonms.Structur.Sample.AppHost\Synonms.Structur.Sample.AppHost.csproj", "{F2C046BC-22E8-4781-B9EF-0547E5536C20}"
@@ -14,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Sample.Ser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Sample.Api", "Sample\Synonms.Structur.Sample.Api\Synonms.Structur.Sample.Api.csproj", "{E03337A6-7A75-4E85-981F-EA9457EF6F7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.WebApi", "Synonms.Structur.WebApi\Synonms.Structur.WebApi.csproj", "{57D91620-5853-461E-8A05-BF9B626ECEA2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Api.Server", "Synonms.Structur.Api.Server\Synonms.Structur.Api.Server.csproj", "{57D91620-5853-461E-8A05-BF9B626ECEA2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Infrastructure", "Synonms.Structur.Infrastructure\Synonms.Structur.Infrastructure.csproj", "{F482A622-D396-4286-A68C-C1D039344D95}"
 EndProject
@@ -34,9 +32,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Sample.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Core.Tests.Unit", "Tests\Synonms.Structur.Core.Tests.Unit\Synonms.Structur.Core.Tests.Unit.csproj", "{1903DF76-3069-4E7F-8D43-2853A6826F56}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Application.Tests.Unit", "Tests\Synonms.Structur.Application.Tests.Unit\Synonms.Structur.Application.Tests.Unit.csproj", "{7020907D-10F7-447F-9EBF-1B415EA4FC73}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Api.Server.Tests.Unit", "Tests\Synonms.Structur.Api.Server.Tests.Unit\Synonms.Structur.Api.Server.Tests.Unit.csproj", "{7020907D-10F7-447F-9EBF-1B415EA4FC73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.WebApi.Tests.Unit", "Tests\Synonms.Structur.WebApi.Tests.Unit\Synonms.Structur.WebApi.Tests.Unit.csproj", "{354C398E-6D6A-467B-8956-7E15FCDC3F51}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Api.Client", "Synonms.Structur.Api.Client\Synonms.Structur.Api.Client.csproj", "{F96A128B-3CBA-4A3F-93F7-29E106130169}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Api.Core", "Synonms.Structur.Api.Core\Synonms.Structur.Api.Core.csproj", "{C0C891F2-146E-47BC-9C5E-A186C197867C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,10 +52,6 @@ Global
 		{4E7684B9-A8AB-4647-9A17-884585263768}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E7684B9-A8AB-4647-9A17-884585263768}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E7684B9-A8AB-4647-9A17-884585263768}.Release|Any CPU.Build.0 = Release|Any CPU
-		{009FE411-F1EF-45E9-822A-6134675D16D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{009FE411-F1EF-45E9-822A-6134675D16D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{009FE411-F1EF-45E9-822A-6134675D16D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{009FE411-F1EF-45E9-822A-6134675D16D3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F2C046BC-22E8-4781-B9EF-0547E5536C20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F2C046BC-22E8-4781-B9EF-0547E5536C20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2C046BC-22E8-4781-B9EF-0547E5536C20}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -108,10 +104,14 @@ Global
 		{7020907D-10F7-447F-9EBF-1B415EA4FC73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7020907D-10F7-447F-9EBF-1B415EA4FC73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7020907D-10F7-447F-9EBF-1B415EA4FC73}.Release|Any CPU.Build.0 = Release|Any CPU
-		{354C398E-6D6A-467B-8956-7E15FCDC3F51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{354C398E-6D6A-467B-8956-7E15FCDC3F51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{354C398E-6D6A-467B-8956-7E15FCDC3F51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{354C398E-6D6A-467B-8956-7E15FCDC3F51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F96A128B-3CBA-4A3F-93F7-29E106130169}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F96A128B-3CBA-4A3F-93F7-29E106130169}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F96A128B-3CBA-4A3F-93F7-29E106130169}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F96A128B-3CBA-4A3F-93F7-29E106130169}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0C891F2-146E-47BC-9C5E-A186C197867C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0C891F2-146E-47BC-9C5E-A186C197867C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0C891F2-146E-47BC-9C5E-A186C197867C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0C891F2-146E-47BC-9C5E-A186C197867C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F2C046BC-22E8-4781-B9EF-0547E5536C20} = {437DD44B-A17C-4416-B058-D50499BBDF6A}
@@ -123,6 +123,5 @@ Global
 		{17AE64CA-8EEF-4F41-9F12-BF9498F3D4BD} = {437DD44B-A17C-4416-B058-D50499BBDF6A}
 		{1903DF76-3069-4E7F-8D43-2853A6826F56} = {1876969C-8CB5-42AF-93A9-A09ECA70FB02}
 		{7020907D-10F7-447F-9EBF-1B415EA4FC73} = {1876969C-8CB5-42AF-93A9-A09ECA70FB02}
-		{354C398E-6D6A-467B-8956-7E15FCDC3F51} = {1876969C-8CB5-42AF-93A9-A09ECA70FB02}
 	EndGlobalSection
 EndGlobal

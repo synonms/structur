@@ -1,4 +1,4 @@
-using Synonms.Structur.Application.Schema.Forms;
+using Synonms.Structur.Api.Core.Schema.Forms;
 
 namespace Synonms.Structur.Testing.Tests;
 

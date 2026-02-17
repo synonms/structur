@@ -1,6 +1,6 @@
 using System.Net.Http.Headers;
-using Synonms.Structur.Domain.Entities;
-using HttpHeaders = Synonms.Structur.WebApi.Http.HttpHeaders;
+using Synonms.Structur.Core.Entities;
+using HttpHeaders = Synonms.Structur.Api.Core.Http.HttpHeaders;
 
 namespace Synonms.Structur.Testing.Extensions;
 

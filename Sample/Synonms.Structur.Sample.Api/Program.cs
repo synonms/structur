@@ -5,11 +5,11 @@ using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 using Synonms.Structur.Sample.Api;
 using Synonms.Structur.Sample.Api.Data;
 using Synonms.Structur.Sample.Api.Infrastructure;
-using Synonms.Structur.WebApi.Controllers;
-using Synonms.Structur.WebApi.DependencyInjection;
-using Synonms.Structur.WebApi.Hosting;
-using Synonms.Structur.WebApi.Hypermedia.Default;
-using Synonms.Structur.WebApi.Hypermedia.Ion;
+using Synonms.Structur.Api.Server.Controllers;
+using Synonms.Structur.Api.Server.DependencyInjection;
+using Synonms.Structur.Api.Server.Hosting;
+using Synonms.Structur.Api.Server.Hypermedia.Default;
+using Synonms.Structur.Api.Server.Hypermedia.Ion;
 
 WebApplicationBuilder webApplicationBuilder = WebApplication.CreateBuilder(args);
 bool isGeneratingOpenApiFile = Assembly.GetEntryAssembly()?.GetName().Name == "GetDocument.Insider";

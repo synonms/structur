@@ -29,25 +29,25 @@
         }
       }
     },
-    "/individuals/create-form": {
+    "/employees/create-form": {
       "get": {
         "tags": [
-          "Individuals"
+          "Employees"
         ],
         "summary": "Get a form describing how to add a new resource to a collection.",
-        "operationId": "Individuals.CreateForm",
+        "operationId": "Employees.CreateForm",
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IndividualResourceForm_Default"
+                  "$ref": "#/components/schemas/EmployeeResourceForm_Default"
                 }
               },
               "application/ion+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IndividualResourceForm_Ion"
+                  "$ref": "#/components/schemas/EmployeeResourceForm_Ion"
                 }
               }
             }
@@ -55,25 +55,25 @@
         }
       }
     },
-    "/individuals": {
+    "/employees": {
       "get": {
         "tags": [
-          "Individuals"
+          "Employees"
         ],
         "summary": "Get a paged collection of resources.",
-        "operationId": "Individuals.GetAll",
+        "operationId": "Employees.GetAll",
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IndividualResourceCollectionResponse_Default"
+                  "$ref": "#/components/schemas/EmployeeResourceCollectionResponse_Default"
                 }
               },
               "application/ion+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IndividualResourceCollectionResponse_Ion"
+                  "$ref": "#/components/schemas/EmployeeResourceCollectionResponse_Ion"
                 }
               }
             }
@@ -82,20 +82,20 @@
       },
       "post": {
         "tags": [
-          "Individuals"
+          "Employees"
         ],
         "summary": "Add a new resource to a collection.",
-        "operationId": "Individuals.Create",
+        "operationId": "Employees.Create",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/IndividualResourceRequest"
+                "$ref": "#/components/schemas/EmployeeResourceRequest"
               }
             },
             "application/ion+json": {
               "schema": {
-                "$ref": "#/components/schemas/IndividualResourceRequest"
+                "$ref": "#/components/schemas/EmployeeResourceRequest"
               }
             }
           }
@@ -107,13 +107,13 @@
         }
       }
     },
-    "/individuals/{id}/edit-form": {
+    "/employees/{id}/edit-form": {
       "get": {
         "tags": [
-          "Individuals"
+          "Employees"
         ],
         "summary": "Get a form describing how to update an existing resource.",
-        "operationId": "Individuals.EditForm",
+        "operationId": "Employees.EditForm",
         "parameters": [
           {
             "name": "id",
@@ -132,12 +132,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IndividualResourceForm_Default"
+                  "$ref": "#/components/schemas/EmployeeResourceForm_Default"
                 }
               },
               "application/ion+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IndividualResourceForm_Ion"
+                  "$ref": "#/components/schemas/EmployeeResourceForm_Ion"
                 }
               }
             }
@@ -145,13 +145,13 @@
         }
       }
     },
-    "/individuals/{id}": {
+    "/employees/{id}": {
       "get": {
         "tags": [
-          "Individuals"
+          "Employees"
         ],
         "summary": "Get an individual resource by Id.",
-        "operationId": "Individuals.GetById",
+        "operationId": "Employees.GetById",
         "parameters": [
           {
             "name": "id",
@@ -170,12 +170,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IndividualResourceResponse_Default"
+                  "$ref": "#/components/schemas/EmployeeResourceResponse_Default"
                 }
               },
               "application/ion+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IndividualResourceResponse_Ion"
+                  "$ref": "#/components/schemas/EmployeeResourceResponse_Ion"
                 }
               }
             }
@@ -184,10 +184,10 @@
       },
       "put": {
         "tags": [
-          "Individuals"
+          "Employees"
         ],
         "summary": "Updates an existing resource.",
-        "operationId": "Individuals.Update",
+        "operationId": "Employees.Update",
         "parameters": [
           {
             "name": "id",
@@ -204,12 +204,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/IndividualResourceRequest"
+                "$ref": "#/components/schemas/EmployeeResourceRequest"
               }
             },
             "application/ion+json": {
               "schema": {
-                "$ref": "#/components/schemas/IndividualResourceRequest"
+                "$ref": "#/components/schemas/EmployeeResourceRequest"
               }
             }
           }
@@ -222,10 +222,10 @@
       },
       "delete": {
         "tags": [
-          "Individuals"
+          "Employees"
         ],
         "summary": "Deletes an existing resource.",
-        "operationId": "Individuals.Delete",
+        "operationId": "Employees.Delete",
         "parameters": [
           {
             "name": "id",
@@ -248,7 +248,52 @@
   },
   "components": {
     "schemas": {
-      "EmailAddressResource": {
+      "AddressValueObjectResource": {
+        "required": [
+          "type",
+          "line1",
+          "postcode"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "Unknown",
+              "Home",
+              "Work",
+              "Billing",
+              "Shipping",
+              "Other"
+            ],
+            "type": "string"
+          },
+          "line1": {
+            "type": "string",
+            "format": ""
+          },
+          "line2": {
+            "type": "string",
+            "format": ""
+          },
+          "line3": {
+            "type": "string",
+            "format": ""
+          },
+          "line4": {
+            "type": "string",
+            "format": ""
+          },
+          "postcode": {
+            "type": "string",
+            "format": ""
+          },
+          "label": {
+            "type": "string",
+            "format": ""
+          }
+        }
+      },
+      "EmailContactValueObjectResource": {
         "required": [
           "address",
           "isPrimary"
@@ -269,7 +314,7 @@
           }
         }
       },
-      "TelephoneNumberResource": {
+      "TelephoneContactValueObjectResource": {
         "required": [
           "number",
           "isPrimary"
@@ -290,14 +335,16 @@
           }
         }
       },
-      "IndividualResource_Default": {
+      "EmployeeResource_Default": {
         "required": [
-          "tenantReference",
-          "friendlyId",
+          "employeeReference",
+          "nationalInsuranceNumber",
           "forename",
           "surname",
-          "emailAddresses",
-          "telephoneNumbers"
+          "workPermitRequired",
+          "homeAddress",
+          "emailContacts",
+          "telephoneContacts"
         ],
         "type": "object",
         "properties": {
@@ -305,19 +352,32 @@
             "type": "string",
             "format": "uuid"
           },
-          "tenantReference": {
+          "employeeReference": {
             "type": "string",
             "format": ""
           },
-          "friendlyId": {
+          "nationalInsuranceNumber": {
             "type": "string",
             "format": ""
           },
-          "salutation": {
-            "type": "string",
-            "format": ""
+          "title": {
+            "enum": [
+              "Unknown",
+              "Dr",
+              "Miss",
+              "Mr",
+              "Mrs",
+              "Ms",
+              "Mx",
+              "Prof"
+            ],
+            "type": "string"
           },
           "forename": {
+            "type": "string",
+            "format": ""
+          },
+          "middleNames": {
             "type": "string",
             "format": ""
           },
@@ -325,27 +385,47 @@
             "type": "string",
             "format": ""
           },
-          "emailAddresses": {
+          "knownAs": {
+            "type": "string",
+            "format": ""
+          },
+          "workPermitRequired": {
+            "type": "boolean",
+            "format": ""
+          },
+          "workPermitValidUntil": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "format": ""
+          },
+          "homeAddress": {
+            "$ref": "#/components/schemas/AddressValueObjectResource"
+          },
+          "emailContacts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/EmailAddressResource"
+              "$ref": "#/components/schemas/EmailContactValueObjectResource"
             }
           },
-          "telephoneNumbers": {
+          "telephoneContacts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/TelephoneNumberResource"
+              "$ref": "#/components/schemas/TelephoneContactValueObjectResource"
             }
           }
         }
       },
-      "IndividualResourceCollectionResponse_Default": {
+      "EmployeeResourceCollectionResponse_Default": {
         "type": "object",
         "properties": {
           "value": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IndividualResource_Default"
+              "$ref": "#/components/schemas/EmployeeResource_Default"
             }
           },
           "offset": {
@@ -359,14 +439,16 @@
           }
         }
       },
-      "IndividualResource_Ion": {
+      "EmployeeResource_Ion": {
         "required": [
-          "tenantReference",
-          "friendlyId",
+          "employeeReference",
+          "nationalInsuranceNumber",
           "forename",
           "surname",
-          "emailAddresses",
-          "telephoneNumbers"
+          "workPermitRequired",
+          "homeAddress",
+          "emailContacts",
+          "telephoneContacts"
         ],
         "type": "object",
         "properties": {
@@ -419,19 +501,32 @@
             "type": "string",
             "format": "uuid"
           },
-          "tenantReference": {
+          "employeeReference": {
             "type": "string",
             "format": ""
           },
-          "friendlyId": {
+          "nationalInsuranceNumber": {
             "type": "string",
             "format": ""
           },
-          "salutation": {
-            "type": "string",
-            "format": ""
+          "title": {
+            "enum": [
+              "Unknown",
+              "Dr",
+              "Miss",
+              "Mr",
+              "Mrs",
+              "Ms",
+              "Mx",
+              "Prof"
+            ],
+            "type": "string"
           },
           "forename": {
+            "type": "string",
+            "format": ""
+          },
+          "middleNames": {
             "type": "string",
             "format": ""
           },
@@ -439,27 +534,47 @@
             "type": "string",
             "format": ""
           },
-          "emailAddresses": {
+          "knownAs": {
+            "type": "string",
+            "format": ""
+          },
+          "workPermitRequired": {
+            "type": "boolean",
+            "format": ""
+          },
+          "workPermitValidUntil": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "format": ""
+          },
+          "homeAddress": {
+            "$ref": "#/components/schemas/AddressValueObjectResource"
+          },
+          "emailContacts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/EmailAddressResource"
+              "$ref": "#/components/schemas/EmailContactValueObjectResource"
             }
           },
-          "telephoneNumbers": {
+          "telephoneContacts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/TelephoneNumberResource"
+              "$ref": "#/components/schemas/TelephoneContactValueObjectResource"
             }
           }
         }
       },
-      "IndividualResourceCollectionResponse_Ion": {
+      "EmployeeResourceCollectionResponse_Ion": {
         "type": "object",
         "properties": {
           "value": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IndividualResource_Ion"
+              "$ref": "#/components/schemas/EmployeeResource_Ion"
             }
           },
           "self": {
@@ -563,14 +678,16 @@
           }
         }
       },
-      "IndividualResourceRequest": {
+      "EmployeeResourceRequest": {
         "required": [
-          "tenantReference",
-          "friendlyId",
+          "employeeReference",
+          "nationalInsuranceNumber",
           "forename",
           "surname",
-          "emailAddresses",
-          "telephoneNumbers"
+          "workPermitRequired",
+          "homeAddress",
+          "emailContacts",
+          "telephoneContacts"
         ],
         "type": "object",
         "properties": {
@@ -578,19 +695,32 @@
             "type": "string",
             "format": "uuid"
           },
-          "tenantReference": {
+          "employeeReference": {
             "type": "string",
             "format": ""
           },
-          "friendlyId": {
+          "nationalInsuranceNumber": {
             "type": "string",
             "format": ""
           },
-          "salutation": {
-            "type": "string",
-            "format": ""
+          "title": {
+            "enum": [
+              "Unknown",
+              "Dr",
+              "Miss",
+              "Mr",
+              "Mrs",
+              "Ms",
+              "Mx",
+              "Prof"
+            ],
+            "type": "string"
           },
           "forename": {
+            "type": "string",
+            "format": ""
+          },
+          "middleNames": {
             "type": "string",
             "format": ""
           },
@@ -598,21 +728,41 @@
             "type": "string",
             "format": ""
           },
-          "emailAddresses": {
+          "knownAs": {
+            "type": "string",
+            "format": ""
+          },
+          "workPermitRequired": {
+            "type": "boolean",
+            "format": ""
+          },
+          "workPermitValidUntil": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "format": ""
+          },
+          "homeAddress": {
+            "$ref": "#/components/schemas/AddressValueObjectResource"
+          },
+          "emailContacts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/EmailAddressResource"
+              "$ref": "#/components/schemas/EmailContactValueObjectResource"
             }
           },
-          "telephoneNumbers": {
+          "telephoneContacts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/TelephoneNumberResource"
+              "$ref": "#/components/schemas/TelephoneContactValueObjectResource"
             }
           }
         }
       },
-      "IndividualResourceForm_Default": {
+      "EmployeeResourceForm_Default": {
         "type": "object",
         "properties": {
           "value": {
@@ -704,7 +854,7 @@
           }
         }
       },
-      "IndividualResourceForm_Ion": {
+      "EmployeeResourceForm_Ion": {
         "type": "object",
         "properties": {
           "href": {
@@ -806,11 +956,11 @@
           }
         }
       },
-      "IndividualResourceResponse_Default": {
+      "EmployeeResourceResponse_Default": {
         "type": "object",
         "properties": {
           "value": {
-            "$ref": "#/components/schemas/IndividualResource_Default"
+            "$ref": "#/components/schemas/EmployeeResource_Default"
           },
           "self": {
             "type": "object",
@@ -829,11 +979,11 @@
           }
         }
       },
-      "IndividualResourceResponse_Ion": {
+      "EmployeeResourceResponse_Ion": {
         "type": "object",
         "properties": {
           "value": {
-            "$ref": "#/components/schemas/IndividualResource_Ion"
+            "$ref": "#/components/schemas/EmployeeResource_Ion"
           },
           "self": {
             "type": "object",

@@ -1,6 +1,6 @@
+using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
-using Synonms.Structur.Domain.Entities;
 using Synonms.Structur.Domain.Events;
 using Synonms.Structur.Domain.Tests.Unit.Shared;
 

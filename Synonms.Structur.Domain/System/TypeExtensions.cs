@@ -1,4 +1,6 @@
-﻿using Synonms.Structur.Domain.Entities;
+﻿using System.Reflection;
+using Synonms.Structur.Core.Entities;
+using Synonms.Structur.Domain.Aggregates;
 using Synonms.Structur.Domain.Lookups;
 using Synonms.Structur.Domain.ValueObjects;
 
@@ -6,10 +8,34 @@ namespace Synonms.Structur.Domain.System;
 
 public static class TypeExtensions
 {
-    public static Type? GetValueObjectValueType(this Type type) =>
-        type.IsValueObject() 
-            ? type.BaseType?.GetGenericArguments().FirstOrDefault()
-            : null;
+    public static Type? GetValueObjectValueType(this Type type)
+    {
+        if (!type.IsValueObject())
+        {
+            return null;
+        }
+
+        PropertyInfo? valueObjectValuePropertyInfo = type.GetProperty("Value", BindingFlags.Instance | BindingFlags.Public);
+
+        if (valueObjectValuePropertyInfo is not null)
+        {
+            return valueObjectValuePropertyInfo.PropertyType;
+        }
+
+        Type? baseType = type.BaseType?.GetGenericTypeDefinition();
+        
+        if (baseType == typeof(StringValueObject<>)) return typeof(string);
+        if (baseType == typeof(DateTimeValueObject<>)) return typeof(DateTime);
+        if (baseType == typeof(DateOnlyValueObject<>)) return typeof(DateOnly);
+        if (baseType == typeof(IntValueObject<>)) return typeof(int);
+        if (baseType == typeof(LongValueObject<>)) return typeof(long);
+        if (baseType == typeof(DecimalValueObject<>)) return typeof(decimal);
+        if (baseType == typeof(DoubleValueObject<>)) return typeof(double);
+
+        if (baseType == typeof(ValueObject<>)) return type;
+
+        return null;
+    }
     
     public static bool IsAggregateRoot(this Type type) =>
         type is
@@ -49,14 +75,4 @@ public static class TypeExtensions
         }
         && (type.BaseType.GetGenericTypeDefinition() == typeof(ValueObject<>)
             || type.BaseType.BaseType is not null && type.BaseType.BaseType.IsGenericType && type.BaseType.BaseType.GetGenericTypeDefinition() == typeof(ValueObject<>));
-
-
-    public static bool IsEntityId(this Type type) =>
-        type is
-        {
-            IsInterface: false, 
-            IsAbstract: false, 
-            IsGenericType: true
-        }
-        && type.GetGenericTypeDefinition() == typeof(EntityId<>);
 }

@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Synonms.CarbonBlazor.Infrastructure.IoC;
-using Synonms.Structur.Sample.ClientApi;
+using Synonms.Structur.Api.Client.Http;
+using Synonms.Structur.Sample.ClientApi.Features.Employees;
 using Synonms.Structur.Sample.Ui;
 using Synonms.Structur.Sample.Ui.Infrastructure;
 
@@ -13,20 +14,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 const string apiUrl = "https://localhost:7002";
 
 builder.Services.AddScoped<TenantContextAccessor>();
-builder.Services.AddTransient<IStructurSampleOpenApiClient>(sp =>
-{
-    TenantContextAccessor tenantContextAccessor = sp.GetRequiredService<TenantContextAccessor>();
-    
-    HttpClient httpClient = new() 
-    {
-        BaseAddress = new Uri(apiUrl)
-    };
- 
-    httpClient.DefaultRequestHeaders.Add("X-Structur-Tenant-ID", tenantContextAccessor.SelectedTenantId.ToString());
-    httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
 
-    return new StructurSampleOpenApiClient(httpClient);
-});
+builder.Services.AddHttpClient<StructurHttpClient<EmployeeResource>>(httpClient => httpClient.BaseAddress = new Uri(apiUrl));
 
 builder.Services.AddCarbonBlazor();
 

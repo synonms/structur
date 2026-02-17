@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Synonms.Structur.Application.Schema;
+using Synonms.Structur.Api.Core.Schema;
 using Xunit;
 
 namespace Synonms.Structur.Testing.Assertions;

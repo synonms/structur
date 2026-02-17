@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Core.Entities;
+using Synonms.Structur.Domain.Aggregates;
 
 namespace Synonms.Structur.Testing.Tests;
 

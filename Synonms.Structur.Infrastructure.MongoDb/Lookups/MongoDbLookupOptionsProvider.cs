@@ -1,6 +1,6 @@
 using MongoDB.Driver;
-using Synonms.Structur.Application.Lookups;
-using Synonms.Structur.Application.Schema.Forms;
+using Synonms.Structur.Api.Core.Schema.Forms;
+using Synonms.Structur.Api.Server.Lookups;
 using Synonms.Structur.Domain.Lookups;
 using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 
@@ -25,7 +25,7 @@ public class MongoDbLookupOptionsProvider : ILookupOptionsProvider
         return lookups.Select(lookup => new FormFieldOption(lookup.Id.Value.ToString())
         {
             Label = lookup.LookupName,
-            IsEnabled = lookup.DeletedAction == null
+            IsEnabled = lookup.IsEnabled
         });
     }
 }

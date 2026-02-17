@@ -1,7 +1,7 @@
 using MongoDB.Driver;
 using Synonms.Structur.Domain.Events;
 using Synonms.Structur.Infrastructure.MongoDb;
-using Synonms.Structur.Sample.Api.Features.Individuals.Domain;
+using Synonms.Structur.Sample.Api.Features.Employees.Domain;
 using Synonms.Structur.Sample.Api.Infrastructure;
 
 namespace Synonms.Structur.Sample.Tests.Integration;
@@ -12,7 +12,7 @@ public class TestDataSeeder
     private IMongoCollection<SampleProduct>? _productsCollection;
     private IMongoCollection<SampleUser>? _usersCollection;
     private IMongoCollection<DomainEvent>? _domainEventsCollection;
-    private IMongoCollection<Individual>? _individualsCollection;
+    private IMongoCollection<Employee>? _individualsCollection;
 
     public async Task SeedIntegrationTestDataAsync(IMongoClient mongoClient, bool clearData = true)
     {
@@ -36,7 +36,7 @@ public class TestDataSeeder
         _productsCollection ??= database.GetCollection<SampleProduct>(MongoDbConstants.Database.Collections.Products);
         _usersCollection ??= database.GetCollection<SampleUser>(MongoDbConstants.Database.Collections.Users);
         _domainEventsCollection ??= database.GetCollection<DomainEvent>(MongoDbConstants.Database.Collections.DomainEvents);
-        _individualsCollection ??= database.GetCollection<Individual>("individuals");
+        _individualsCollection ??= database.GetCollection<Employee>(SampleDatabase.Collections.Employees);
     }
 
     private async Task ClearDataAsync()

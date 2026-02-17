@@ -4,8 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Synonms.Structur.WebApi.Content;
-using Synonms.Structur.WebApi.Hypermedia.Default;
+using Synonms.Structur.Api.Core.Content;
+using Synonms.Structur.Api.Server.Hypermedia.Default;
 using WireMock.Net.Testcontainers;
 
 namespace Synonms.Structur.Testing;

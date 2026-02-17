@@ -1,4 +1,4 @@
-using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Validation;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
@@ -79,6 +79,57 @@ public abstract record IntValueObject<TValueObject> : ValueObject<TValueObject>
     public int Value { get; protected set; }
 
     public static implicit operator int(IntValueObject<TValueObject> valueObject) => valueObject.Value;
+
+    public override int CompareTo(object? obj) => Value.CompareTo(obj);
+    
+    public override int CompareTo(TValueObject? other) => Value.CompareTo(other?.Value);
+}
+
+public abstract record DecimalValueObject<TValueObject> : ValueObject<TValueObject>
+    where TValueObject : DecimalValueObject<TValueObject>
+{
+    protected DecimalValueObject(decimal value)
+    {
+        Value = value;
+    }
+
+    public decimal Value { get; protected set; }
+
+    public static implicit operator decimal(DecimalValueObject<TValueObject> valueObject) => valueObject.Value;
+
+    public override int CompareTo(object? obj) => Value.CompareTo(obj);
+    
+    public override int CompareTo(TValueObject? other) => Value.CompareTo(other?.Value);
+}
+
+public abstract record DoubleValueObject<TValueObject> : ValueObject<TValueObject>
+    where TValueObject : DoubleValueObject<TValueObject>
+{
+    protected DoubleValueObject(double value)
+    {
+        Value = value;
+    }
+
+    public double Value { get; protected set; }
+
+    public static implicit operator double(DoubleValueObject<TValueObject> valueObject) => valueObject.Value;
+
+    public override int CompareTo(object? obj) => Value.CompareTo(obj);
+    
+    public override int CompareTo(TValueObject? other) => Value.CompareTo(other?.Value);
+}
+
+public abstract record LongValueObject<TValueObject> : ValueObject<TValueObject>
+    where TValueObject : LongValueObject<TValueObject>
+{
+    protected LongValueObject(long value)
+    {
+        Value = value;
+    }
+
+    public long Value { get; protected set; }
+
+    public static implicit operator long(LongValueObject<TValueObject> valueObject) => valueObject.Value;
 
     public override int CompareTo(object? obj) => Value.CompareTo(obj);
     

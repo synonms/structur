@@ -1,4 +1,4 @@
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Core.Entities;
 
 namespace Synonms.Structur.Domain.Lookups;
 

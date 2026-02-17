@@ -1,4 +1,5 @@
-﻿using Synonms.Structur.Domain.Entities;
+﻿using Synonms.Structur.Core.Entities;
+using Synonms.Structur.Domain.Aggregates;
 using Synonms.Structur.Domain.Events;
 
 namespace Synonms.Structur.Domain.Projections;

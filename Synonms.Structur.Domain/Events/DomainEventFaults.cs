@@ -1,4 +1,4 @@
-using Synonms.Structur.Domain.Faults;
+using Synonms.Structur.Core.Faults;
 
 namespace Synonms.Structur.Domain.Events;
 

@@ -1,10 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Synonms.Structur.Application.Lookups;
-using Synonms.Structur.Application.Products.Persistence;
-using Synonms.Structur.Application.Tenants.Persistence;
-using Synonms.Structur.Application.Users.Persistence;
+using Synonms.Structur.Api.Server.Lookups;
+using Synonms.Structur.Api.Server.Products.Persistence;
+using Synonms.Structur.Api.Server.Tenants.Persistence;
+using Synonms.Structur.Api.Server.Users.Persistence;
 using Synonms.Structur.Domain.Lookups;
 using Synonms.Structur.Domain.Transactions;
 using Synonms.Structur.Infrastructure.MongoDb.Lookups;

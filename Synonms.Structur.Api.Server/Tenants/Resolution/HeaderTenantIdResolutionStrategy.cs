@@ -1,0 +1,46 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
+using Synonms.Structur.Api.Core.Http;
+using Synonms.Structur.Core.Functional;
+
+namespace Synonms.Structur.Api.Server.Tenants.Resolution;
+
+public class HeaderTenantIdResolutionStrategy : ITenantIdResolutionStrategy
+{
+    private static readonly Func<KeyValuePair<string, StringValues>, bool> HeaderPredicate =
+        header => header.Key.Equals(HttpHeaders.TenantId, StringComparison.OrdinalIgnoreCase);
+
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public HeaderTenantIdResolutionStrategy(IHttpContextAccessor httpContextAccessor)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    public Maybe<Guid> Resolve()
+    {
+        if (_httpContextAccessor?.HttpContext is null)
+        {
+            return Maybe<Guid>.None;
+        }
+
+        if (CountApplicableHeaders(_httpContextAccessor.HttpContext.Request) != 1)
+        {
+            return Maybe<Guid>.None;
+        }
+
+        KeyValuePair<string, StringValues> tenantIdHeader = _httpContextAccessor.HttpContext.Request.Headers.Single(HeaderPredicate);
+
+        if (tenantIdHeader.Value.Count != 1)
+        {
+            return Maybe<Guid>.None;
+        }
+
+        string? tenantId = tenantIdHeader.Value.SingleOrDefault();
+
+        return Guid.TryParse(tenantId, out Guid guid) ? guid : Maybe<Guid>.None;
+    }
+
+    private static int CountApplicableHeaders(HttpRequest httpRequest) =>
+        httpRequest.Headers.Count(HeaderPredicate);
+}

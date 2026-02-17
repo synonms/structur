@@ -2,14 +2,14 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using Synonms.Structur.Api.Core.Content;
+using Synonms.Structur.Api.Core.Http;
+using Synonms.Structur.Api.Server.Hypermedia.Default;
 using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 using Synonms.Structur.Sample.Api;
 using Synonms.Structur.Sample.Api.Infrastructure;
 using Synonms.Structur.Sample.AppHost;
 using Synonms.Structur.Testing;
-using Synonms.Structur.WebApi.Content;
-using Synonms.Structur.WebApi.Http;
-using Synonms.Structur.WebApi.Hypermedia.Default;
 
 [assembly: AssemblyFixture(typeof(Synonms.Structur.Sample.Tests.Integration.SampleTestFixture))]
 

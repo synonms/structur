@@ -13,7 +13,7 @@
     </ItemGroup>
     
     <ItemGroup>
-      <ProjectReference Include="..\Synonms.Structur.Application\Synonms.Structur.Application.csproj" />
+      <ProjectReference Include="..\Synonms.Structur.Api.Server\Synonms.Structur.Api.Server.csproj" />
       <ProjectReference Include="..\Synonms.Structur.Domain\Synonms.Structur.Domain.csproj" />
       <ProjectReference Include="..\Synonms.Structur.Infrastructure\Synonms.Structur.Infrastructure.csproj" />
     </ItemGroup>

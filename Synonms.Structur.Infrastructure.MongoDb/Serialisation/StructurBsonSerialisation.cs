@@ -1,6 +1,6 @@
 using System.Reflection;
 using MongoDB.Bson.Serialization;
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Core.Entities;
 
 namespace Synonms.Structur.Infrastructure.MongoDb.Serialisation;
 

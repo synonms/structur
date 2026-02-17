@@ -1,5 +1,5 @@
-using Synonms.Structur.Domain.Entities;
-using Synonms.Structur.Domain.ValueObjects;
+using Synonms.Structur.Core.Entities;
+using Synonms.Structur.Domain.Aggregates;
 
 namespace Synonms.Structur.Domain.Tests.Unit.Shared;
 
@@ -9,7 +9,7 @@ internal class TestAggregateMember : AggregateMember<TestAggregateMember>
     {
     }
 
-    public TestAggregateMember(EntityId<TestAggregateMember> id, UserAction createdAction) : base(id, createdAction)
+    public TestAggregateMember(EntityId<TestAggregateMember> id) : base(id)
     {
     }
 }

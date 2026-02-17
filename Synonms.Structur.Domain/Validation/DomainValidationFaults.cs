@@ -1,20 +1,19 @@
 using Synonms.Structur.Core.Faults;
-using Synonms.Structur.Domain.Faults;
 
 namespace Synonms.Structur.Domain.Validation;
 
 public static class DomainValidationFaults
 {
-    private const string RequiredFieldTemplate = "Must not be null or empty.";
-    private const string MinLengthTemplate = "Must have minimum length of {0} characters.";
-    private const string MaxLengthTemplate = "Must have maximum length of {0} characters.";
-    private const string SpecificLengthTemplate = "Must be exactly {0} characters.";
-    private const string LengthRangeTemplate = "Must be between {0} and {1} characters long.";
-    private const string MinValueTemplate = "Must be equal to or greater than {0}.";
-    private const string MaxValueTemplate = "Must be equal to or less than {0}.";
-    private const string ValueRangeTemplate = "Must be between {0} and {1}.";
-    private const string UnacceptableValueTemplate = "Must be in the list of acceptable values [{0}].";
-    private const string PatternMismatchTemplate = "Must match expected format.";
+    public const string RequiredFieldTemplate = "Must not be null or empty.";
+    public const string MinLengthTemplate = "Must have minimum length of {0} characters.";
+    public const string MaxLengthTemplate = "Must have maximum length of {0} characters.";
+    public const string SpecificLengthTemplate = "Must be exactly {0} characters.";
+    public const string LengthRangeTemplate = "Must be between {0} and {1} characters long.";
+    public const string MinValueTemplate = "Must be equal to or greater than {0}.";
+    public const string MaxValueTemplate = "Must be equal to or less than {0}.";
+    public const string ValueRangeTemplate = "Must be between {0} and {1}.";
+    public const string UnacceptableValueTemplate = "Must be in the list of acceptable values [{0}].";
+    public const string PatternMismatchTemplate = "Must match expected format.";
 
     public static DomainRuleFault Required(string propertyName) =>
         new(RequiredFieldTemplate, new FaultSource(propertyName));

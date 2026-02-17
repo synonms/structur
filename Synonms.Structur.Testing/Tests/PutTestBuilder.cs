@@ -1,8 +1,9 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using Synonms.Structur.Application.Schema.Resources;
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Api.Core.Schema.Resources;
+using Synonms.Structur.Core.Entities;
+using Synonms.Structur.Domain.Aggregates;
 using Synonms.Structur.Testing.Extensions;
 using Xunit;
 

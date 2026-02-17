@@ -1,6 +1,6 @@
 using MongoDB.Driver;
-using Synonms.Structur.Application.Users;
-using Synonms.Structur.Application.Users.Persistence;
+using Synonms.Structur.Api.Server.Users;
+using Synonms.Structur.Api.Server.Users.Persistence;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 

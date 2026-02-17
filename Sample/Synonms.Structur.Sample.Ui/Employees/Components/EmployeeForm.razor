@@ -1,0 +1,207 @@
+<CarbonBlazorForm TModel="EmployeeResource" Model="@Model" ValidationFunc="@ValidateForm" ValidSubmitCallback="@OnValidSubmit" IsReadOnly="@(OperationType == OperationType.Read)" CancelCallback="@OnCancelClicked" EditCallback="@OnUpdateClicked">
+    <CarbonBlazorTextInput Label="Reference" @bind-Value="@Model.EmployeeReference" FieldIdentifier="@_employeeReferenceFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create)"></CarbonBlazorTextInput>
+    <CarbonBlazorTextInput Label="NI Number" @bind-Value="@Model.NationalInsuranceNumber" FieldIdentifier="@_nationalInsuranceNumberFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create)"></CarbonBlazorTextInput>
+    <CarbonBlazorSelect TValue="TitleEnumeration" Label="Title" @bind-Value="@_selectedTitle" FieldIdentifier="@_titleFieldIdentifier" Items="@_titleSelectItems" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"/>
+    <CarbonBlazorTextInput Label="Forename" @bind-Value="@Model.Forename" FieldIdentifier="@_forenameFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+    <CarbonBlazorTextInput Label="Middle Names" @bind-Value="@Model.MiddleNames" FieldIdentifier="@_middleNamesFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+    <CarbonBlazorTextInput Label="Surname" @bind-Value="@Model.Surname" FieldIdentifier="@_surnameFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+    <CarbonBlazorTextInput Label="Known As" @bind-Value="@Model.KnownAs" FieldIdentifier="@_knownAsFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+    <CarbonBlazorCheckBox Label="Work Permit Required?" @bind-Value="@Model.WorkPermitRequired" FieldIdentifier="@_workPermitRequiredFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorCheckBox>
+    <CarbonBlazorDatePicker Label="Work Permit Valid Until" @bind-Value="@Model.WorkPermitValidUntil" FieldIdentifier="@_workPermitValidUntilFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorDatePicker>
+    <CarbonBlazorTextInput IsMultiLine Label="Notes" @bind-Value="@Model.Notes" FieldIdentifier="@_notesFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+
+    <CarbonBlazorText Type="CarbonBlazorTextType.HeadingCompact">Address</CarbonBlazorText>
+    <CarbonBlazorSelect TValue="AddressTypeEnumeration" Label="Type" @bind-Value="@Model.HomeAddress.Type" FieldIdentifier="@_addressTypeFieldIdentifier" Items="@_addressTypeSelectItems" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"/>
+    <CarbonBlazorTextInput Label="Line 1" @bind-Value="@Model.HomeAddress.Line1" FieldIdentifier="@_addressLine1FieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+    <CarbonBlazorTextInput Label="Line 2" @bind-Value="@Model.HomeAddress.Line2" FieldIdentifier="@_addressLine2FieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+    <CarbonBlazorTextInput Label="Line 3" @bind-Value="@Model.HomeAddress.Line3" FieldIdentifier="@_addressLine3FieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+    <CarbonBlazorTextInput Label="Line 4" @bind-Value="@Model.HomeAddress.Line4" FieldIdentifier="@_addressLine4FieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+    <CarbonBlazorTextInput Label="Postcode" @bind-Value="@Model.HomeAddress.Postcode" FieldIdentifier="@_addressPostcodeFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+    <CarbonBlazorTextInput Label="Label" @bind-Value="@Model.HomeAddress.Label" FieldIdentifier="@_addressLabelFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+
+    <CarbonBlazorText Type="CarbonBlazorTextType.HeadingCompact">Contact</CarbonBlazorText>
+    
+    <NestedCollectionDataTable TModel="EmailContactValueObjectResource" Title="Email Contacts" ChildResources="@Model.EmailContacts" ChildResourceName="Email Address" ValidationFunc="ValidateEmailContact"
+                               MatcherFunc="@((left, right) => left.Address.Equals(right.Address, StringComparison.OrdinalIgnoreCase))">
+        <HeaderRowTemplate>
+            <CarbonBlazorDataTableHeaderCell>Address</CarbonBlazorDataTableHeaderCell>
+            <CarbonBlazorDataTableHeaderCell>Label</CarbonBlazorDataTableHeaderCell>
+            <CarbonBlazorDataTableHeaderCell>Primary?</CarbonBlazorDataTableHeaderCell>
+        </HeaderRowTemplate>
+        <DataRowTemplate>
+            <CarbonBlazorDataTableDataCell>@context.Address</CarbonBlazorDataTableDataCell>
+            <CarbonBlazorDataTableDataCell>@context.Label</CarbonBlazorDataTableDataCell>
+            <CarbonBlazorDataTableDataCell>@context.IsPrimary</CarbonBlazorDataTableDataCell>
+        </DataRowTemplate>
+        <FormTemplate>
+            <CarbonBlazorTextInput Label="Address" @bind-Value="@context.Address" FieldIdentifier="@(FieldIdentifier.Create(() => context.Address))"></CarbonBlazorTextInput>
+            <CarbonBlazorTextInput Label="Label (optional)" @bind-Value="@context.Label" FieldIdentifier="@(FieldIdentifier.Create(() => context.Label))"></CarbonBlazorTextInput>
+            <CarbonBlazorCheckBox Label="Primary?" @bind-Value="@context.IsPrimary" FieldIdentifier="@(FieldIdentifier.Create(() => context.IsPrimary))"></CarbonBlazorCheckBox>
+        </FormTemplate>
+    </NestedCollectionDataTable>
+    
+    <NestedCollectionDataTable TModel="TelephoneContactValueObjectResource" Title="Telephone Contacts" ChildResources="@Model.TelephoneContacts" ChildResourceName="Telephone Number" ValidationFunc="ValidateTelephoneContact"
+                               MatcherFunc="@((left, right) => left.Number.Equals(right.Number, StringComparison.OrdinalIgnoreCase))">
+        <HeaderRowTemplate>
+            <CarbonBlazorDataTableHeaderCell>Number</CarbonBlazorDataTableHeaderCell>
+            <CarbonBlazorDataTableHeaderCell>Label</CarbonBlazorDataTableHeaderCell>
+            <CarbonBlazorDataTableHeaderCell>Primary?</CarbonBlazorDataTableHeaderCell>
+        </HeaderRowTemplate>
+        <DataRowTemplate>
+            <CarbonBlazorDataTableDataCell>@context.Number</CarbonBlazorDataTableDataCell>
+            <CarbonBlazorDataTableDataCell>@context.Label</CarbonBlazorDataTableDataCell>
+            <CarbonBlazorDataTableDataCell>@context.IsPrimary</CarbonBlazorDataTableDataCell>
+        </DataRowTemplate>
+        <FormTemplate>
+            <CarbonBlazorTextInput Label="Number" @bind-Value="@context.Number" FieldIdentifier="@(FieldIdentifier.Create(() => context.Number))"></CarbonBlazorTextInput>
+            <CarbonBlazorTextInput Label="Label (optional)" @bind-Value="@context.Label" FieldIdentifier="@(FieldIdentifier.Create(() => context.Label))"></CarbonBlazorTextInput>
+            <CarbonBlazorCheckBox Label="Primary?" @bind-Value="@context.IsPrimary" FieldIdentifier="@(FieldIdentifier.Create(() => context.IsPrimary))"></CarbonBlazorCheckBox>
+        </FormTemplate>
+    </NestedCollectionDataTable>
+
+</CarbonBlazorForm>
+
+@code {
+    private readonly List<SelectItem<TitleEnumeration>> _titleSelectItems = Enum.GetValues<TitleEnumeration>().Select(SelectItem<TitleEnumeration>.Create).ToList();
+    private readonly List<SelectItem<AddressTypeEnumeration>> _addressTypeSelectItems = Enum.GetValues<AddressTypeEnumeration>().Select(SelectItem<AddressTypeEnumeration>.Create).ToList();
+
+    private TitleEnumeration _selectedTitle = TitleEnumeration.Unknown;
+    
+    private FieldIdentifier _employeeReferenceFieldIdentifier;
+    private FieldIdentifier _nationalInsuranceNumberFieldIdentifier;
+    private FieldIdentifier _titleFieldIdentifier;
+    private FieldIdentifier _forenameFieldIdentifier;
+    private FieldIdentifier _middleNamesFieldIdentifier;
+    private FieldIdentifier _surnameFieldIdentifier;
+    private FieldIdentifier _knownAsFieldIdentifier;
+    private FieldIdentifier _workPermitRequiredFieldIdentifier;
+    private FieldIdentifier _workPermitValidUntilFieldIdentifier;
+    private FieldIdentifier _notesFieldIdentifier;
+    private FieldIdentifier _addressTypeFieldIdentifier;
+    private FieldIdentifier _addressLine1FieldIdentifier;
+    private FieldIdentifier _addressLine2FieldIdentifier;
+    private FieldIdentifier _addressLine3FieldIdentifier;
+    private FieldIdentifier _addressLine4FieldIdentifier;
+    private FieldIdentifier _addressPostcodeFieldIdentifier;
+    private FieldIdentifier _addressLabelFieldIdentifier;
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public EmployeeResource Model { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback ValidSubmitCallback { get; set; }
+    
+    [Parameter, EditorRequired]
+    public OperationType OperationType { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        _employeeReferenceFieldIdentifier = FieldIdentifier.Create(() => Model.EmployeeReference);
+        _nationalInsuranceNumberFieldIdentifier = FieldIdentifier.Create(() => Model.NationalInsuranceNumber);
+        _titleFieldIdentifier = FieldIdentifier.Create(() => Model.Title);
+        _forenameFieldIdentifier = FieldIdentifier.Create(() => Model.Forename);
+        _middleNamesFieldIdentifier = FieldIdentifier.Create(() => Model.MiddleNames);
+        _surnameFieldIdentifier = FieldIdentifier.Create(() => Model.Surname);
+        _knownAsFieldIdentifier = FieldIdentifier.Create(() => Model.KnownAs);
+        _workPermitRequiredFieldIdentifier = FieldIdentifier.Create(() => Model.WorkPermitRequired);
+        _workPermitValidUntilFieldIdentifier = FieldIdentifier.Create(() => Model.WorkPermitValidUntil);
+        _notesFieldIdentifier = FieldIdentifier.Create(() => Model.Notes);
+        _addressTypeFieldIdentifier = FieldIdentifier.Create(() => Model.HomeAddress.Type);
+        _addressLine1FieldIdentifier = FieldIdentifier.Create(() => Model.HomeAddress.Line1);
+        _addressLine2FieldIdentifier = FieldIdentifier.Create(() => Model.HomeAddress.Line2);
+        _addressLine3FieldIdentifier = FieldIdentifier.Create(() => Model.HomeAddress.Line3);
+        _addressLine4FieldIdentifier = FieldIdentifier.Create(() => Model.HomeAddress.Line4);
+        _addressPostcodeFieldIdentifier = FieldIdentifier.Create(() => Model.HomeAddress.Postcode);
+        _addressLabelFieldIdentifier = FieldIdentifier.Create(() => Model.HomeAddress.Label);
+    }
+
+    private IEnumerable<ValidationOutcome> ValidateForm(EmployeeResource resource)
+    {
+        List<ValidationOutcome> validationOutcomes = [];
+
+        if (string.IsNullOrWhiteSpace(resource.EmployeeReference))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_employeeReferenceFieldIdentifier, "Reference must be populated"));
+        }
+
+        if (string.IsNullOrWhiteSpace(resource.NationalInsuranceNumber))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_nationalInsuranceNumberFieldIdentifier, "NI Number must be populated"));
+        }
+
+        if (string.IsNullOrWhiteSpace(resource.Forename))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_forenameFieldIdentifier, "Forename must be populated"));
+        }
+
+        if (string.IsNullOrWhiteSpace(resource.Surname))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_surnameFieldIdentifier, "Surname must be populated"));
+        }
+
+        if (string.IsNullOrWhiteSpace(resource.HomeAddress.Line1))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_addressLine1FieldIdentifier, "Address Line 1 must be populated"));
+        }
+
+        if (string.IsNullOrWhiteSpace(resource.HomeAddress.Postcode))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_addressPostcodeFieldIdentifier, "Address Postcode must be populated"));
+        }
+
+        return validationOutcomes;
+    }
+
+    private IEnumerable<ValidationOutcome> ValidateEmailContact(EmailContactValueObjectResource emailContact)
+    {
+        List<ValidationOutcome> validationOutcomes = [];
+
+        FieldIdentifier addressField = FieldIdentifier.Create(() => emailContact.Address);
+        
+        if (string.IsNullOrWhiteSpace(emailContact.Address))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(addressField, "Address must be populated."));
+        }
+
+        return validationOutcomes;
+    }
+    
+    private IEnumerable<ValidationOutcome> ValidateTelephoneContact(TelephoneContactValueObjectResource telephoneContact)
+    {
+        List<ValidationOutcome> validationOutcomes = [];
+
+        FieldIdentifier numberField = FieldIdentifier.Create(() => telephoneContact.Number);
+        
+        if (string.IsNullOrWhiteSpace(telephoneContact.Number))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(numberField, "Number must be populated."));
+        }
+
+        return validationOutcomes;
+    }
+    
+    private void OnCancelClicked() =>
+        NavigationManager.NavigateTo("employees");
+
+    private void OnUpdateClicked()
+    {
+        if (OperationType != OperationType.Read)
+        {
+            return;
+        }
+        
+        NavigationManager.NavigateTo("employees/" + Model.Id + "/update");
+    }
+
+    private async Task OnValidSubmit()
+    {
+        Model.Title = _selectedTitle == TitleEnumeration.Unknown ? null : _selectedTitle;
+
+        await ValidSubmitCallback.InvokeAsync();
+    }
+}

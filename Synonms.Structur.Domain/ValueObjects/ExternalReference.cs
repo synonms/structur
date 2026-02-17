@@ -1,6 +1,5 @@
+using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
-using Synonms.Structur.Domain.Faults;
-using Synonms.Structur.Domain.Validation;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 

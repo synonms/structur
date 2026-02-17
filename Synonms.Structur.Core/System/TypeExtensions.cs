@@ -19,4 +19,10 @@ public static class TypeExtensions
 
     public static bool IsEnumerable(this Type type) =>
         type.IsGenericType && type.GetInterfaces().Any(x => x == typeof(IEnumerable));
+
+    public static bool IsNullable(this Type type) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+    
+    public static Type? GetNullableType(this Type type) => 
+        type.IsNullable() ? Nullable.GetUnderlyingType(type) : null;
 }

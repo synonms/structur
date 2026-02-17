@@ -1,6 +1,4 @@
-﻿@using Structur.Sample.Ui.Infrastructure
-
-@inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
 
 <CarbonBlazorShell ProductName="@TenantContextAccessor.SelectedTenantName" Theme="CarbonBlazorTheme.Gray10" HeaderThemeOverride="CarbonBlazorTheme.Gray100" SidebarThemeOverride="CarbonBlazorTheme.White">
     <UserPanel>
@@ -12,7 +10,7 @@
     </SwitcherPanel>
     <SideNav>
         <CarbonBlazorSidebarLink NavigationItem="@NavigationItem.Create(CarbonBlazorIcon.Dashboard, "Dashboard", "/")" />
-        <CarbonBlazorSidebarLink NavigationItem="@NavigationItem.Create(CarbonBlazorIcon.Group, "Individuals", "/individuals")" />
+        <CarbonBlazorSidebarLink NavigationItem="@NavigationItem.Create(CarbonBlazorIcon.Group, "Employees", "/employees")" />
     </SideNav>
     
     <Body>@Body</Body>

@@ -1,4 +1,4 @@
-using Synonms.Structur.Application.Users;
+using Synonms.Structur.Api.Server.Users;
 
 namespace Synonms.Structur.Sample.Api.Infrastructure;
 

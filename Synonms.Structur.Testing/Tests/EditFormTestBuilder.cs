@@ -1,9 +1,10 @@
 using System.Net;
 using System.Text.Json;
-using Synonms.Structur.Application.Iana;
-using Synonms.Structur.Application.Schema;
-using Synonms.Structur.Application.Schema.Forms;
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Api.Core.Iana;
+using Synonms.Structur.Api.Core.Schema;
+using Synonms.Structur.Api.Core.Schema.Forms;
+using Synonms.Structur.Core.Entities;
+using Synonms.Structur.Domain.Aggregates;
 using Synonms.Structur.Testing.Assertions;
 using Synonms.Structur.Testing.Extensions;
 using Xunit;

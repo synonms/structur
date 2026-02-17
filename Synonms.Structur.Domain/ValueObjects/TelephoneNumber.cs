@@ -1,68 +1,34 @@
-using Synonms.Structur.Core.Attributes;
+using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
-using Synonms.Structur.Domain.Faults;
-using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Core.System.Text;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class TelephoneNumberResource : ValueObjectResource
+public record TelephoneNumber : StringValueObject<TelephoneNumber>
 {
-    [StructurRequired]
-    [StructurPattern(TelephoneNumber.NumberRegex)]
-    public required string Number { get; init; }
-    public required bool IsPrimary { get; init; }
-    public string? Label { get; init; }
-}
-
-public record TelephoneNumber : ValueObject<TelephoneNumber>
-{
-    public const string NumberRegex = "^(\\+44|0)\\d{10}$";
-
-    private TelephoneNumber(string number, bool isPrimary, string? label)
+    private TelephoneNumber(string value) : base(value)
     {
-        Number = number;
-        IsPrimary = isPrimary;
-        Label = label;
     }
 
-    public string Number { get; private set; }
-    
-    public bool IsPrimary { get; private set; }
-    
-    public string? Label { get; private set; }
-
-    public static implicit operator string(TelephoneNumber telephoneNumber) => telephoneNumber.Number;
-
-    public static OneOf<TelephoneNumber, IEnumerable<DomainRuleFault>>  CreateMandatory(string propertyName, TelephoneNumberResource resource) =>
+    public static OneOf<TelephoneNumber, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         ValueObject.CreateBuilder<TelephoneNumber>()
-            .WithFaultIfNotPopulated($"{propertyName}.{nameof(Number)}", resource.Number)
-            .WithFaultIfNotMatchingPattern($"{propertyName}.{nameof(Number)}", resource.Number, NumberRegex)
-            .Build(resource, x => new TelephoneNumber(resource.Number, resource.IsPrimary, resource.Label));
+            .WithFaultIfNotPopulated(propertyName, value)
+            .WithFaultIfNotMatchingPattern(propertyName, value, RegularExpressions.TelephoneNumber)
+            .Build(value, x => new TelephoneNumber(x));
 
-    public static OneOf<Maybe<TelephoneNumber>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, TelephoneNumberResource? resource)
+    public static OneOf<Maybe<TelephoneNumber>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value)
     {
-        if (resource is null)
+        if (string.IsNullOrWhiteSpace(value))
         {
             return Maybe<TelephoneNumber>.None;
         }
 
-        return CreateMandatory(propertyName, resource).ToMaybe();
-    }
-    
-    public override int CompareTo(object? obj)
-    {
-        if (obj is null)
-        {
-            return 1;
-        }
-
-        if (obj is TelephoneNumber other)
-        {
-            return CompareTo(other);
-        }
-
-        return 0;
+        return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public override int CompareTo(TelephoneNumber? other) => Number.CompareTo(other?.Number ?? string.Empty);
+    public static TelephoneNumber Convert(string value) =>
+        CreateMandatory(nameof(TelephoneNumber), value)
+            .Match(
+                valueObject => valueObject,
+                _ => new TelephoneNumber(string.Empty));
 }

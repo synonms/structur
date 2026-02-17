@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using MongoDB.Driver;
-using Synonms.Structur.Application.Tenants.Context;
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Api.Server.Tenants.Context;
+using Synonms.Structur.Domain.Aggregates;
 using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 
 namespace Synonms.Structur.Infrastructure.MongoDb.Aggregates;

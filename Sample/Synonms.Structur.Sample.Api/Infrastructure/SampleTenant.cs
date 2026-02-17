@@ -1,4 +1,4 @@
-using Synonms.Structur.Application.Tenants;
+using Synonms.Structur.Api.Server.Tenants;
 
 namespace Synonms.Structur.Sample.Api.Infrastructure;
 

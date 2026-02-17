@@ -1,12 +1,13 @@
 using System.Net;
 using System.Text.Json;
-using Synonms.Structur.Application.Iana;
-using Synonms.Structur.Application.Schema;
-using Synonms.Structur.Application.Schema.Resources;
-using Synonms.Structur.Domain.Entities;
+using Synonms.Structur.Api.Core.Content;
+using Synonms.Structur.Api.Core.Iana;
+using Synonms.Structur.Api.Core.Schema;
+using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Testing.Assertions;
 using Synonms.Structur.Testing.Extensions;
-using Synonms.Structur.WebApi.Content;
+using Synonms.Structur.Core.Entities;
+using Synonms.Structur.Domain.Aggregates;
 using Xunit;
 
 namespace Synonms.Structur.Testing.Tests;

@@ -18,10 +18,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Synonms.Structur.Sample.ClientApi\Synonms.Structur.Sample.ClientApi.csproj" />
+      <Folder Include="wwwroot\images\" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="wwwroot\images\" />
+      <ProjectReference Include="..\..\Synonms.Structur.Api.Client\Synonms.Structur.Api.Client.csproj" />
+      <ProjectReference Include="..\Synonms.Structur.Sample.ClientApi\Synonms.Structur.Sample.ClientApi.csproj" />
     </ItemGroup>
 </Project>
