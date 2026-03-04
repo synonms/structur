@@ -1,20 +1,22 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Core.System.Text;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record Postcode : StringValueObject<Postcode>
+public class Postcode : StringValueObject
 {
     private Postcode(string value) : base(value)
     {
     }
 
     public static OneOf<Postcode, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
-        ValueObject.CreateBuilder<Postcode>()
+        Validator.CreateBuilder<Postcode>()
             .WithFaultIfNotPopulated(propertyName, value)
             .WithFaultIfNotMatchingPattern(propertyName, value, RegularExpressions.Postcode)
-            .Build(value, x => new Postcode(x));
+            .Build(() => new Postcode(value));
 
     public static OneOf<Maybe<Postcode>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value)
     {

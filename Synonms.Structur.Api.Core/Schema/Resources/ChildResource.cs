@@ -16,7 +16,5 @@ public abstract class ChildResource
 
     public Guid Id { get; init; }
     
-    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-
-    public DateTime? UpdatedAt { get; init; }
+    public ResourceLinks Links { get; } = new();
 }

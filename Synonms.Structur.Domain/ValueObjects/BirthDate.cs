@@ -1,9 +1,11 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record BirthDate : DateOnlyValueObject<BirthDate>
+public class BirthDate : DateOnlyValueObject
 {
     private const int DefaultMinimumAge = 0;
     private const int DefaultMaximumAge = 120;
@@ -16,11 +18,11 @@ public record BirthDate : DateOnlyValueObject<BirthDate>
         CreateMandatory(propertyName, value, DefaultMinimumAge, DefaultMaximumAge);
 
     public static OneOf<BirthDate, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, DateOnly value, int minimumAge, int maximumAge) =>
-        ValueObject.CreateBuilder<BirthDate>()
+        Validator.CreateBuilder<BirthDate>()
             .WithFaultIfValueMoreThan(propertyName, value, DateOnly.FromDateTime(DateTime.Today))
             .WithFaultIfValueLessThan(propertyName, value, DateOnly.FromDateTime(DateTime.Today).AddYears(-maximumAge))
             .WithFaultIfValueMoreThan(propertyName, value, DateOnly.FromDateTime(DateTime.Today).AddYears(-minimumAge))
-            .Build(value, x => new BirthDate(x));
+            .Build(() => new BirthDate(value));
 
     public static OneOf<Maybe<BirthDate>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, DateOnly? value)  =>
         CreateOptional(propertyName, value, DefaultMinimumAge, DefaultMaximumAge);

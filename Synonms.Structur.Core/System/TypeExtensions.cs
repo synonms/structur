@@ -25,4 +25,7 @@ public static class TypeExtensions
     
     public static Type? GetNullableType(this Type type) => 
         type.IsNullable() ? Nullable.GetUnderlyingType(type) : null;
+    
+    public static Type StripNullable(this Type type) => 
+        type.IsNullable() ? (Nullable.GetUnderlyingType(type) ?? type) : type;
 }

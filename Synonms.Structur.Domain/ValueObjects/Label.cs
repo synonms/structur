@@ -1,9 +1,11 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record Label : StringValueObject<Label>
+public class Label : StringValueObject
 {
     private Label(string value) : base(value)
     {
@@ -13,10 +15,10 @@ public record Label : StringValueObject<Label>
         CreateMandatory(propertyName, value, DefaultMaxLength);
 
     public static OneOf<Label, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value, int maxLength) =>
-        ValueObject.CreateBuilder<Label>()
+        Validator.CreateBuilder<Label>()
             .WithFaultIfNotPopulated(propertyName, value)
             .WithFaultIfLengthMoreThan(propertyName, value, maxLength)
-            .Build(value, x => new Label(x));
+            .Build(() => new Label(value));
 
     public static OneOf<Maybe<Label>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value)  =>
         CreateOptional(propertyName, value, DefaultMaxLength);

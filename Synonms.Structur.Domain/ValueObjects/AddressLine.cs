@@ -1,10 +1,12 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Core.System.Text;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record AddressLine : StringValueObject<AddressLine>
+public class AddressLine : StringValueObject
 {
     private AddressLine(string value) : base(value)
     {
@@ -14,11 +16,11 @@ public record AddressLine : StringValueObject<AddressLine>
         CreateMandatory(propertyName, value, DefaultMaxLength);
 
     public static OneOf<AddressLine, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value, int maxLength) =>
-        ValueObject.CreateBuilder<AddressLine>()
+        Validator.CreateBuilder<AddressLine>()
             .WithFaultIfNotPopulated(propertyName, value)
             .WithFaultIfLengthMoreThan(propertyName, value, maxLength)
             .WithFaultIfNotMatchingPattern(propertyName, value, RegularExpressions.AddressLine)
-            .Build(value, x => new AddressLine(x));
+            .Build(() => new AddressLine(value));
 
     public static OneOf<Maybe<AddressLine>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value)  =>
         CreateOptional(propertyName, value, DefaultMaxLength);

@@ -4,7 +4,7 @@ using Synonms.Structur.Core.System.Text;
 
 namespace Synonms.Structur.Api.Core.ValueObjects;
 
-public class EmailContactValueObjectResource : ValueObjectResource
+public class EmailContactValueObjectResource : ComplexValueObjectResource
 {
     [StructurRequired]
     [StructurPattern(RegularExpressions.EmailAddress)]

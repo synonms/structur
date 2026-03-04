@@ -1,9 +1,11 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record Address : ValueObject<Address>
+public class Address : ComplexValueObject
 {
     private Address(AddressType type, AddressLine line1, AddressLine? line2, AddressLine? line3, AddressLine? line4, Postcode postcode, Label? label)
     {
@@ -31,7 +33,7 @@ public record Address : ValueObject<Address>
     public Label? Label { get; private set; }
 
     public static OneOf<Address, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string type, string line1, string? line2, string? line3, string? line4, string postcode, string? label) =>
-        ValueObject.CreateBuilder<Address>()
+        Validator.CreateBuilder<Address>()
             .WithMandatoryValueObjectProperty(type, x => AddressType.CreateMandatory($"{propertyName}.{nameof(Type)}", x), out AddressType addressTypeValueObject)
             .WithMandatoryValueObjectProperty(line1, x => AddressLine.CreateMandatory($"{propertyName}.{nameof(Line1)}", x), out AddressLine line1ValueObject)
             .WithOptionalValueObjectProperty(line2, x => AddressLine.CreateOptional($"{propertyName}.{nameof(Line2)}", x), out AddressLine? line2ValueObject)
@@ -50,22 +52,15 @@ public record Address : ValueObject<Address>
 
         return CreateMandatory(propertyName, type, line1, line2, line3, line4, postcode, label).ToMaybe();
     }
-    
-    public override int CompareTo(object? obj)
+
+    protected override IEnumerable<object?> GetAtomicValues()
     {
-        if (obj is null)
-        {
-            return 1;
-        }
-
-        if (obj is Address other)
-        {
-            return CompareTo(other);
-        }
-
-        return 0;
+        yield return Type;
+        yield return Line1;
+        yield return Line2;
+        yield return Line3;
+        yield return Line4;
+        yield return Postcode;
+        yield return Label;
     }
-
-    public override int CompareTo(Address? other) => 
-        string.Compare(Postcode, other?.Postcode ?? string.Empty, StringComparison.OrdinalIgnoreCase);
 }

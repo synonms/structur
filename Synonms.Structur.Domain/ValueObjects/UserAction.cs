@@ -1,5 +1,7 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
@@ -10,7 +12,7 @@ public class UserActionDto
     public required string ActionByName { get; init; }
 }
 
-public record UserAction : ValueObject<UserAction>
+public class UserAction : ComplexValueObject, IComparable, IComparable<UserAction>
 {
     private UserAction(DateTime actionAt, Guid actionById, string actionByName)
     {
@@ -26,11 +28,11 @@ public record UserAction : ValueObject<UserAction>
     public static UserAction Empty => new UserAction(DateTime.MinValue, Guid.Empty, string.Empty);
     
     public static OneOf<UserAction, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, UserActionDto dto) =>
-        ValueObject.CreateBuilder<UserAction>()
+        Validator.CreateBuilder<UserAction>()
             .WithFaultIfNotPopulated($"{propertyName}.{nameof(ActionAt)}", dto.ActionAt)
             .WithFaultIfNotPopulated($"{propertyName}.{nameof(ActionById)}", dto.ActionById)
             .WithFaultIfNotPopulated($"{propertyName}.{nameof(ActionByName)}", dto.ActionByName)
-            .Build(dto, x => new UserAction(dto.ActionAt, dto.ActionById, dto.ActionByName));
+            .Build(() => new UserAction(dto.ActionAt, dto.ActionById, dto.ActionByName));
 
     public static OneOf<Maybe<UserAction>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, UserActionDto? dto)
     {
@@ -42,7 +44,7 @@ public record UserAction : ValueObject<UserAction>
         return CreateMandatory(propertyName, dto).ToMaybe();
     }
 
-    public override int CompareTo(object? obj)
+    public int CompareTo(object? obj)
     {
         if (obj is null)
         {
@@ -57,5 +59,11 @@ public record UserAction : ValueObject<UserAction>
         return 0;
     }
 
-    public override int CompareTo(UserAction? other) => ActionAt.CompareTo(other?.ActionAt ?? DateTime.MinValue);
+    public int CompareTo(UserAction? other) => ActionAt.CompareTo(other?.ActionAt ?? DateTime.MinValue);
+    
+    protected override IEnumerable<object?> GetAtomicValues()
+    {
+        yield return ActionAt;
+        yield return ActionById;
+    }
 }

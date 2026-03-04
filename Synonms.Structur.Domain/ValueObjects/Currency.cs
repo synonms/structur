@@ -1,30 +1,34 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record Currency : StringValueObject<Currency>
+public enum CurrencyEnumeration
 {
-    private static readonly List<string> AcceptableValues = ["GBP"];
+    Unknown = 0,
+    GBP
+}
+
+public class Currency : StringValueObject
+{
+    public static readonly List<string> AcceptableValues = Enum.GetNames<CurrencyEnumeration>().ToList();
     
     private Currency(string value) : base(value)
     {
     }
-
-    [NotMapped]
-    public static readonly Currency None = new("None");
-    [NotMapped]
-    public static readonly Currency Gbp = new("GBP");
+    
+    public static Currency From(CurrencyEnumeration enumeration) => new(enumeration.ToString());
 
     public static OneOf<Currency, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
-        ValueObject.CreateBuilder<Currency>()
+        Validator.CreateBuilder<Currency>()
             .WithFaultIfNotPopulated(propertyName, value)
             .WithFaultIfNotOneOf(propertyName, value, AcceptableValues)
-            .Build(value, x =>
+            .Build(() =>
             {
                 // Cross-reference the acceptable values to correct any case differences
-                string matchingAcceptableValue = AcceptableValues.FirstOrDefault(y => y.Equals(x, StringComparison.OrdinalIgnoreCase)) ?? value;
+                string matchingAcceptableValue = AcceptableValues.FirstOrDefault(x => x.Equals(value, StringComparison.OrdinalIgnoreCase)) ?? value;
 
                 return new Currency(matchingAcceptableValue);
             });
@@ -42,5 +46,5 @@ public record Currency : StringValueObject<Currency>
     internal static Currency Convert(string value) =>
         CreateMandatory(nameof(Currency), value).Match(
             valueObject => valueObject,
-            _ => new Currency(string.Empty));
+            _ => From(CurrencyEnumeration.Unknown));
 }

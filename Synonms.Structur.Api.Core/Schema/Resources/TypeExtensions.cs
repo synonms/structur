@@ -61,36 +61,35 @@ public static class TypeExtensions
     
     public static ResourcePropertyType GetResourcePropertyType(this Type propertyType)
     {
-        bool isNullable = propertyType.IsNullable();
-        Type nonNullableType = isNullable ? (propertyType.GetNullableType() ?? propertyType) : propertyType;
+        Type nonNullableType = propertyType.StripNullable();
 
         if (nonNullableType.IsArrayOrEnumerable())
         {
-            Type? resourcePropertyEnumerableElementType = nonNullableType.GetArrayOrEnumerableElementType();
+            Type? enumerableElementType = nonNullableType.GetArrayOrEnumerableElementType();
 
-            if (resourcePropertyEnumerableElementType is null)
+            if (enumerableElementType is null)
             {
                 return ResourcePropertyType.Unknown;
             }
 
-            if (resourcePropertyEnumerableElementType.IsEntityId())
+            if (enumerableElementType.IsEntityId())
             {
                 return ResourcePropertyType.RelatedResourceCollection;
             }
 
-            if (resourcePropertyEnumerableElementType.IsResource())
+            if (enumerableElementType.IsResource())
             {
                 return ResourcePropertyType.EmbeddedResourceCollection;
             }
 
-            if (resourcePropertyEnumerableElementType.IsChildResource())
+            if (enumerableElementType.IsChildResource())
             {
                 return ResourcePropertyType.EmbeddedChildResourceCollection;
             }
 
-            if (resourcePropertyEnumerableElementType.IsValueObjectResource())
+            if (enumerableElementType.IsComplexValueObjectResource())
             {
-                return ResourcePropertyType.ValueObjectResourceCollection;
+                return ResourcePropertyType.ComplexValueObjectResourceCollection;
             }
 
             return ResourcePropertyType.VanillaCollection;
@@ -111,9 +110,9 @@ public static class TypeExtensions
             return ResourcePropertyType.EmbeddedChildResource;
         }
 
-        if (nonNullableType.IsValueObjectResource())
+        if (nonNullableType.IsComplexValueObjectResource())
         {
-            return ResourcePropertyType.ValueObjectResource;
+            return ResourcePropertyType.ComplexValueObjectResource;
         }
 
         if (nonNullableType.IsLookupResource())
@@ -139,10 +138,10 @@ public static class TypeExtensions
         && !type.IsAbstract
         && type.BaseType == typeof(ChildResource);
 
-    public static bool IsValueObjectResource(this Type type) =>
+    public static bool IsComplexValueObjectResource(this Type type) =>
         !type.IsInterface
         && !type.IsAbstract
-        && type.BaseType == typeof(ValueObjectResource);
+        && type.BaseType == typeof(ComplexValueObjectResource);
     
     public static bool IsLookupResource(this Type type) =>
         type == typeof(LookupResource);

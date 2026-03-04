@@ -1,5 +1,7 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
@@ -15,7 +17,7 @@ public enum TitleEnumeration
     Prof
 }
 
-public record Title : StringValueObject<Title>
+public class Title : StringValueObject
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<TitleEnumeration>().ToList(); 
     
@@ -26,12 +28,12 @@ public record Title : StringValueObject<Title>
     public static Title From(TitleEnumeration enumeration) => new(enumeration.ToString());
     
     public static OneOf<Title, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
-        ValueObject.CreateBuilder<Title>()
+        Validator.CreateBuilder<Title>()
             .WithFaultIfNotOneOf(propertyName, value, AcceptableValues)
-            .Build(value, x =>
+            .Build(() =>
             {
                 // Cross-reference the acceptable values to correct any case differences
-                string matchingAcceptableValue = AcceptableValues.FirstOrDefault(y => y.Equals(x, StringComparison.OrdinalIgnoreCase)) ?? value;
+                string matchingAcceptableValue = AcceptableValues.FirstOrDefault(x => x.Equals(value, StringComparison.OrdinalIgnoreCase)) ?? value;
 
                 return new Title(matchingAcceptableValue);
             });

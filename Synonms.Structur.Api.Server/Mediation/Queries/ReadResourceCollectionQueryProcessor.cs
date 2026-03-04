@@ -4,10 +4,10 @@ using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Core.Collections;
 using Synonms.Structur.Core.Cqrs;
 using Synonms.Structur.Core.Functional;
-using Synonms.Structur.Domain.System;
 using Synonms.Structur.Api.Server.Linq;
 using Synonms.Structur.Api.Server.Mapping;
 using Synonms.Structur.Domain.Aggregates;
+using Synonms.Structur.Domain.System;
 
 namespace Synonms.Structur.Api.Server.Mediation.Queries;
 
@@ -66,7 +66,7 @@ public class ReadResourceCollectionQueryProcessor<TAggregateRoot, TResource> : I
             // x.{columnName}
             MemberExpression columnNameExpression = Expression.Property(xParameter, aggregatePropertyInfo.Name);
 
-            if (aggregatePropertyInfo.PropertyType.IsValueObject())
+            if (aggregatePropertyInfo.PropertyType.IsSimpleValueObject())
             {
                 // x.{columnName}.Value
                 columnNameExpression = Expression.Property(columnNameExpression, "Value");

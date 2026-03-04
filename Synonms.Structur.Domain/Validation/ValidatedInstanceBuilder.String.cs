@@ -1,12 +1,10 @@
 using System.Text.RegularExpressions;
-using Synonms.Structur.Domain.Validation;
 
-namespace Synonms.Structur.Domain.ValueObjects.Validation;
+namespace Synonms.Structur.Domain.Validation;
 
-public partial class ValueObjectBuilder<TValueObject>
-    where TValueObject : ValueObject<TValueObject>
+public partial class ValidatedInstanceBuilder<T>
 {
-    public ValueObjectBuilder<TValueObject> WithFaultIfNotPopulated(string propertyName, string value)
+    public ValidatedInstanceBuilder<T> WithFaultIfNotPopulated(string propertyName, string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -16,7 +14,7 @@ public partial class ValueObjectBuilder<TValueObject>
         return this;
     }
 
-    public ValueObjectBuilder<TValueObject> WithFaultIfLengthMoreThan(string propertyName, string value, int maxLength)
+    public ValidatedInstanceBuilder<T> WithFaultIfLengthMoreThan(string propertyName, string value, int maxLength)
     {
         if (value.Length > maxLength)
         {
@@ -26,7 +24,7 @@ public partial class ValueObjectBuilder<TValueObject>
         return this;
     }
 
-    public ValueObjectBuilder<TValueObject> WithFaultIfLengthNot(string propertyName, string value, int length)
+    public ValidatedInstanceBuilder<T> WithFaultIfLengthNot(string propertyName, string value, int length)
     {
         if (value.Length != length)
         {
@@ -36,7 +34,7 @@ public partial class ValueObjectBuilder<TValueObject>
         return this;
     }
 
-    public ValueObjectBuilder<TValueObject> WithFaultIfNotOneOf(string propertyName, string value, List<string> acceptableValues)
+    public ValidatedInstanceBuilder<T> WithFaultIfNotOneOf(string propertyName, string value, List<string> acceptableValues)
     {
         if (acceptableValues.Contains(value, StringComparer.OrdinalIgnoreCase) is false)
         {
@@ -46,7 +44,7 @@ public partial class ValueObjectBuilder<TValueObject>
         return this;
     }
 
-    public ValueObjectBuilder<TValueObject> WithFaultIfNotMatchingPattern(string propertyName, string value, string pattern)
+    public ValidatedInstanceBuilder<T> WithFaultIfNotMatchingPattern(string propertyName, string value, string pattern)
     {
         if (Regex.IsMatch(value, pattern) is false)
         {

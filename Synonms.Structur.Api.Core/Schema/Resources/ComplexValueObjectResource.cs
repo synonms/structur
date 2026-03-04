@@ -1,6 +1,5 @@
 namespace Synonms.Structur.Api.Core.Schema.Resources;
 
-public class ValueObjectResource
+public class ComplexValueObjectResource
 {
-    
 }

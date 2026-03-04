@@ -1,11 +1,12 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record EmailContact : ValueObject<EmailContact>
+public class EmailContact : ComplexValueObject, IComparable, IComparable<EmailContact>
 {
-
     private EmailContact(EmailAddress address, bool isPrimary, Label? label)
     {
         Address = address;
@@ -22,7 +23,7 @@ public record EmailContact : ValueObject<EmailContact>
     public static implicit operator string(EmailContact emailAddress) => emailAddress.Address;
 
     public static OneOf<EmailContact, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string address, bool isPrimary, string? label) =>
-        ValueObject.CreateBuilder<EmailContact>()
+        Validator.CreateBuilder<EmailContact>()
             .WithMandatoryValueObjectProperty(address, x => EmailAddress.CreateMandatory($"{propertyName}.{nameof(Address)}", x), out EmailAddress emailAddressValueObject)
             .WithOptionalValueObjectProperty(label, x => Label.CreateOptional($"{propertyName}.{nameof(Label)}", x), out Label? labelValueObject)
             .Build(() => new EmailContact(emailAddressValueObject, isPrimary, labelValueObject));
@@ -37,7 +38,7 @@ public record EmailContact : ValueObject<EmailContact>
         return CreateMandatory(propertyName, address, isPrimary.Value, label).ToMaybe();
     }
     
-    public override int CompareTo(object? obj)
+    public int CompareTo(object? obj)
     {
         if (obj is null)
         {
@@ -52,5 +53,10 @@ public record EmailContact : ValueObject<EmailContact>
         return 0;
     }
 
-    public override int CompareTo(EmailContact? other) => Address.CompareTo(other?.Address ?? string.Empty);
+    public int CompareTo(EmailContact? other) => Address.CompareTo(other?.Address ?? string.Empty);
+    
+    protected override IEnumerable<object?> GetAtomicValues()
+    {
+        yield return Address;
+    }
 }

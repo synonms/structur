@@ -1,10 +1,5 @@
 namespace Synonms.Structur.Core.Entities;
 
-public static class Entity
-{
-    public static EntityBuilder<TEntity> CreateBuilder<TEntity>() where TEntity : Entity<TEntity> => new();
-}
-
 public abstract class Entity<TEntity>
     where TEntity : Entity<TEntity>
 {

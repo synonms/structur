@@ -1,11 +1,12 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record TelephoneContact : ValueObject<TelephoneContact>
+public class TelephoneContact : ComplexValueObject, IComparable, IComparable<TelephoneContact>
 {
-
     private TelephoneContact(TelephoneNumber number, bool isPrimary, Label? label)
     {
         Number = number;
@@ -22,7 +23,7 @@ public record TelephoneContact : ValueObject<TelephoneContact>
     public static implicit operator string(TelephoneContact telephoneNumber) => telephoneNumber.Number;
 
     public static OneOf<TelephoneContact, IEnumerable<DomainRuleFault>>  CreateMandatory(string propertyName, string number, bool isPrimary, string? label) =>
-        ValueObject.CreateBuilder<TelephoneContact>()
+        Validator.CreateBuilder<TelephoneContact>()
             .WithMandatoryValueObjectProperty(number, x => TelephoneNumber.CreateMandatory($"{propertyName}.{nameof(Number)}", x), out TelephoneNumber numberValueObject)
             .WithOptionalValueObjectProperty(label, x => Label.CreateOptional($"{propertyName}.{nameof(Label)}", x), out Label? labelValueObject)
             .Build(() => new TelephoneContact(numberValueObject, isPrimary, labelValueObject));
@@ -37,7 +38,7 @@ public record TelephoneContact : ValueObject<TelephoneContact>
         return CreateMandatory(propertyName, number, isPrimary.Value, label).ToMaybe();
     }
     
-    public override int CompareTo(object? obj)
+    public int CompareTo(object? obj)
     {
         if (obj is null)
         {
@@ -52,5 +53,10 @@ public record TelephoneContact : ValueObject<TelephoneContact>
         return 0;
     }
 
-    public override int CompareTo(TelephoneContact? other) => Number.CompareTo(other?.Number ?? string.Empty);
+    public int CompareTo(TelephoneContact? other) => Number.CompareTo(other?.Number ?? string.Empty);
+    
+    protected override IEnumerable<object?> GetAtomicValues()
+    {
+        yield return Number;
+    }
 }

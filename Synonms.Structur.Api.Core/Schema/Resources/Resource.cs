@@ -19,12 +19,6 @@ public abstract class Resource
     public abstract string GetCollectionPath();
     
     public Guid Id { get; set; }
-    
-    // public bool IsDeleted { get; init; }
-    //
-    // public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-    //
-    // public DateTime? UpdatedAt { get; init; }
 
     public Link SelfLink { get; init; }
 

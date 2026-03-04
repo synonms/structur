@@ -1,9 +1,11 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record EventDateTime : DateTimeValueObject<EventDateTime>
+public class EventDateTime : DateTimeValueObject
 {
     private EventDateTime(DateTime value) : base(value)
     {
@@ -13,10 +15,10 @@ public record EventDateTime : DateTimeValueObject<EventDateTime>
         CreateMandatory(propertyName, value, DateTime.MinValue, DateTime.MaxValue);
 
     public static OneOf<EventDateTime, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, DateTime value, DateTime minimum, DateTime maximum) =>
-        ValueObject.CreateBuilder<EventDateTime>()
+        Validator.CreateBuilder<EventDateTime>()
             .WithFaultIfValueLessThan(propertyName, value, minimum)
             .WithFaultIfValueMoreThan(propertyName, value, maximum)
-            .Build(value, x => new EventDateTime(x));
+            .Build(() => new EventDateTime(value));
 
     public static OneOf<Maybe<EventDateTime>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, DateTime? value) =>
         CreateOptional(propertyName, value, DateTime.MinValue, DateTime.MaxValue);

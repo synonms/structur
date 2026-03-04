@@ -1,14 +1,13 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 
-namespace Synonms.Structur.Domain.ValueObjects.Validation;
+namespace Synonms.Structur.Domain.Validation;
 
-public partial class ValueObjectBuilder<TValueObject>
-    where TValueObject : ValueObject<TValueObject>
+public partial class ValidatedInstanceBuilder<T>
 {
     private readonly List<DomainRuleFault> _faults = [];
     
-    public ValueObjectBuilder<TValueObject> WithMandatoryValueObjectProperty<TValue, TValueObjectProperty>(TValue value, Func<TValue, OneOf<TValueObjectProperty, IEnumerable<DomainRuleFault>>> createFunc, out TValueObjectProperty valueObjectProperty)
+    public ValidatedInstanceBuilder<T> WithMandatoryValueObjectProperty<TValue, TValueObjectProperty>(TValue value, Func<TValue, OneOf<TValueObjectProperty, IEnumerable<DomainRuleFault>>> createFunc, out TValueObjectProperty valueObjectProperty)
     {
         TValueObjectProperty output = default(TValueObjectProperty)!;
 
@@ -23,7 +22,7 @@ public partial class ValueObjectBuilder<TValueObject>
         return this;
     }
 
-    public ValueObjectBuilder<TValueObject> WithOptionalValueObjectProperty<TValue, TValueObjectProperty>(TValue? value, Func<TValue?, OneOf<Maybe<TValueObjectProperty>, IEnumerable<DomainRuleFault>>> createFunc, out TValueObjectProperty? valueObjectProperty)
+    public ValidatedInstanceBuilder<T> WithOptionalValueObjectProperty<TValue, TValueObjectProperty>(TValue? value, Func<TValue?, OneOf<Maybe<TValueObjectProperty>, IEnumerable<DomainRuleFault>>> createFunc, out TValueObjectProperty? valueObjectProperty)
         where TValueObjectProperty : class
     {
         TValueObjectProperty? output = null;
@@ -39,7 +38,7 @@ public partial class ValueObjectBuilder<TValueObject>
         return this;
     }
 
-    public ValueObjectBuilder<TValueObject> WithValueObjectCollectionProperty<TValue, TValueObjectProperty>(List<TValue> values, Func<TValue, OneOf<TValueObjectProperty, IEnumerable<DomainRuleFault>>> createFunc, out List<TValueObjectProperty> valueObjectsProperty)
+    public ValidatedInstanceBuilder<T> WithValueObjectCollectionProperty<TValue, TValueObjectProperty>(List<TValue> values, Func<TValue, OneOf<TValueObjectProperty, IEnumerable<DomainRuleFault>>> createFunc, out List<TValueObjectProperty> valueObjectsProperty)
     {
         List<TValueObjectProperty> output = [];
         List<DomainRuleFault> accumulatedFaults = [];
@@ -66,7 +65,7 @@ public partial class ValueObjectBuilder<TValueObject>
         return this;
     }
     
-    public ValueObjectBuilder<TValueObject> WithFaultIf(string propertyName, Func<bool> predicate, string faultDetail, params object?[] arguments)
+    public ValidatedInstanceBuilder<T> WithFaultIf(string propertyName, Func<bool> predicate, string faultDetail, params object?[] arguments)
     {
         if (predicate())
         {
@@ -76,9 +75,9 @@ public partial class ValueObjectBuilder<TValueObject>
         return this;
     }
 
-    public OneOf<TValueObject, IEnumerable<DomainRuleFault>> Build(Func<TValueObject> factoryFunc) =>
+    public OneOf<T, IEnumerable<DomainRuleFault>> Build(Func<T> factoryFunc) =>
         _faults.Count != 0 ? _faults : factoryFunc();
-
-    public OneOf<TValueObject, IEnumerable<DomainRuleFault>> Build<TValue>(TValue value, Func<TValue, TValueObject> factoryFunc) =>
-        _faults.Count != 0 ? _faults : factoryFunc(value);
+    
+    public Maybe<Fault> Build() =>
+        _faults.Count != 0 ? new DomainRulesFault(_faults) : Maybe<Fault>.None;
 }

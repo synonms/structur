@@ -4,7 +4,7 @@ using Synonms.Structur.Core.System.Text;
 
 namespace Synonms.Structur.Api.Core.ValueObjects;
 
-public class TelephoneContactValueObjectResource : ValueObjectResource
+public class TelephoneContactValueObjectResource : ComplexValueObjectResource
 {
     [StructurRequired]
     [StructurPattern(RegularExpressions.TelephoneNumber)]

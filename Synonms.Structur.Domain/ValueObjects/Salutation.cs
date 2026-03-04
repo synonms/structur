@@ -1,9 +1,11 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record Salutation : StringValueObject<Salutation>
+public class Salutation : StringValueObject
 {
     private Salutation(string value) : base(value)
     {
@@ -15,10 +17,10 @@ public record Salutation : StringValueObject<Salutation>
         CreateMandatory(propertyName, value, DefaultMaxLength);
 
     public static OneOf<Salutation, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value, int maxLength) =>
-        ValueObject.CreateBuilder<Salutation>()
+        Validator.CreateBuilder<Salutation>()
             .WithFaultIfNotPopulated(propertyName, value)
             .WithFaultIfLengthMoreThan(propertyName, value, maxLength)
-            .Build(value, x => new Salutation(x));
+            .Build(() => new Salutation(value));
 
     public static OneOf<Maybe<Salutation>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value) =>
         CreateOptional(propertyName, value, DefaultMaxLength);

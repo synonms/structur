@@ -1,5 +1,7 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
@@ -13,7 +15,7 @@ public enum GenderReassignmentEnumeration
     Unspecified
 }
 
-public record GenderReassignment : StringValueObject<GenderReassignment>
+public class GenderReassignment : StringValueObject
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<GenderReassignmentEnumeration>().ToList();
 
@@ -24,12 +26,12 @@ public record GenderReassignment : StringValueObject<GenderReassignment>
     public static GenderReassignment From(GenderReassignmentEnumeration enumeration) => new(enumeration.ToString());
 
     public static OneOf<GenderReassignment, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
-        ValueObject.CreateBuilder<GenderReassignment>()
+        Validator.CreateBuilder<GenderReassignment>()
             .WithFaultIfNotOneOf(propertyName, value, AcceptableValues)
-            .Build(value, x =>
+            .Build(() =>
             {
                 // Cross-reference the acceptable values to correct any case differences
-                string matchingAcceptableValue = AcceptableValues.FirstOrDefault(y => y.Equals(x, StringComparison.OrdinalIgnoreCase)) ?? value;
+                string matchingAcceptableValue = AcceptableValues.FirstOrDefault(x => x.Equals(value, StringComparison.OrdinalIgnoreCase)) ?? value;
 
                 return new GenderReassignment(matchingAcceptableValue);
             });

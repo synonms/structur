@@ -1,9 +1,11 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record UniqueReference : StringValueObject<UniqueReference>
+public class UniqueReference : StringValueObject
 {
     private UniqueReference(string value) : base(value)
     {
@@ -15,10 +17,10 @@ public record UniqueReference : StringValueObject<UniqueReference>
         CreateMandatory(propertyName, value, DefaultMaxLength);
 
     public static OneOf<UniqueReference, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value, int maxLength) =>
-        ValueObject.CreateBuilder<UniqueReference>()
+        Validator.CreateBuilder<UniqueReference>()
             .WithFaultIfNotPopulated(propertyName, value)
             .WithFaultIfLengthMoreThan(propertyName, value, maxLength)
-            .Build(value, x => new UniqueReference(x));
+            .Build(() => new UniqueReference(value));
 
     public static OneOf<Maybe<UniqueReference>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value)  =>
         CreateOptional(propertyName, value, DefaultMaxLength);

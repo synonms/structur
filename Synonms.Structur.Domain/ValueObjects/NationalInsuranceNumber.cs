@@ -1,10 +1,12 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Core.System.Text;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record NationalInsuranceNumber : StringValueObject<NationalInsuranceNumber>
+public class NationalInsuranceNumber : StringValueObject
 {
     public const int ValidLength = 9;
 
@@ -15,11 +17,11 @@ public record NationalInsuranceNumber : StringValueObject<NationalInsuranceNumbe
     public static implicit operator string(NationalInsuranceNumber friendlyId) => friendlyId.Value;
 
     public static OneOf<NationalInsuranceNumber, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
-        ValueObject.CreateBuilder<NationalInsuranceNumber>()
+        Validator.CreateBuilder<NationalInsuranceNumber>()
             .WithFaultIfNotPopulated(propertyName, value)
             .WithFaultIfLengthNot(propertyName, value, ValidLength)
             .WithFaultIfNotMatchingPattern(propertyName, value, RegularExpressions.NationalInsuranceNumber)
-            .Build(value, x => new NationalInsuranceNumber(x));
+            .Build(() => new NationalInsuranceNumber(value));
 
     public static OneOf<Maybe<NationalInsuranceNumber>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value)
     {

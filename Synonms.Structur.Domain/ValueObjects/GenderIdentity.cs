@@ -1,5 +1,7 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
@@ -14,7 +16,7 @@ public enum GenderIdentityEnumeration
     Unspecified
 }
 
-public record GenderIdentity : StringValueObject<GenderIdentity>
+public class GenderIdentity : StringValueObject
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<GenderIdentityEnumeration>().ToList();
 
@@ -25,12 +27,12 @@ public record GenderIdentity : StringValueObject<GenderIdentity>
     public static GenderIdentity From(GenderIdentityEnumeration enumeration) => new(enumeration.ToString());
 
     public static OneOf<GenderIdentity, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
-        ValueObject.CreateBuilder<GenderIdentity>()
+        Validator.CreateBuilder<GenderIdentity>()
             .WithFaultIfNotOneOf(propertyName, value, AcceptableValues)
-            .Build(value, x =>
+            .Build(() =>
             {
                 // Cross-reference the acceptable values to correct any case differences
-                string matchingAcceptableValue = AcceptableValues.FirstOrDefault(y => y.Equals(x, StringComparison.OrdinalIgnoreCase)) ?? value;
+                string matchingAcceptableValue = AcceptableValues.FirstOrDefault(x => x.Equals(value, StringComparison.OrdinalIgnoreCase)) ?? value;
 
                 return new GenderIdentity(matchingAcceptableValue);
             });

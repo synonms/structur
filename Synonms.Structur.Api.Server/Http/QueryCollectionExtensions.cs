@@ -57,9 +57,9 @@ public static class QueryCollectionExtensions
                 continue;
             }
 
-            if (aggregatePropertyInfo?.PropertyType.IsValueObject() ?? false)
+            if (aggregatePropertyInfo?.PropertyType.IsSimpleValueObject() ?? false)
             {
-                object? valueForValueObject = GetValueForValueObject(aggregatePropertyInfo.PropertyType, valueAsString);
+                object? valueForValueObject = GetValueForSimpleValueObject(aggregatePropertyInfo.PropertyType, valueAsString);
 
                 if (valueForValueObject is not null)
                 {
@@ -102,9 +102,9 @@ public static class QueryCollectionExtensions
         return sortItems;
     }
     
-    private static object? GetValueForValueObject(Type valueObjectPropertyType, string value)
+    private static object? GetValueForSimpleValueObject(Type valueObjectPropertyType, string value)
     {
-        Type? valueObjectValueType = valueObjectPropertyType.GetValueObjectValueType();
+        Type? valueObjectValueType = valueObjectPropertyType.GetSimpleValueObjectValueType();
 
         if (valueObjectValueType == typeof(string))
         {

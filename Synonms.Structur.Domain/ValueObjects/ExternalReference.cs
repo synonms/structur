@@ -1,9 +1,11 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record ExternalReference : StringValueObject<ExternalReference>
+public class ExternalReference : StringValueObject
 {
     private ExternalReference(string value) : base(value)
     {
@@ -15,10 +17,10 @@ public record ExternalReference : StringValueObject<ExternalReference>
         CreateMandatory(propertyName, value, DefaultMaxLength);
 
     public static OneOf<ExternalReference, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value, int maxLength) =>
-        ValueObject.CreateBuilder<ExternalReference>()
+        Validator.CreateBuilder<ExternalReference>()
             .WithFaultIfNotPopulated(propertyName, value)
             .WithFaultIfLengthMoreThan(propertyName, value, maxLength)
-            .Build(value, x => new ExternalReference(x));
+            .Build(() => new ExternalReference(value));
 
     public static OneOf<Maybe<ExternalReference>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value)  =>
         CreateOptional(propertyName, value, DefaultMaxLength);

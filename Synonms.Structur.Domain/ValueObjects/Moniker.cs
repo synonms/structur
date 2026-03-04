@@ -1,9 +1,11 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record Moniker : StringValueObject<Moniker>
+public class Moniker : StringValueObject
 {
     private Moniker(string value) : base(value)
     {
@@ -13,10 +15,10 @@ public record Moniker : StringValueObject<Moniker>
         CreateMandatory(propertyName, value, DefaultMaxLength);
 
     public static OneOf<Moniker, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value, int maxLength) =>
-        ValueObject.CreateBuilder<Moniker>()
+        Validator.CreateBuilder<Moniker>()
             .WithFaultIfNotPopulated(propertyName, value)
             .WithFaultIfLengthMoreThan(propertyName, value, maxLength)
-            .Build(value, x => new Moniker(x));
+            .Build(() => new Moniker(value));
 
     public static OneOf<Maybe<Moniker>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value)  =>
         CreateOptional(propertyName, value, DefaultMaxLength);

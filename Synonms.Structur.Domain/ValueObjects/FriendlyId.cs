@@ -1,9 +1,11 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public record FriendlyId : StringValueObject<FriendlyId>
+public class FriendlyId : StringValueObject
 {
     private FriendlyId(string value) : base(value)
     {
@@ -17,10 +19,10 @@ public record FriendlyId : StringValueObject<FriendlyId>
         CreateMandatory(propertyName, value, DefaultMaxLength);
 
     public static OneOf<FriendlyId, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value, int maxLength) =>
-        ValueObject.CreateBuilder<FriendlyId>()
+        Validator.CreateBuilder<FriendlyId>()
             .WithFaultIfNotPopulated(propertyName, value)
             .WithFaultIfLengthMoreThan(propertyName, value, maxLength)
-            .Build(value, x => new FriendlyId(x));
+            .Build(() => new FriendlyId(value));
 
     public static OneOf<Maybe<FriendlyId>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value) =>
         CreateOptional(propertyName, value, DefaultMaxLength);

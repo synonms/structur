@@ -6,25 +6,35 @@ namespace Synonms.Structur.Domain.Tests.Unit.System;
 public class TypeExtensionsTests
 {
     [Fact]
-    public void GetValueObjectValueType_GivenValueObject_ReturnsCorrectValueType()
+    public void GetSimpleValueObjectValueType_GivenSimpleValueObject_ReturnsCorrectValueType()
     {
-        Assert.Equal(typeof(string), typeof(AddressType).GetValueObjectValueType());
-        Assert.Equal(typeof(DateOnly), typeof(BirthDate).GetValueObjectValueType());
-        Assert.Equal(typeof(DateTime), typeof(EventDateTime).GetValueObjectValueType());
-        Assert.Equal(typeof(int), typeof(Units).GetValueObjectValueType());
-        Assert.Equal(typeof(Address), typeof(Address).GetValueObjectValueType());
+        Assert.Equal(typeof(string), typeof(AddressType).GetSimpleValueObjectValueType());
+        Assert.Equal(typeof(DateOnly), typeof(BirthDate).GetSimpleValueObjectValueType());
+        Assert.Equal(typeof(DateTime), typeof(EventDateTime).GetSimpleValueObjectValueType());
+        Assert.Equal(typeof(int), typeof(Units).GetSimpleValueObjectValueType());
+    }
+
+    [Fact]
+    public void GetSimpleValueObjectValueType_GivenComplexValueObject_ReturnsNull()
+    {
+        Assert.Null(typeof(Address).GetSimpleValueObjectValueType());
+        Assert.Null(typeof(EmailContact).GetSimpleValueObjectValueType());
+        Assert.Null(typeof(TelephoneContact).GetSimpleValueObjectValueType());
+    }
+
+    [Fact]
+    public void IsSimpleValueObject_GivenSimpleValueObject_ReturnsTrue()
+    {
+        Assert.True(typeof(BirthDate).IsSimpleValueObject());
+        Assert.True(typeof(Currency).IsSimpleValueObject());
+        Assert.True(typeof(EventDateTime).IsSimpleValueObject());
+        Assert.True(typeof(Moniker).IsSimpleValueObject());
     }
     
     [Fact]
-    public void IsValueObject_GivenValueObject_ReturnsTrue()
+    public void IsSimpleValueObject_GivenComplexValueObject_ReturnsFalse()
     {
-        Assert.True(typeof(UserAction).IsValueObject());
-        
-        Assert.True(typeof(BirthDate).IsValueObject());
-        Assert.True(typeof(Currency).IsValueObject());
-        Assert.True(typeof(EventDateTime).IsValueObject());
-        Assert.True(typeof(Moniker).IsValueObject());
-        
-        Assert.True(typeof(Address).IsValueObject());
+        Assert.False(typeof(UserAction).IsSimpleValueObject());
+        Assert.False(typeof(Address).IsSimpleValueObject());
     }
 }

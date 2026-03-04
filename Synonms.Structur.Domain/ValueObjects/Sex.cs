@@ -1,5 +1,7 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
@@ -10,7 +12,7 @@ public enum SexEnumeration
     Female
 }
 
-public record Sex : StringValueObject<Sex>
+public class Sex : StringValueObject
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<SexEnumeration>().ToList();
 
@@ -21,12 +23,12 @@ public record Sex : StringValueObject<Sex>
     public static Sex From(SexEnumeration enumeration) => new(enumeration.ToString());
 
     public static OneOf<Sex, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
-        ValueObject.CreateBuilder<Sex>()
+        Validator.CreateBuilder<Sex>()
             .WithFaultIfNotOneOf(propertyName, value, AcceptableValues)
-            .Build(value, x =>
+            .Build(() =>
             {
                 // Cross-reference the acceptable values to correct any case differences
-                string matchingAcceptableValue = AcceptableValues.FirstOrDefault(y => y.Equals(x, StringComparison.OrdinalIgnoreCase)) ?? value;
+                string matchingAcceptableValue = AcceptableValues.FirstOrDefault(x => x.Equals(value, StringComparison.OrdinalIgnoreCase)) ?? value;
 
                 return new Sex(matchingAcceptableValue);
             });

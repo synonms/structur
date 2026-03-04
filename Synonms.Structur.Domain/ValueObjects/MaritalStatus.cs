@@ -1,5 +1,7 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Validation;
+using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
@@ -15,7 +17,7 @@ public enum MaritalStatusEnumeration
     Cohabiting
 }
 
-public record MaritalStatus : StringValueObject<MaritalStatus>
+public class MaritalStatus : StringValueObject
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<MaritalStatusEnumeration>().ToList();
 
@@ -26,12 +28,12 @@ public record MaritalStatus : StringValueObject<MaritalStatus>
     public static MaritalStatus From(MaritalStatusEnumeration enumeration) => new(enumeration.ToString());
 
     public static OneOf<MaritalStatus, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
-        ValueObject.CreateBuilder<MaritalStatus>()
+        Validator.CreateBuilder<MaritalStatus>()
             .WithFaultIfNotOneOf(propertyName, value, AcceptableValues)
-            .Build(value, x =>
+            .Build(() =>
             {
                 // Cross-reference the acceptable values to correct any case differences
-                string matchingAcceptableValue = AcceptableValues.FirstOrDefault(y => y.Equals(x, StringComparison.OrdinalIgnoreCase)) ?? value;
+                string matchingAcceptableValue = AcceptableValues.FirstOrDefault(x => x.Equals(value, StringComparison.OrdinalIgnoreCase)) ?? value;
 
                 return new MaritalStatus(matchingAcceptableValue);
             });
