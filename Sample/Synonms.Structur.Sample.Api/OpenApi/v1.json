@@ -335,6 +335,27 @@
           }
         }
       },
+      "EmployeeEqualOpportunitiesResource": {
+        "required": [
+          "birthDate",
+          "sex"
+        ],
+        "type": "object",
+        "properties": {
+          "birthDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "sex": {
+            "enum": [
+              "Unknown",
+              "Male",
+              "Female"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "EmployeeResource_Default": {
         "required": [
           "employeeReference",
@@ -344,7 +365,8 @@
           "workPermitRequired",
           "homeAddress",
           "emailContacts",
-          "telephoneContacts"
+          "telephoneContacts",
+          "equalOpportunities"
         ],
         "type": "object",
         "properties": {
@@ -416,6 +438,9 @@
             "items": {
               "$ref": "#/components/schemas/TelephoneContactValueObjectResource"
             }
+          },
+          "equalOpportunities": {
+            "$ref": "#/components/schemas/EmployeeEqualOpportunitiesResource"
           }
         }
       },
@@ -448,7 +473,8 @@
           "workPermitRequired",
           "homeAddress",
           "emailContacts",
-          "telephoneContacts"
+          "telephoneContacts",
+          "equalOpportunities"
         ],
         "type": "object",
         "properties": {
@@ -565,6 +591,9 @@
             "items": {
               "$ref": "#/components/schemas/TelephoneContactValueObjectResource"
             }
+          },
+          "equalOpportunities": {
+            "$ref": "#/components/schemas/EmployeeEqualOpportunitiesResource"
           }
         }
       },
@@ -687,7 +716,8 @@
           "workPermitRequired",
           "homeAddress",
           "emailContacts",
-          "telephoneContacts"
+          "telephoneContacts",
+          "equalOpportunities"
         ],
         "type": "object",
         "properties": {
@@ -759,6 +789,9 @@
             "items": {
               "$ref": "#/components/schemas/TelephoneContactValueObjectResource"
             }
+          },
+          "equalOpportunities": {
+            "$ref": "#/components/schemas/EmployeeEqualOpportunitiesResource"
           }
         }
       },

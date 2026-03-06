@@ -9,12 +9,12 @@ namespace Synonms.Structur.Domain.Tests.Unit.Validation;
 public class ValidatedInstanceBuilderTests
 {
     [Fact]
-    public void WithOptionalValueObjectProperty_GivenNullValueType_ReturnsNoFaultAndOutputsNull()
+    public void WithOptionalScalarProperty_GivenNullValueType_ReturnsNoFaultAndOutputsNull()
     {
         int? value = null;
 
-        Maybe<Fault> outcome = Validator.CreateBuilder<TestAggregateRoot>()
-            .WithOptionalValueObjectProperty(value, x => Units.CreateOptional(nameof(TestAggregateRoot.Units), x), out Units? unitsValueObject)
+        Maybe<DomainRulesFault> outcome = Validator.CreateBuilder<TestAggregateRoot>()
+            .WithOptionalScalarProperty(value, x => Units.CreateOptional(nameof(TestAggregateRoot.Units), x), out Units? unitsValueObject)
             .Build();
 
         Assert.True(outcome.IsNone);
@@ -22,12 +22,12 @@ public class ValidatedInstanceBuilderTests
     }
     
     [Fact]
-    public void WithOptionalValueObjectProperty_GivenNullReferenceType_ReturnsNoFaultAndOutputsNull()
+    public void WithOptionalScalarProperty_GivenNullReferenceType_ReturnsNoFaultAndOutputsNull()
     {
         string? value = null;
 
-        Maybe<Fault> outcome = Validator.CreateBuilder<TestAggregateRoot>()
-            .WithOptionalValueObjectProperty(value, x => Moniker.CreateOptional(nameof(TestAggregateRoot.Name), x), out Moniker? nameValueObject)
+        Maybe<DomainRulesFault> outcome = Validator.CreateBuilder<TestAggregateRoot>()
+            .WithOptionalScalarProperty(value, x => Moniker.CreateOptional(nameof(TestAggregateRoot.Name), x), out Moniker? nameValueObject)
             .Build();
 
         Assert.True(outcome.IsNone);
@@ -35,12 +35,12 @@ public class ValidatedInstanceBuilderTests
     }
     
     [Fact]
-    public void WithOptionalValueObjectProperty_GivenValueType_ReturnsNoFaultAndOutputsValueObject()
+    public void WithOptionalScalarProperty_GivenValueType_ReturnsNoFaultAndOutputsValueObject()
     {
         int value = 99;
 
-        Maybe<Fault> outcome = Validator.CreateBuilder<TestAggregateRoot>()
-            .WithOptionalValueObjectProperty(value, x => Units.CreateOptional(nameof(TestAggregateRoot.Units), x), out Units? unitsValueObject)
+        Maybe<DomainRulesFault> outcome = Validator.CreateBuilder<TestAggregateRoot>()
+            .WithOptionalScalarProperty(value, x => Units.CreateOptional(nameof(TestAggregateRoot.Units), x), out Units? unitsValueObject)
             .Build();
 
         Assert.True(outcome.IsNone);
@@ -49,12 +49,12 @@ public class ValidatedInstanceBuilderTests
     }
     
     [Fact]
-    public void WithOptionalValueObjectProperty_GivenReferenceType_ReturnsNoFaultAndOutputsValueObject()
+    public void WithOptionalScalarProperty_GivenReferenceType_ReturnsNoFaultAndOutputsValueObject()
     {
         string value = "Pizzeria";
 
-        Maybe<Fault> outcome = Validator.CreateBuilder<TestAggregateRoot>()
-            .WithOptionalValueObjectProperty(value, x => Moniker.CreateOptional(nameof(TestAggregateRoot.Name), x), out Moniker? nameValueObject)
+        Maybe<DomainRulesFault> outcome = Validator.CreateBuilder<TestAggregateRoot>()
+            .WithOptionalScalarProperty(value, x => Moniker.CreateOptional(nameof(TestAggregateRoot.Name), x), out Moniker? nameValueObject)
             .Build();
 
         Assert.True(outcome.IsNone);
@@ -63,12 +63,12 @@ public class ValidatedInstanceBuilderTests
     }
     
     [Fact]
-    public void WithOptionalValueObjectProperty_GivenInvalidValueType_ReturnsFaultAndOutputsNull()
+    public void WithOptionalScalarProperty_GivenInvalidValueType_ReturnsFaultAndOutputsNull()
     {
         int value = -99;
 
-        Maybe<Fault> outcome = Validator.CreateBuilder<TestAggregateRoot>()
-            .WithOptionalValueObjectProperty(value, x => Units.CreateOptional(nameof(TestAggregateRoot.Units), x, 0, 100), out Units? unitsValueObject)
+        Maybe<DomainRulesFault> outcome = Validator.CreateBuilder<TestAggregateRoot>()
+            .WithOptionalScalarProperty(value, x => Units.CreateOptional(nameof(TestAggregateRoot.Units), x, 0, 100), out Units? unitsValueObject)
             .Build();
 
         Assert.True(outcome.IsSome);
@@ -76,12 +76,12 @@ public class ValidatedInstanceBuilderTests
     }
     
     [Fact]
-    public void WithOptionalValueObjectProperty_GivenInvalidReferenceType_ReturnsFaultAndOutputsNull()
+    public void WithOptionalScalarProperty_GivenInvalidReferenceType_ReturnsFaultAndOutputsNull()
     {
         string value = "SUPERDUPERLONGNAME";
 
-        Maybe<Fault> outcome = Validator.CreateBuilder<TestAggregateRoot>()
-            .WithOptionalValueObjectProperty(value, x => Moniker.CreateOptional(nameof(TestAggregateRoot.Name), x, maxLength: 4), out Moniker? nameValueObject)
+        Maybe<DomainRulesFault> outcome = Validator.CreateBuilder<TestAggregateRoot>()
+            .WithOptionalScalarProperty(value, x => Moniker.CreateOptional(nameof(TestAggregateRoot.Name), x, maxLength: 4), out Moniker? nameValueObject)
             .Build();
 
         Assert.True(outcome.IsSome);

@@ -30,10 +30,10 @@ public class CreateResourceCommandProcessor<TAggregateRoot, TResource> : IComman
     {
         Maybe<TAggregateRoot> existingOutcome = await _readAggregateRepository.FindAsync((EntityId<TAggregateRoot>)command.Resource.Id, cancellationToken);
 
-        Result<DomainEvent<TAggregateRoot>> generateEventOutcome = existingOutcome
-            .Match(
-                existingAggregate => Result<DomainEvent<TAggregateRoot>>.Failure(new DomainRuleFault("{entityType} Id '{id}' already exists.", nameof(TAggregateRoot), command.Resource.Id)), 
-                () => _domainEventFactory.GenerateCreatedEvent(command.Resource));
+        Result<DomainEvent<TAggregateRoot>> generateEventOutcome = await existingOutcome
+            .MatchAsync(
+                existingAggregate => Result<DomainEvent<TAggregateRoot>>.FailureAsync(new DomainRuleFault("{entityType} Id '{id}' already exists.", nameof(TAggregateRoot), command.Resource.Id)), 
+                async () => await _domainEventFactory.GenerateCreatedEvent(command.Resource, cancellationToken));
         
         Result<TAggregateRoot> createOutcome = await generateEventOutcome
             .BindAsync(async createdEvent => 

@@ -30,7 +30,8 @@ public class Employee : AggregateRoot<Employee>
         bool workPermitRequired,
         Address homeAddress,
         List<EmailContact> emailContacts,
-        List<TelephoneContact> telephoneContacts
+        List<TelephoneContact> telephoneContacts,
+        EmployeeEqualOpportunities equalOpportunities
         ) 
         : base(id, tenantId, createdAction)
     {
@@ -42,6 +43,7 @@ public class Employee : AggregateRoot<Employee>
         HomeAddress = homeAddress;
         EmailContacts = emailContacts;
         TelephoneContacts = telephoneContacts;
+        EqualOpportunities = equalOpportunities;
     }
 
     public UniqueReference EmployeeReference { get; private set; } = null!;
@@ -70,55 +72,60 @@ public class Employee : AggregateRoot<Employee>
     
     public List<TelephoneContact> TelephoneContacts { get; private set; } = [];
     
+    public EmployeeEqualOpportunities EqualOpportunities { get; private set; }
+    
     internal Maybe<Fault> Update(EmployeeResource resource, UserActionDto updatedActionDto) =>
         Validator.CreateBuilder<Employee>()
-            .WithMandatoryValueObjectProperty(updatedActionDto, x => UserAction.CreateMandatory(nameof(UpdatedAction), x), out UserAction updatedActionValueObject)
-            .WithOptionalValueObjectProperty(resource.Title.ToString(), x => Title.CreateOptional(nameof(Title), x), out Title? titleValueObject)
-            .WithMandatoryValueObjectProperty(resource.Forename, x => Moniker.CreateMandatory(nameof(Forename), x, ForenameMaxLength), out Moniker forenameValueObject)
-            .WithOptionalValueObjectProperty(resource.MiddleNames, x => Moniker.CreateOptional(nameof(MiddleNames), x), out Moniker? middleNamesValueObject)
-            .WithMandatoryValueObjectProperty(resource.Surname, x => Moniker.CreateMandatory(nameof(Surname), x, SurnameMaxLength), out Moniker surnameValueObject)
-            .WithOptionalValueObjectProperty(resource.KnownAs, x => Moniker.CreateOptional(nameof(KnownAs), x), out Moniker? knownAsValueObject)
-            .WithOptionalValueObjectProperty(resource.WorkPermitValidUntil, x => EffectiveDate.CreateOptional(nameof(WorkPermitValidUntil), x), out EffectiveDate? workPermitValidUntilValueObject)
-            .WithOptionalValueObjectProperty(resource.Notes, x => Notes.CreateOptional(nameof(Notes), x), out Notes? notesValueObject)
-            .WithMandatoryValueObjectProperty(resource.HomeAddress, x => Address.CreateMandatory(nameof(HomeAddress), x.Type.ToString(), x.Line1, x.Line2, x.Line3, x.Line4, x.Postcode, x.Label), out Address homeAddressValueObject)
-            .WithValueObjectCollectionProperty(resource.EmailContacts, x => EmailContact.CreateMandatory(nameof(EmailContact), x.Address, x.IsPrimary, x.Label), out List<EmailContact> emailAddressValueObjects)
-            .WithValueObjectCollectionProperty(resource.TelephoneContacts, x => TelephoneContact.CreateMandatory(nameof(TelephoneContact), x.Number, x.IsPrimary, x.Label), out List<TelephoneContact> telephoneNumberValueObjects)
+            .WithMandatoryScalarProperty(updatedActionDto, x => UserAction.CreateMandatory(nameof(UpdatedAction), x), out UserAction updatedActionValueObject)
+            .WithOptionalScalarProperty(resource.Title.ToString(), x => Title.CreateOptional(nameof(Title), x), out Title? titleValueObject)
+            .WithMandatoryScalarProperty(resource.Forename, x => Moniker.CreateMandatory(nameof(Forename), x, ForenameMaxLength), out Moniker forenameValueObject)
+            .WithOptionalScalarProperty(resource.MiddleNames, x => Moniker.CreateOptional(nameof(MiddleNames), x), out Moniker? middleNamesValueObject)
+            .WithMandatoryScalarProperty(resource.Surname, x => Moniker.CreateMandatory(nameof(Surname), x, SurnameMaxLength), out Moniker surnameValueObject)
+            .WithOptionalScalarProperty(resource.KnownAs, x => Moniker.CreateOptional(nameof(KnownAs), x), out Moniker? knownAsValueObject)
+            .WithOptionalScalarProperty(resource.WorkPermitValidUntil, x => EffectiveDate.CreateOptional(nameof(WorkPermitValidUntil), x), out EffectiveDate? workPermitValidUntilValueObject)
+            .WithOptionalScalarProperty(resource.Notes, x => Notes.CreateOptional(nameof(Notes), x), out Notes? notesValueObject)
+            .WithMandatoryScalarProperty(resource.HomeAddress, x => Address.CreateMandatory(nameof(HomeAddress), x.Type.ToString(), x.Line1, x.Line2, x.Line3, x.Line4, x.Postcode, x.Label), out Address homeAddressValueObject)
+            .WithCollectionProperty(resource.EmailContacts, x => EmailContact.CreateMandatory(nameof(EmailContact), x.Address, x.IsPrimary, x.Label), out List<EmailContact> emailAddressValueObjects)
+            .WithCollectionProperty(resource.TelephoneContacts, x => TelephoneContact.CreateMandatory(nameof(TelephoneContact), x.Number, x.IsPrimary, x.Label), out List<TelephoneContact> telephoneNumberValueObjects)
             .Build()
             .BiBind(() => 
-            {
-                UpdateOptionalValue(x => x.Title, titleValueObject, updatedActionValueObject);
-                UpdateMandatoryValue(x => x.Forename, forenameValueObject, updatedActionValueObject);
-                UpdateOptionalValue(x => x.MiddleNames, middleNamesValueObject, updatedActionValueObject);
-                UpdateMandatoryValue(x => x.Surname, surnameValueObject, updatedActionValueObject);
-                UpdateOptionalValue(x => x.KnownAs, knownAsValueObject, updatedActionValueObject);
-                UpdateOptionalValue(x => x.WorkPermitRequired, resource.WorkPermitRequired, updatedActionValueObject);
-                UpdateOptionalValue(x => x.WorkPermitValidUntil, workPermitValidUntilValueObject, updatedActionValueObject);
-                UpdateOptionalValue(x => x.Notes, notesValueObject, updatedActionValueObject);
-                UpdateMandatoryValue(x => x.HomeAddress, homeAddressValueObject, updatedActionValueObject);
-                UpdateMandatoryValue(x => x.EmailContacts, emailAddressValueObjects, updatedActionValueObject);
-                UpdateMandatoryValue(x => x.TelephoneContacts, telephoneNumberValueObjects, updatedActionValueObject);
-
-                return Maybe<Fault>.None;
-            });
+                EqualOpportunities.Update(resource.EqualOpportunities, () => MarkAsUpdated(updatedActionValueObject))
+                    .BiBind(() =>  
+                    {
+                        UpdateOptionalValue(x => x.Title, titleValueObject, updatedActionValueObject);
+                        UpdateMandatoryValue(x => x.Forename, forenameValueObject, updatedActionValueObject);
+                        UpdateOptionalValue(x => x.MiddleNames, middleNamesValueObject, updatedActionValueObject);
+                        UpdateMandatoryValue(x => x.Surname, surnameValueObject, updatedActionValueObject);
+                        UpdateOptionalValue(x => x.KnownAs, knownAsValueObject, updatedActionValueObject);
+                        UpdateOptionalValue(x => x.WorkPermitRequired, resource.WorkPermitRequired, updatedActionValueObject);
+                        UpdateOptionalValue(x => x.WorkPermitValidUntil, workPermitValidUntilValueObject, updatedActionValueObject);
+                        UpdateOptionalValue(x => x.Notes, notesValueObject, updatedActionValueObject);
+                        UpdateMandatoryValue(x => x.HomeAddress, homeAddressValueObject, updatedActionValueObject);
+                        UpdateMandatoryValue(x => x.EmailContacts, emailAddressValueObjects, updatedActionValueObject);
+                        UpdateMandatoryValue(x => x.TelephoneContacts, telephoneNumberValueObjects, updatedActionValueObject);
+                        
+                        return Maybe<Fault>.None;
+                    }));
 
     internal static Result<Employee> Create(Guid tenantId, EmployeeResource resource, UserActionDto createdActionDto) =>
         Validator.CreateBuilder<Employee>()
-            .WithMandatoryValueObjectProperty(createdActionDto, x => UserAction.CreateMandatory(nameof(CreatedAction), x), out UserAction createdActionValueObject)
-            .WithMandatoryValueObjectProperty(resource.EmployeeReference, x => UniqueReference.CreateMandatory(nameof(EmployeeReference), x), out UniqueReference employeeReferenceValueObject)
-            .WithMandatoryValueObjectProperty(resource.NationalInsuranceNumber, x => NationalInsuranceNumber.CreateMandatory(nameof(NationalInsuranceNumber), x), out NationalInsuranceNumber nationalInsuranceNumberValueObject)
-            .WithOptionalValueObjectProperty(resource.Title.ToString(), x => Title.CreateOptional(nameof(Title), x), out Title? titleValueObject)
-            .WithMandatoryValueObjectProperty(resource.Forename, x => Moniker.CreateMandatory(nameof(Forename), x), out Moniker forenameValueObject)
-            .WithOptionalValueObjectProperty(resource.MiddleNames, x => Moniker.CreateOptional(nameof(MiddleNames), x), out Moniker? middleNamesValueObject)
-            .WithMandatoryValueObjectProperty(resource.Surname, x => Moniker.CreateMandatory(nameof(Surname), x), out Moniker surnameValueObject)
-            .WithOptionalValueObjectProperty(resource.KnownAs, x => Moniker.CreateOptional(nameof(KnownAs), x), out Moniker? knownAsValueObject)
-            .WithOptionalValueObjectProperty(resource.WorkPermitValidUntil, x => EffectiveDate.CreateOptional(nameof(WorkPermitValidUntil), x), out EffectiveDate? workPermitValidUntilValueObject)
-            .WithOptionalValueObjectProperty(resource.Notes, x => Notes.CreateOptional(nameof(Notes), x), out Notes? notesValueObject)
-            .WithMandatoryValueObjectProperty(resource.HomeAddress, x => Address.CreateMandatory(nameof(HomeAddress), x.Type.ToString(), x.Line1, x.Line2, x.Line3, x.Line4, x.Postcode, x.Label), out Address homeAddressValueObject)
-            .WithValueObjectCollectionProperty(resource.EmailContacts, x => EmailContact.CreateMandatory(nameof(EmailContact), x.Address, x.IsPrimary, x.Label), out List<EmailContact> emailAddressValueObjects)
-            .WithValueObjectCollectionProperty(resource.TelephoneContacts, x => TelephoneContact.CreateMandatory(nameof(TelephoneContact), x.Number, x.IsPrimary, x.Label), out List<TelephoneContact> telephoneNumberValueObjects)
+            .WithMandatoryScalarProperty(createdActionDto, x => UserAction.CreateMandatory(nameof(CreatedAction), x), out UserAction createdActionValueObject)
+            .WithMandatoryScalarProperty(resource.EmployeeReference, x => UniqueReference.CreateMandatory(nameof(EmployeeReference), x), out UniqueReference employeeReferenceValueObject)
+            .WithMandatoryScalarProperty(resource.NationalInsuranceNumber, x => NationalInsuranceNumber.CreateMandatory(nameof(NationalInsuranceNumber), x), out NationalInsuranceNumber nationalInsuranceNumberValueObject)
+            .WithOptionalScalarProperty(resource.Title.ToString(), x => Title.CreateOptional(nameof(Title), x), out Title? titleValueObject)
+            .WithMandatoryScalarProperty(resource.Forename, x => Moniker.CreateMandatory(nameof(Forename), x), out Moniker forenameValueObject)
+            .WithOptionalScalarProperty(resource.MiddleNames, x => Moniker.CreateOptional(nameof(MiddleNames), x), out Moniker? middleNamesValueObject)
+            .WithMandatoryScalarProperty(resource.Surname, x => Moniker.CreateMandatory(nameof(Surname), x), out Moniker surnameValueObject)
+            .WithOptionalScalarProperty(resource.KnownAs, x => Moniker.CreateOptional(nameof(KnownAs), x), out Moniker? knownAsValueObject)
+            .WithOptionalScalarProperty(resource.WorkPermitValidUntil, x => EffectiveDate.CreateOptional(nameof(WorkPermitValidUntil), x), out EffectiveDate? workPermitValidUntilValueObject)
+            .WithOptionalScalarProperty(resource.Notes, x => Notes.CreateOptional(nameof(Notes), x), out Notes? notesValueObject)
+            .WithMandatoryScalarProperty(resource.HomeAddress, x => Address.CreateMandatory(nameof(HomeAddress), x.Type.ToString(), x.Line1, x.Line2, x.Line3, x.Line4, x.Postcode, x.Label), out Address homeAddressValueObject)
+            .WithCollectionProperty(resource.EmailContacts, x => EmailContact.CreateMandatory(nameof(EmailContact), x.Address, x.IsPrimary, x.Label), out List<EmailContact> emailAddressValueObjects)
+            .WithCollectionProperty(resource.TelephoneContacts, x => TelephoneContact.CreateMandatory(nameof(TelephoneContact), x.Number, x.IsPrimary, x.Label), out List<TelephoneContact> telephoneNumberValueObjects)
+            .WithMandatoryScalarProperty(resource.EqualOpportunities, x => EmployeeEqualOpportunities.Create(nameof(EqualOpportunities), x), out EmployeeEqualOpportunities equalOpportunities)
             .Build()
             .ToResult(() =>
-                new Employee((EntityId<Employee>)resource.Id, tenantId, createdActionValueObject, employeeReferenceValueObject, nationalInsuranceNumberValueObject, forenameValueObject, surnameValueObject, resource.WorkPermitRequired, homeAddressValueObject, emailAddressValueObjects, telephoneNumberValueObjects)
+                new Employee((EntityId<Employee>)resource.Id, tenantId, createdActionValueObject, employeeReferenceValueObject, nationalInsuranceNumberValueObject, forenameValueObject, surnameValueObject, resource.WorkPermitRequired, homeAddressValueObject, emailAddressValueObjects, telephoneNumberValueObjects, equalOpportunities)
                 {
                     Title = titleValueObject,
                     MiddleNames = middleNamesValueObject,

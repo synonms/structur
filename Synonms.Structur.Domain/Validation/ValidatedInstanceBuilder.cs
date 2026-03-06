@@ -7,7 +7,7 @@ public partial class ValidatedInstanceBuilder<T>
 {
     private readonly List<DomainRuleFault> _faults = [];
     
-    public ValidatedInstanceBuilder<T> WithMandatoryValueObjectProperty<TValue, TValueObjectProperty>(TValue value, Func<TValue, OneOf<TValueObjectProperty, IEnumerable<DomainRuleFault>>> createFunc, out TValueObjectProperty valueObjectProperty)
+    public ValidatedInstanceBuilder<T> WithMandatoryScalarProperty<TValue, TValueObjectProperty>(TValue value, Func<TValue, OneOf<TValueObjectProperty, IEnumerable<DomainRuleFault>>> createFunc, out TValueObjectProperty valueObjectProperty)
     {
         TValueObjectProperty output = default(TValueObjectProperty)!;
 
@@ -22,7 +22,7 @@ public partial class ValidatedInstanceBuilder<T>
         return this;
     }
 
-    public ValidatedInstanceBuilder<T> WithOptionalValueObjectProperty<TValue, TValueObjectProperty>(TValue? value, Func<TValue?, OneOf<Maybe<TValueObjectProperty>, IEnumerable<DomainRuleFault>>> createFunc, out TValueObjectProperty? valueObjectProperty)
+    public ValidatedInstanceBuilder<T> WithOptionalScalarProperty<TValue, TValueObjectProperty>(TValue? value, Func<TValue?, OneOf<Maybe<TValueObjectProperty>, IEnumerable<DomainRuleFault>>> createFunc, out TValueObjectProperty? valueObjectProperty)
         where TValueObjectProperty : class
     {
         TValueObjectProperty? output = null;
@@ -38,7 +38,7 @@ public partial class ValidatedInstanceBuilder<T>
         return this;
     }
 
-    public ValidatedInstanceBuilder<T> WithValueObjectCollectionProperty<TValue, TValueObjectProperty>(List<TValue> values, Func<TValue, OneOf<TValueObjectProperty, IEnumerable<DomainRuleFault>>> createFunc, out List<TValueObjectProperty> valueObjectsProperty)
+    public ValidatedInstanceBuilder<T> WithCollectionProperty<TValue, TValueObjectProperty>(List<TValue> values, Func<TValue, OneOf<TValueObjectProperty, IEnumerable<DomainRuleFault>>> createFunc, out List<TValueObjectProperty> valueObjectsProperty)
     {
         List<TValueObjectProperty> output = [];
         List<DomainRuleFault> accumulatedFaults = [];
@@ -78,6 +78,6 @@ public partial class ValidatedInstanceBuilder<T>
     public OneOf<T, IEnumerable<DomainRuleFault>> Build(Func<T> factoryFunc) =>
         _faults.Count != 0 ? _faults : factoryFunc();
     
-    public Maybe<Fault> Build() =>
-        _faults.Count != 0 ? new DomainRulesFault(_faults) : Maybe<Fault>.None;
+    public Maybe<DomainRulesFault> Build() =>
+        _faults.Count != 0 ? new DomainRulesFault(_faults) : Maybe<DomainRulesFault>.None;
 }

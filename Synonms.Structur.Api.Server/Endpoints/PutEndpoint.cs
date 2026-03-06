@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using Synonms.Structur.Api.Core.Faults;
 using Synonms.Structur.Api.Core.Iana;
 using Synonms.Structur.Api.Core.Schema;
 using Synonms.Structur.Api.Core.Schema.Errors;
@@ -38,8 +39,19 @@ public class PutEndpoint<TAggregateRoot, TResource> : ControllerBase
 
     [HttpPut]
     [Route("{id}")]
-    public async Task<IActionResult> PutAsync([FromRoute] EntityId<TAggregateRoot> id, [FromBody] TResource resource)
+    public async Task<IActionResult> PutAsync([FromRoute] EntityId<TAggregateRoot> id, [FromBody] TResource? resource)
     {
+        Uri itemUri = _routeGenerator.Item(id);
+        Link requestedDocumentLink = new (itemUri, IanaLinkRelationConstants.Item, IanaHttpMethodConstants.Put);
+
+        if (resource is null)
+        {
+            ClientFault fault = new("Unable to parse resource from request.");  
+            ErrorCollectionDocument errorCollectionDocument = _errorCollectionDocumentFactory.Create(fault, requestedDocumentLink);
+
+            return BadRequest(errorCollectionDocument);
+        }
+
         // The Id should not be passed in the body so the resource.Id value will be a random Guid.
         // Align it so that if resource.Id is accessed during the request pipeline it is correct as per the route. 
         resource.Id = id.Value;
@@ -62,8 +74,6 @@ public class PutEndpoint<TAggregateRoot, TResource> : ControllerBase
             },
             fault =>
             {
-                Uri itemUri = _routeGenerator.Item(id);
-                Link requestedDocumentLink = new (itemUri, IanaLinkRelationConstants.Item, IanaHttpMethodConstants.Put);
                 ErrorCollectionDocument errorCollectionDocument = _errorCollectionDocumentFactory.Create(fault, requestedDocumentLink);
 
                 return HttpResponseMapper.MapFault(fault, errorCollectionDocument);

@@ -207,6 +207,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection RegisterDomainDependenciesFrom(this IServiceCollection serviceCollection, params Assembly[] assemblies)
     {
+        serviceCollection.RegisterAllImplementationsOf(typeof(IDomainEventHandler), serviceCollection.AddScoped, assemblies);
         serviceCollection.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
         serviceCollection.RegisterAllImplementationsOf(typeof(IDomainEventFactory<,>), serviceCollection.AddScoped, assemblies);

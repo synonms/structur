@@ -24,8 +24,8 @@ public class EmailContact : ComplexValueObject, IComparable, IComparable<EmailCo
 
     public static OneOf<EmailContact, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string address, bool isPrimary, string? label) =>
         Validator.CreateBuilder<EmailContact>()
-            .WithMandatoryValueObjectProperty(address, x => EmailAddress.CreateMandatory($"{propertyName}.{nameof(Address)}", x), out EmailAddress emailAddressValueObject)
-            .WithOptionalValueObjectProperty(label, x => Label.CreateOptional($"{propertyName}.{nameof(Label)}", x), out Label? labelValueObject)
+            .WithMandatoryScalarProperty(address, x => EmailAddress.CreateMandatory($"{propertyName}.{nameof(Address)}", x), out EmailAddress emailAddressValueObject)
+            .WithOptionalScalarProperty(label, x => Label.CreateOptional($"{propertyName}.{nameof(Label)}", x), out Label? labelValueObject)
             .Build(() => new EmailContact(emailAddressValueObject, isPrimary, labelValueObject));
 
     public static OneOf<Maybe<EmailContact>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? address, bool? isPrimary, string? label)

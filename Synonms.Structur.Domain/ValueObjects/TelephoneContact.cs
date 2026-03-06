@@ -24,8 +24,8 @@ public class TelephoneContact : ComplexValueObject, IComparable, IComparable<Tel
 
     public static OneOf<TelephoneContact, IEnumerable<DomainRuleFault>>  CreateMandatory(string propertyName, string number, bool isPrimary, string? label) =>
         Validator.CreateBuilder<TelephoneContact>()
-            .WithMandatoryValueObjectProperty(number, x => TelephoneNumber.CreateMandatory($"{propertyName}.{nameof(Number)}", x), out TelephoneNumber numberValueObject)
-            .WithOptionalValueObjectProperty(label, x => Label.CreateOptional($"{propertyName}.{nameof(Label)}", x), out Label? labelValueObject)
+            .WithMandatoryScalarProperty(number, x => TelephoneNumber.CreateMandatory($"{propertyName}.{nameof(Number)}", x), out TelephoneNumber numberValueObject)
+            .WithOptionalScalarProperty(label, x => Label.CreateOptional($"{propertyName}.{nameof(Label)}", x), out Label? labelValueObject)
             .Build(() => new TelephoneContact(numberValueObject, isPrimary, labelValueObject));
 
     public static OneOf<Maybe<TelephoneContact>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? number, bool? isPrimary, string? label)

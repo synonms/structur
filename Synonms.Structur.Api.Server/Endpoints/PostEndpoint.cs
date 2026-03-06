@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using Synonms.Structur.Api.Core.Faults;
 using Synonms.Structur.Api.Core.Iana;
 using Synonms.Structur.Api.Core.Schema;
 using Synonms.Structur.Api.Core.Schema.Errors;
@@ -37,8 +38,19 @@ public class PostEndpoint<TAggregateRoot, TResource> : ControllerBase
     
     [HttpPost]
     [Route("")]
-    public async Task<IActionResult> PostAsync([FromBody] TResource resource)
+    public async Task<IActionResult> PostAsync([FromBody] TResource? resource)
     {
+        Uri collectionUri = _routeGenerator.Collection<TAggregateRoot>();
+        Link requestedDocumentLink = new(collectionUri, IanaLinkRelationConstants.Collection, IanaHttpMethodConstants.Post);
+
+        if (resource is null)
+        {
+            ClientFault fault = new("Unable to parse resource from request.");  
+            ErrorCollectionDocument errorCollectionDocument = _errorCollectionDocumentFactory.Create(fault, requestedDocumentLink);
+
+            return BadRequest(errorCollectionDocument);
+        }
+        
         CreateResourceCommand<TAggregateRoot, TResource> request = new(resource);
         Result<CreateResourceCommandResponse<TAggregateRoot>> commandResult = await _commandHandler.HandleAsync(request);
 
@@ -52,8 +64,6 @@ public class PostEndpoint<TAggregateRoot, TResource> : ControllerBase
             },
             fault =>
             {
-                Uri collectionUri = _routeGenerator.Collection<TAggregateRoot>();
-                Link requestedDocumentLink = new(collectionUri, IanaLinkRelationConstants.Collection, IanaHttpMethodConstants.Post);
                 ErrorCollectionDocument errorCollectionDocument = _errorCollectionDocumentFactory.Create(fault, requestedDocumentLink);
 
                 return HttpResponseMapper.MapFault(fault, errorCollectionDocument);

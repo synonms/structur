@@ -6,6 +6,8 @@ using Synonms.Structur.Domain.Events;
 using Synonms.Structur.Sample.Api.Infrastructure;
 using Synonms.Structur.Sample.ClientApi.Features.Employees;
 using Synonms.Structur.Core.Entities;
+using Synonms.Structur.Core.Faults;
+using Synonms.Structur.Domain.Aggregates;
 
 namespace Synonms.Structur.Sample.Api.Features.Employees.Domain.Events;
 
@@ -13,19 +15,30 @@ public class EmployeeDomainEventFactory : IDomainEventFactory<Employee, Employee
 {
     private readonly ITenantContext<SampleTenant> _tenantContext;
     private readonly IUserActionProvider _userActionProvider;
+    private readonly IReadAggregateRepository<Employee> _readEmployeeRepository;
 
-    public EmployeeDomainEventFactory(ITenantContext<SampleTenant> tenantContext, IUserActionProvider userActionProvider)
+    public EmployeeDomainEventFactory(ITenantContext<SampleTenant> tenantContext, IUserActionProvider userActionProvider, IReadAggregateRepository<Employee> readEmployeeRepository)
     {
         _tenantContext = tenantContext;
         _userActionProvider = userActionProvider;
+        _readEmployeeRepository = readEmployeeRepository;
     }
-    
-    public Result<DomainEvent<Employee>> GenerateCreatedEvent(EmployeeResource resource) =>
-        _tenantContext.GetTenant().Bind(tenant => Result<DomainEvent<Employee>>.Success(new EmployeeCreatedEvent(_userActionProvider, (EntityId<Employee>)resource.Id, resource, tenant.Id)));
 
-    public Result<DomainEvent<Employee>> GenerateDeletedEvent(EntityId<Employee> aggregateId) =>
-        _tenantContext.GetTenant().Bind(tenant => Result<DomainEvent<Employee>>.Success(new EmployeeDeletedEvent(_userActionProvider, aggregateId, tenant.Id)));
+    public async Task<Result<DomainEvent<Employee>>> GenerateCreatedEvent(EmployeeResource resource, CancellationToken cancellationToken)
+    {
+        bool isNiNumberAlreadyPresent = await _readEmployeeRepository.AnyAsync(x => x.NationalInsuranceNumber == resource.NationalInsuranceNumber, cancellationToken);
 
-    public Result<DomainEvent<Employee>> GenerateUpdatedEvent(EmployeeResource resource) =>
-        _tenantContext.GetTenant().Bind(tenant => Result<DomainEvent<Employee>>.Success(new EmployeeUpdatedEvent(_userActionProvider, (EntityId<Employee>)Guid.NewGuid(), resource, tenant.Id)));
+        if (isNiNumberAlreadyPresent)
+        {
+            return Result<DomainEvent<Employee>>.Failure(new DomainRuleFault("National Insurance number is already present in the system.", new FaultSource(nameof(EmployeeResource.NationalInsuranceNumber), resource.NationalInsuranceNumber)));
+        }
+        
+        return _tenantContext.GetTenant().Bind(tenant => Result<DomainEvent<Employee>>.Success(new EmployeeCreatedEvent(_userActionProvider, (EntityId<Employee>)resource.Id, resource, tenant.Id)));
+    }
+
+    public Task<Result<DomainEvent<Employee>>> GenerateDeletedEvent(EntityId<Employee> aggregateId, CancellationToken cancellationToken) =>
+        Task.FromResult(_tenantContext.GetTenant().Bind(tenant => Result<DomainEvent<Employee>>.Success(new EmployeeDeletedEvent(_userActionProvider, aggregateId, tenant.Id))));
+
+    public Task<Result<DomainEvent<Employee>>> GenerateUpdatedEvent(EmployeeResource resource, CancellationToken cancellationToken) =>
+        Task.FromResult(_tenantContext.GetTenant().Bind(tenant => Result<DomainEvent<Employee>>.Success(new EmployeeUpdatedEvent(_userActionProvider, (EntityId<Employee>)Guid.NewGuid(), resource, tenant.Id))));
 }

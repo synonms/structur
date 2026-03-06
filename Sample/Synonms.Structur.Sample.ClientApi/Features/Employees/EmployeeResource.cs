@@ -59,4 +59,7 @@ public class EmployeeResource : Resource
     public List<EmailContactValueObjectResource> EmailContacts { get; set; } = [];
 
     public List<TelephoneContactValueObjectResource> TelephoneContacts { get; set; } = [];
+    
+    [StructurRequired]
+    public EmployeeEqualOpportunitiesResource EqualOpportunities { get; set; } = new();
 }

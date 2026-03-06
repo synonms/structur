@@ -34,13 +34,13 @@ public class Address : ComplexValueObject
 
     public static OneOf<Address, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string type, string line1, string? line2, string? line3, string? line4, string postcode, string? label) =>
         Validator.CreateBuilder<Address>()
-            .WithMandatoryValueObjectProperty(type, x => AddressType.CreateMandatory($"{propertyName}.{nameof(Type)}", x), out AddressType addressTypeValueObject)
-            .WithMandatoryValueObjectProperty(line1, x => AddressLine.CreateMandatory($"{propertyName}.{nameof(Line1)}", x), out AddressLine line1ValueObject)
-            .WithOptionalValueObjectProperty(line2, x => AddressLine.CreateOptional($"{propertyName}.{nameof(Line2)}", x), out AddressLine? line2ValueObject)
-            .WithOptionalValueObjectProperty(line3, x => AddressLine.CreateOptional($"{propertyName}.{nameof(Line3)}", x), out AddressLine? line3ValueObject)
-            .WithOptionalValueObjectProperty(line4, x => AddressLine.CreateOptional($"{propertyName}.{nameof(Line4)}", x), out AddressLine? line4ValueObject)
-            .WithMandatoryValueObjectProperty(postcode, x => Postcode.CreateMandatory($"{propertyName}.{nameof(Postcode)}", x), out Postcode postcodeValueObject)
-            .WithOptionalValueObjectProperty(label, x => Label.CreateOptional($"{propertyName}.{nameof(Label)}", x), out Label? labelValueObject)
+            .WithMandatoryScalarProperty(type, x => AddressType.CreateMandatory($"{propertyName}.{nameof(Type)}", x), out AddressType addressTypeValueObject)
+            .WithMandatoryScalarProperty(line1, x => AddressLine.CreateMandatory($"{propertyName}.{nameof(Line1)}", x), out AddressLine line1ValueObject)
+            .WithOptionalScalarProperty(line2, x => AddressLine.CreateOptional($"{propertyName}.{nameof(Line2)}", x), out AddressLine? line2ValueObject)
+            .WithOptionalScalarProperty(line3, x => AddressLine.CreateOptional($"{propertyName}.{nameof(Line3)}", x), out AddressLine? line3ValueObject)
+            .WithOptionalScalarProperty(line4, x => AddressLine.CreateOptional($"{propertyName}.{nameof(Line4)}", x), out AddressLine? line4ValueObject)
+            .WithMandatoryScalarProperty(postcode, x => Postcode.CreateMandatory($"{propertyName}.{nameof(Postcode)}", x), out Postcode postcodeValueObject)
+            .WithOptionalScalarProperty(label, x => Label.CreateOptional($"{propertyName}.{nameof(Label)}", x), out Label? labelValueObject)
             .Build(() => new Address(addressTypeValueObject, line1ValueObject, line2ValueObject, line3ValueObject, line4ValueObject, postcodeValueObject, labelValueObject));
 
     public static OneOf<Maybe<Address>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? type, string? line1, string? line2, string? line3, string? line4, string? postcode, string? label)

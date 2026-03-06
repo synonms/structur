@@ -11,7 +11,9 @@
         "DOTNET_ENVIRONMENT": "Development",
         "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://localhost:19192",
         "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://localhost:20248",
-        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true"
+        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true",
+        "DEBUG_SESSION_PORT": "localhost:5063",
+        "DEBUG_SESSION_TOKEN": "token"
       }
     }
   }

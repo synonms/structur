@@ -7,6 +7,9 @@ public static partial class MaybeExtensions
     public static Maybe<Fault> BiBind(this Maybe<Fault> maybe, Func<Maybe<Fault>> noneFunc) =>
         maybe.BiBind(Maybe<Fault>.Some, noneFunc);
 
+    public static Maybe<Fault> BiBind(this Maybe<DomainRulesFault> maybe, Func<Maybe<Fault>> noneFunc) =>
+        maybe.BiBind(Maybe<Fault>.Some, noneFunc);
+
     public static Maybe<TOut> Reduce<T, TOut>(this IEnumerable<Maybe<T>> maybes, Func<IEnumerable<T>, TOut> projectionFunc) =>
         maybes.Any(x => x.IsSome)
             ? projectionFunc.Invoke(maybes.Where(x => x.IsSome).SelectMany(x => x.AsEnumerable()))
@@ -20,6 +23,11 @@ public static partial class MaybeExtensions
             Result<T>.Failure,
             () => Result<T>.Success(value));
 
+    public static OneOf<T, IEnumerable<DomainRuleFault>> ToOneOf<T>(this Maybe<DomainRulesFault> maybe, Func<T> function) =>
+        maybe.Match(
+            domainRulesFault => new OneOf<T, IEnumerable<DomainRuleFault>>(domainRulesFault.Faults),
+            () => function.Invoke());
+    
     public static Result<T> ToResult<T>(this Maybe<Fault> maybe, Result<T> result) =>
         maybe.Match(
             Result<T>.Failure,
@@ -34,4 +42,20 @@ public static partial class MaybeExtensions
         maybe.Match(
             Result<T>.Failure,
             function.Invoke);
+    
+    public static Result<T> ToResult<T>(this Maybe<DomainRulesFault> maybe, Result<T> result) =>
+        maybe.Match(
+            Result<T>.Failure,
+            () => result);
+
+    public static Result<T> ToResult<T>(this Maybe<DomainRulesFault> maybe, Func<T> function) =>
+        maybe.Match(
+            Result<T>.Failure,
+            () => Result<T>.Success(function.Invoke()));
+
+    public static Result<T> ToResult<T>(this Maybe<DomainRulesFault> maybe, Func<Result<T>> function) =>
+        maybe.Match(
+            Result<T>.Failure,
+            function.Invoke);
+
 }

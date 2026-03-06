@@ -86,7 +86,7 @@ public abstract class AggregateRoot<TAggregateRoot> : Entity<TAggregateRoot>
         TrySetValue(property, newValue, updatedAction);
     }
     
-        private static bool TryGetPropertyInfo<T>(Expression<Func<TAggregateRoot, T>> property, out PropertyInfo? propertyInfo)
+    private static bool TryGetPropertyInfo<T>(Expression<Func<TAggregateRoot, T>> property, out PropertyInfo? propertyInfo)
     {
         propertyInfo = null;
         

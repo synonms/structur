@@ -183,7 +183,13 @@ public class DataSeeder
                     IsPrimary = true
                 }
             ],
-            TelephoneContacts = []
+            TelephoneContacts = [],
+            EqualOpportunities = new EmployeeEqualOpportunitiesResource()
+            {
+                Id = Guid.NewGuid(),
+                BirthDate = new DateOnly(1986, 01, 01),
+                Sex = SexEnumeration.Male
+            }
         };
         EmployeeResource lukaResource = new(Guid.Parse("294af0a0-0050-4562-8301-8a059bffefba"), Link.EmptyLink())
         {
@@ -210,7 +216,13 @@ public class DataSeeder
                     IsPrimary = true
                 }
             ],
-            TelephoneContacts = []
+            TelephoneContacts = [],
+            EqualOpportunities = new EmployeeEqualOpportunitiesResource()
+            {
+                Id = Guid.NewGuid(),
+                BirthDate = new DateOnly(1996, 01, 01),
+                Sex = SexEnumeration.Male
+            }
         };
         
         EmployeeCreatedEvent lebronCreatedEvent = new(userActionProvider, (EntityId<Employee>)lebronResource.Id, lebronResource, _lakersTenantId);
@@ -245,7 +257,13 @@ public class DataSeeder
                     IsPrimary = true
                 }
             ],
-            TelephoneContacts = []
+            TelephoneContacts = [],
+            EqualOpportunities = new EmployeeEqualOpportunitiesResource()
+            {
+                Id = Guid.NewGuid(),
+                BirthDate = new DateOnly(1966, 01, 01),
+                Sex = SexEnumeration.Male
+            }
         };
         EmployeeResource davidResource = new(Guid.Parse("c169cb00-c392-45df-a4a6-9caf25d9a9df"), Link.EmptyLink())
         {
@@ -272,7 +290,13 @@ public class DataSeeder
                     IsPrimary = true
                 }
             ],
-            TelephoneContacts = []
+            TelephoneContacts = [],
+            EqualOpportunities = new EmployeeEqualOpportunitiesResource()
+            {
+                Id = Guid.NewGuid(),
+                BirthDate = new DateOnly(1986, 01, 01),
+                Sex = SexEnumeration.Male
+            }
         };
         
         EmployeeCreatedEvent glennCreatedEvent = new(userActionProvider, (EntityId<Employee>)glennResource.Id, glennResource, _spursTenantId);
