@@ -1,4 +1,5 @@
 using Synonms.Structur.Domain.Aggregates;
+using Synonms.Structur.Domain.Projections;
 
 namespace Synonms.Structur.Api.Server.Routing;
 
@@ -38,4 +39,8 @@ public interface IRouteNameProvider
         where TAggregateRoot : AggregateRoot<TAggregateRoot>;
         
     string EditForm(Type aggregateRootType);
+    
+    public string GetProjection<TAggregateRoot, TProjection>() where TAggregateRoot : AggregateRoot<TAggregateRoot> where TProjection : Projection<TAggregateRoot>;
+
+    public string GetProjection(Type aggregateRootType, Type projectionType);
 }

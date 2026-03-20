@@ -7,7 +7,7 @@ using Synonms.Structur.Domain.Validation;
 using Synonms.Structur.Domain.ValueObjects;
 using Synonms.Structur.Sample.ClientApi.Features.Employees;
 
-namespace Synonms.Structur.Sample.Api.Features.Employees.Domain;
+namespace Synonms.Structur.Sample.Api.Features.Employees;
 
 [StructurResource(typeof(EmployeeResource), "employees", allowAnonymous: true, pageLimit: 5)]
 public class Employee : AggregateRoot<Employee>

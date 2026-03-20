@@ -14,6 +14,8 @@ public abstract class Resource
     {
         Id = id;
         SelfLink = selfLink;
+        string relativeResourcePath = selfLink.Uri.IsAbsoluteUri ? selfLink.Uri.AbsolutePath : selfLink.Uri.OriginalString;
+        Links.Add("projections", Link.ProjectionsLink(new Uri(relativeResourcePath + "/projections", UriKind.Relative)));
     }
 
     public abstract string GetCollectionPath();

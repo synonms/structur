@@ -1,5 +1,5 @@
 using System.Net;
-using Synonms.Structur.Sample.Api.Features.Employees.Domain;
+using Synonms.Structur.Sample.Api.Features.Employees;
 using Synonms.Structur.Sample.ClientApi.Features.Employees;
 using Synonms.Structur.Testing.Tests;
 

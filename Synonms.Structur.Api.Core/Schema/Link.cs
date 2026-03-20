@@ -51,4 +51,7 @@ public class Link
     
     public static Link SelfLink(Uri uri) =>
         new (uri, IanaLinkRelationConstants.Self, IanaHttpMethodConstants.Get);
+    
+    public static Link ProjectionsLink(Uri uri) =>
+        new (uri, IanaLinkRelationConstants.Collection, IanaHttpMethodConstants.Get);
 }

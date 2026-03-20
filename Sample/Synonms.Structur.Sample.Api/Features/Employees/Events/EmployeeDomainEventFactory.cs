@@ -1,15 +1,15 @@
 using Synonms.Structur.Api.Server.Events;
 using Synonms.Structur.Api.Server.Tenants.Context;
 using Synonms.Structur.Api.Server.Users;
+using Synonms.Structur.Core.Entities;
+using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
+using Synonms.Structur.Domain.Aggregates;
 using Synonms.Structur.Domain.Events;
 using Synonms.Structur.Sample.Api.Infrastructure;
 using Synonms.Structur.Sample.ClientApi.Features.Employees;
-using Synonms.Structur.Core.Entities;
-using Synonms.Structur.Core.Faults;
-using Synonms.Structur.Domain.Aggregates;
 
-namespace Synonms.Structur.Sample.Api.Features.Employees.Domain.Events;
+namespace Synonms.Structur.Sample.Api.Features.Employees.Events;
 
 public class EmployeeDomainEventFactory : IDomainEventFactory<Employee, EmployeeResource>
 {

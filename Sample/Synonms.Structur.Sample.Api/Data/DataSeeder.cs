@@ -7,8 +7,8 @@ using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Events;
 using Synonms.Structur.Infrastructure.MongoDb;
-using Synonms.Structur.Sample.Api.Features.Employees.Domain;
-using Synonms.Structur.Sample.Api.Features.Employees.Domain.Events;
+using Synonms.Structur.Sample.Api.Features.Employees;
+using Synonms.Structur.Sample.Api.Features.Employees.Events;
 using Synonms.Structur.Sample.Api.Infrastructure;
 using Synonms.Structur.Sample.ClientApi.Features.Employees;
 

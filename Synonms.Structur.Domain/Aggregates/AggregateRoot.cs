@@ -106,7 +106,7 @@ public abstract class AggregateRoot<TAggregateRoot> : Entity<TAggregateRoot>
     
     private bool TryGetMandatoryValue<T>(Expression<Func<TAggregateRoot, T>> property, out T value)
     {
-        value = default;
+        value = default!;
 
         if (TryGetPropertyInfo(property, out PropertyInfo? propertyInfo) is false || propertyInfo is null)
         {

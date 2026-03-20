@@ -1,10 +1,10 @@
 using Synonms.Structur.Api.Server.Events;
 using Synonms.Structur.Api.Server.Users;
+using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Projections;
-using Synonms.Structur.Core.Entities;
 
-namespace Synonms.Structur.Sample.Api.Features.Employees.Domain.Events;
+namespace Synonms.Structur.Sample.Api.Features.Employees.Events;
 
 public class EmployeeDeletedEvent : AggregateDeletedDomainEvent<Employee>
 {

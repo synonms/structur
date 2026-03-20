@@ -1,9 +1,9 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Events;
-using Synonms.Structur.Sample.Api.Features.Employees.Domain.Events;
+using Synonms.Structur.Sample.Api.Features.Employees.Events;
 
-namespace Synonms.Structur.Sample.Api.Features.Employees.Domain.Handlers;
+namespace Synonms.Structur.Sample.Api.Features.Employees.Handlers;
 
 public class UnstableEmployeeCreatedEventHandler(ILogger<UnstableEmployeeCreatedEventHandler> logger) : DomainEventHandler<EmployeeCreatedEvent>
 {

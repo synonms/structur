@@ -1,8 +1,11 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Synonms.Structur.Api.Server.Pipeline;
+using Synonms.Structur.Core.Attributes;
 using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Domain.Aggregates;
+using Synonms.Structur.Domain.Projections;
 
 namespace Synonms.Structur.Api.Server.Routing;
 
@@ -112,5 +115,28 @@ public class HttpRouteGenerator : IRouteGenerator
         string queryString = queryParameters?.Any() ?? false ? queryParameters.ToQueryString() : string.Empty;
         
         return new Uri(uriString + queryString).ToRelativeUri();
+    }
+    
+    public Uri Projection<TAggregateRoot, TProjection>(EntityId<TAggregateRoot> id, QueryParameters? queryParameters = null) 
+        where TAggregateRoot : AggregateRoot<TAggregateRoot>
+        where TProjection : Projection<TAggregateRoot> => 
+        Projection(typeof(TAggregateRoot), typeof(TProjection), id.Value, queryParameters);
+
+    public Uri Projection(Type aggregateRootType, Type projectionType, Guid id, QueryParameters? queryParameters = null)
+    {
+        StructurProjectionAttribute? projectionAttribute = projectionType.GetCustomAttribute<StructurProjectionAttribute>();
+
+        if (projectionAttribute is null)
+        {
+            return new Uri("/", UriKind.Relative);
+        }
+        
+        HttpContext httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
+        
+        string routeName = _routeNameProvider.GetById(aggregateRootType);
+        string getByIdUriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, new { id }, options: RoutingConfiguration.DefaultLinkOptions) ?? string.Empty;
+        string queryString = queryParameters?.Any() ?? false ? queryParameters.ToQueryString() : string.Empty;
+        
+        return new Uri(getByIdUriString + "/projections/" + projectionAttribute.ProjectionIdentifier + queryString).ToRelativeUri();
     }
 }

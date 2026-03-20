@@ -6,7 +6,6 @@ namespace Synonms.Structur.Domain.Projections;
 
 public abstract class Projection
 {
-    public virtual string Type => GetType().Name;
 }
 
 public abstract class Projection<TAggregateRoot> : Projection

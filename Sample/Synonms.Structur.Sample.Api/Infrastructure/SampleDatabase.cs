@@ -1,5 +1,5 @@
 using Synonms.Structur.Infrastructure.MongoDb.Hosting;
-using Synonms.Structur.Sample.Api.Features.Employees.Domain;
+using Synonms.Structur.Sample.Api.Features.Employees;
 
 namespace Synonms.Structur.Sample.Api.Infrastructure;
 

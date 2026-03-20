@@ -6,7 +6,7 @@ using Synonms.Structur.Domain.Validation;
 using Synonms.Structur.Domain.ValueObjects;
 using Synonms.Structur.Sample.ClientApi.Features.Employees;
 
-namespace Synonms.Structur.Sample.Api.Features.Employees.Domain;
+namespace Synonms.Structur.Sample.Api.Features.Employees;
 
 public class EmployeeEqualOpportunities : AggregateMember<EmployeeEqualOpportunities>
 {

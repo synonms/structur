@@ -27,7 +27,7 @@ public abstract class ComplexValueObject : IEquatable<ComplexValueObject>
         obj is ComplexValueObject valueObject && ValuesAreEqual(valueObject);
 
     public override int GetHashCode() =>
-        GetAtomicValues().Aggregate(0, (hashcode, value) => HashCode.Combine(hashcode, value.GetHashCode()));
+        GetAtomicValues().Aggregate(0, (hashcode, value) => HashCode.Combine(hashcode, value?.GetHashCode() ?? 0));
 
     protected abstract IEnumerable<object?> GetAtomicValues();
 

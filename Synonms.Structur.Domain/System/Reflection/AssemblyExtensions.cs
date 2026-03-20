@@ -9,4 +9,7 @@ public static class AssemblyExtensions
 
     public static IEnumerable<Type> GetAggregateMembers(this Assembly assembly) =>
         assembly.GetTypes().Where(x => x.IsAggregateMember());
+    
+    public static IEnumerable<Type> GetProjections(this Assembly assembly) =>
+        assembly.GetTypes().Where(x => x.IsProjection());
 }

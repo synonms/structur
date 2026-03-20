@@ -2,6 +2,7 @@
 using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Domain.Aggregates;
 using Synonms.Structur.Domain.Lookups;
+using Synonms.Structur.Domain.Projections;
 using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.System;
@@ -82,4 +83,12 @@ public static class TypeExtensions
             BaseType: not null
         } 
         && type.BaseType == typeof(ComplexValueObject);
+    
+    public static bool IsProjection(this Type type) =>
+        type is
+        {
+            BaseType: not null
+        }
+        && (type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == typeof(Projection<>)
+            || type.BaseType.IsProjection());
 }

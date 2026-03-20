@@ -81,6 +81,9 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
             Id = aggregateRoot.Id.Value,
             SelfLink = selfLink
         };
+        
+        string relativeResourcePath = selfLink.Uri.IsAbsoluteUri ? selfLink.Uri.AbsolutePath : selfLink.Uri.OriginalString;
+        resource.Links.Add("projections", Link.ProjectionsLink(new Uri(relativeResourcePath + "/projections", UriKind.Relative)));
 
         StructurResourceAttribute? resourceAttribute = typeof(TAggregateRoot).GetCustomAttribute<StructurResourceAttribute>();
 

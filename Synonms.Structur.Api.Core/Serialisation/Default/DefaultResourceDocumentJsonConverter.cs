@@ -7,7 +7,6 @@ using Synonms.Structur.Api.Core.Schema.Resources;
 namespace Synonms.Structur.Api.Core.Serialisation.Default;
 
 public class DefaultResourceDocumentJsonConverter<TResource> : JsonConverter<ResourceDocument<TResource>>
-    where TResource : Resource
 {
     public override ResourceDocument<TResource> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

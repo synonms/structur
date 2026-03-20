@@ -17,6 +17,37 @@
         }
       }
     },
+    "/{collectionPath}/{id}/projections": {
+      "get": {
+        "tags": [
+          "Projections"
+        ],
+        "parameters": [
+          {
+            "name": "collectionPath",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "tags": [
@@ -1040,6 +1071,9 @@
   "tags": [
     {
       "name": "Health"
+    },
+    {
+      "name": "Projections"
     },
     {
       "name": "Root"

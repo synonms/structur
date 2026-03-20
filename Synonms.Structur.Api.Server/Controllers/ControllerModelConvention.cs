@@ -68,6 +68,7 @@ public class ControllerModelConvention : IControllerModelConvention
                 {
                     Name = _routeNameProvider.EditForm(aggregateRootType)
                 },
+                "GetProjection" => BuildProjectionRoute(controllerModel, aggregateRootType, resourceAttribute),
                 _ => throw new InvalidOperationException($"Unexpected controller action '{action.ActionName}'.")
             };
             
@@ -93,6 +94,7 @@ public class ControllerModelConvention : IControllerModelConvention
                     "Delete" => new AuthorizeFilter("Delete" + policySuffix),
                     "CreateForm" => new AuthorizeFilter("Create" + policySuffix),
                     "EditForm" => new AuthorizeFilter("Update" + policySuffix),
+                    "GetProjection" => new AuthorizeFilter("Read" + policySuffix),
                     _ => throw new InvalidOperationException($"Unexpected controller action '{action.ActionName}'.")
                 };
                 
@@ -101,6 +103,27 @@ public class ControllerModelConvention : IControllerModelConvention
         }
     }
 
+    private RouteAttribute BuildProjectionRoute(ControllerModel controllerModel, Type aggregateRootType, StructurResourceAttribute resourceAttribute)
+    {
+        if (controllerModel.ControllerType.GenericTypeArguments.Length < 2)
+        {
+            throw new InvalidOperationException($"Unable to determine projection type for controller '{controllerModel.ControllerName}'.");
+        }
+        
+        Type projectionType = controllerModel.ControllerType.GenericTypeArguments[1];
+        StructurProjectionAttribute? projectionAttribute = projectionType.GetCustomAttribute<StructurProjectionAttribute>();
+
+        if (projectionAttribute is null)
+        {
+            throw new InvalidOperationException($"Projection attribute not found on projection type '{projectionType.Name}'.");
+        }
+
+        return new RouteAttribute("{id}/projections/" + projectionAttribute.ProjectionIdentifier)
+        {
+            Name = _routeNameProvider.GetProjection(aggregateRootType, projectionType)
+        };
+    }
+    
     private static void AddControllerRoute(ControllerModel controllerModel, StructurResourceAttribute resourceAttribute)
     {
         if (string.IsNullOrWhiteSpace(resourceAttribute.CollectionPath) is false)

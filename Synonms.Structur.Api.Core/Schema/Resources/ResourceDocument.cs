@@ -3,7 +3,6 @@ using Synonms.Structur.Api.Core.Iana;
 namespace Synonms.Structur.Api.Core.Schema.Resources;
 
 public class ResourceDocument<TResource> : Document
-    where TResource : Resource
 {
     public ResourceDocument(Link selfLink, TResource resource) 
         : base(selfLink)

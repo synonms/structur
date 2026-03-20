@@ -71,7 +71,7 @@ public abstract class AggregateMember<TAggregateMember> : Entity<TAggregateMembe
     
     private bool TryGetMandatoryValue<T>(Expression<Func<TAggregateMember, T>> property, out T value)
     {
-        value = default;
+        value = default!;
 
         if (TryGetPropertyInfo(property, out PropertyInfo? propertyInfo) is false || propertyInfo is null)
         {

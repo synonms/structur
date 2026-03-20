@@ -46,6 +46,8 @@ public class ControllerFeatureProvider : IApplicationFeatureProvider<ControllerF
             {
                 AddDelete(feature, aggregateLayout);
             }
+            
+            AddGetProjections(feature, aggregateLayout);
         }
     }
 
@@ -96,5 +98,15 @@ public class ControllerFeatureProvider : IApplicationFeatureProvider<ControllerF
         Type editFormEndpointType = typeof(EditFormEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
                 
         feature.Controllers.Add(editFormEndpointType.GetTypeInfo());
+    }
+    
+    private static void AddGetProjections(ControllerFeature feature, IResourceDirectory.AggregateRootLayout aggregateRootLayout)
+    {
+        foreach (Type projectionType in aggregateRootLayout.ProjectionTypes)
+        {
+            Type getProjectionEndpointType = typeof(GetProjectionEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, projectionType);
+
+            feature.Controllers.Add(getProjectionEndpointType.GetTypeInfo());
+        }
     }
 }

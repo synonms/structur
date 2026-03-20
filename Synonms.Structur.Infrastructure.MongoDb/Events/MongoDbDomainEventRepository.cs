@@ -53,5 +53,5 @@ public class MongoDbDomainEventRepository<TAggregateRoot> : IDomainEventReposito
     }
 
     public async Task<IEnumerable<DomainEvent<TAggregateRoot>>> ReadAllAsync(EntityId<TAggregateRoot> aggregateId, CancellationToken cancellationToken = default) =>
-        await _mongoCollection.AsQueryable().Where(x => x.AggregateType == typeof(TAggregateRoot).Name && x.AggregateId == aggregateId).ToListAsync(cancellationToken);
+        await _mongoCollection.AsQueryable().Where(x => x.AggregateId == aggregateId).ToListAsync(cancellationToken);
 }

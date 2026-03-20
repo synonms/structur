@@ -180,6 +180,30 @@ public static class ServiceCollectionExtensions
             serviceCollection.AddTransient(deleteResourceRequestHandlerInterfaceType, deleteResourceRequestHandlerImplementationType);
         }
 
+        Console.WriteLine($"Processing {aggregateRootLayout.ProjectionTypes.Count} projection types for {aggregateRootLayout.AggregateRootType.Name}");
+        
+        foreach (Type projectionType in aggregateRootLayout.ProjectionTypes)
+        {
+            Console.WriteLine($"Processing {projectionType.Name}...");
+            
+            StructurProjectionAttribute? projectionAttribute = projectionType.GetCustomAttribute<StructurProjectionAttribute>();
+
+            if (projectionAttribute is null)
+            {
+                Console.WriteLine("No ProjectionAttribute found!");
+                return serviceCollection;
+            }
+
+            Type getProjectionRequestType = typeof(GetProjectionQuery<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, projectionType);
+            Type getProjectionResponseType = typeof(GetProjectionQueryResponse<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, projectionType);
+            Type getProjectionRequestHandlerInterfaceType = typeof(IQueryHandler<,>).MakeGenericType(getProjectionRequestType, getProjectionResponseType);
+            Type getProjectionRequestHandlerImplementationType = typeof(GetProjectionQueryProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, projectionType);
+
+            Console.WriteLine($"Registering {getProjectionRequestHandlerInterfaceType.Name} -> {getProjectionRequestHandlerImplementationType.Name}");
+
+            serviceCollection.AddTransient(getProjectionRequestHandlerInterfaceType, getProjectionRequestHandlerImplementationType);
+        }
+        
         return serviceCollection;
     }
 
