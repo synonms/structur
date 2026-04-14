@@ -1,9 +1,18 @@
+using Synonms.Structur.Api.Core.Schema;
 using Synonms.Structur.Api.Core.Schema.Resources;
 
 namespace Synonms.Structur.Api.Server.Tests.Unit.Shared;
 
-internal class TestResource : Resource
+public class TestResource : Resource
 {
+    public TestResource()
+    {
+    }
+
+    public TestResource(Guid id, Link selfLink) : base(id, selfLink)
+    {
+    }
+    
     public override string GetCollectionPath() => "tests";
 
     public string? SomeString { get; set; }
@@ -29,7 +38,7 @@ internal class TestResource : Resource
     public IEnumerable<TestChildResource>? ChildResources { get; set; }
 }
 
-internal class TestChildResource : ChildResource
+public class TestChildResource : ChildResource
 {
     public string Property1 { get; set; } = string.Empty;
 

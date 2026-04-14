@@ -1,10 +1,13 @@
-﻿using Aspire.Hosting.Testing;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using Aspire.Hosting.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using Synonms.Structur.Api.Core.Content;
 using Synonms.Structur.Api.Core.Http;
-using Synonms.Structur.Api.Server.Hypermedia.Default;
+using Synonms.Structur.Api.Core.Serialisation;
+using Synonms.Structur.Api.Core.Serialisation.Default;
 using Synonms.Structur.Infrastructure.MongoDb.Hosting;
 using Synonms.Structur.Sample.Api;
 using Synonms.Structur.Sample.Api.Infrastructure;
@@ -21,7 +24,24 @@ public class SampleTestFixture() : StructurTestFixture(
         EntryPoint = typeof(SampleAppHostProject),
         Environment = "IntegrationTest",
         MediaType = MediaTypes.Json,
-        JsonSerializerOptions = DefaultOutputFormatter.JsonSerializerOptions,
+        JsonSerializerOptions = new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Converters = { 
+                new DateOnlyJsonConverter(),
+                new OptionalDateOnlyJsonConverter(),
+                new TimeOnlyJsonConverter(),
+                new OptionalTimeOnlyJsonConverter(),
+                new DefaultCustomJsonConverterFactory(new Version()),
+                new DefaultLinkJsonConverter(),
+                new DefaultFormDocumentJsonConverter(),
+                new DefaultFormFieldJsonConverter(),
+                new DefaultPaginationJsonConverter(),
+                new DefaultErrorCollectionDocumentJsonConverter(),
+                new DefaultErrorJsonConverter()
+            }
+        },
         HttpClient = new StructurTestingOptions.HttpClientOptions
         {
             ApiResourceName = Resources.Api,

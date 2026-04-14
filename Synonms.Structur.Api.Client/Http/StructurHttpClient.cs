@@ -20,32 +20,13 @@ public class StructurHttpClient<TResource> where TResource : Resource, new()
     private readonly HttpClient _httpClient;
     private readonly string _collectionPath;
     
-    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
-    {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        Converters = { 
-            new DateOnlyJsonConverter(),
-            new OptionalDateOnlyJsonConverter(),
-            new TimeOnlyJsonConverter(),
-            new OptionalTimeOnlyJsonConverter(),
-            new DefaultCustomJsonConverterFactory(),
-            new DefaultLinkJsonConverter(),
-            new DefaultFormDocumentJsonConverter(),
-            new DefaultFormFieldJsonConverter(),
-            new DefaultPaginationJsonConverter(),
-            new DefaultErrorCollectionDocumentJsonConverter(),
-            new DefaultErrorJsonConverter()
-        }
-    };
-    
     public StructurHttpClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
         _collectionPath = new TResource().GetCollectionPath();
     }
     
-    public async Task<Result<ResourceCollectionDocument<TResource>>> GetAllAsync(GetAllRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<ResourceCollectionDocument<TResource>>> GetAllAsync(GetAllRequest request, Version? version = null, CancellationToken cancellationToken = default)
     {
         Dictionary<string, string> queryParameters = request.QueryParameters;
         if (request.Offset > 0) queryParameters.Add("offset", request.Offset.Value.ToString());
@@ -71,7 +52,9 @@ public class StructurHttpClient<TResource> where TResource : Resource, new()
             return new ApiFault("Received status code '{StatusCode}' with content: \n{Content}.",  (int)response.StatusCode, content);
         }
 
-        ResourceCollectionResponse<TResource>? body = JsonSerializer.Deserialize<ResourceCollectionResponse<TResource>>(content, _jsonSerializerOptions);
+        JsonSerializerOptions jsonSerialiserOptions = BuildJsonSerializerOptions(version);
+
+        ResourceCollectionResponse<TResource>? body = JsonSerializer.Deserialize<ResourceCollectionResponse<TResource>>(content, jsonSerialiserOptions);
 
         if (body is null)
         {
@@ -83,7 +66,7 @@ public class StructurHttpClient<TResource> where TResource : Resource, new()
             Result<ResourceCollectionDocument<TResource>>.Success);
     }
     
-    public async Task<Result<ResourceDocument<TResource>>> GetByIdAsync(GetByIdRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<ResourceDocument<TResource>>> GetByIdAsync(GetByIdRequest request, Version? version = null, CancellationToken cancellationToken = default)
     {
         if (request.TenantId.HasValue)
         {
@@ -103,7 +86,9 @@ public class StructurHttpClient<TResource> where TResource : Resource, new()
             return new ApiFault("Received status code '{StatusCode}' with content: \n{Content}.",  (int)response.StatusCode, content);
         }
 
-        ResourceResponse<TResource>? body = JsonSerializer.Deserialize<ResourceResponse<TResource>>(content, _jsonSerializerOptions);
+        JsonSerializerOptions jsonSerialiserOptions = BuildJsonSerializerOptions(version);
+
+        ResourceResponse<TResource>? body = JsonSerializer.Deserialize<ResourceResponse<TResource>>(content, jsonSerialiserOptions);
 
         if (body is null)
         {
@@ -115,7 +100,7 @@ public class StructurHttpClient<TResource> where TResource : Resource, new()
             Result<ResourceDocument<TResource>>.Success);
     }
     
-    public async Task<Result<PostResponse>> PostAsync(PostRequest<TResource> request, CancellationToken cancellationToken = default)
+    public async Task<Result<PostResponse>> PostAsync(PostRequest<TResource> request, Version? version = null, CancellationToken cancellationToken = default)
     {
         if (request.TenantId.HasValue)
         {
@@ -125,8 +110,10 @@ public class StructurHttpClient<TResource> where TResource : Resource, new()
         {
             _httpClient.DefaultRequestHeaders.Add(HttpHeaders.ProductId, request.ProductId.Value.ToString());
         }
+
+        JsonSerializerOptions jsonSerialiserOptions = BuildJsonSerializerOptions(version);
         
-        using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(_collectionPath, request.Resource, _jsonSerializerOptions, cancellationToken);
+        using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(_collectionPath, request.Resource, jsonSerialiserOptions, cancellationToken);
 
         string content = await response.Content.ReadAsStringAsync(cancellationToken);
         
@@ -153,7 +140,7 @@ public class StructurHttpClient<TResource> where TResource : Resource, new()
             };
         }
 
-        ErrorCollectionDocument? errorCollectionDocument = JsonSerializer.Deserialize<ErrorCollectionDocument>(content, _jsonSerializerOptions);
+        ErrorCollectionDocument? errorCollectionDocument = JsonSerializer.Deserialize<ErrorCollectionDocument>(content, jsonSerialiserOptions);
 
         if (errorCollectionDocument is not null)
         {
@@ -163,7 +150,7 @@ public class StructurHttpClient<TResource> where TResource : Resource, new()
         return new ApiFault("Received status code '{StatusCode}' with content: \n{Content}.",  (int)response.StatusCode, content);
     }
     
-    public async Task<Result<PutResponse>> PutAsync(PutRequest<TResource> request, CancellationToken cancellationToken = default)
+    public async Task<Result<PutResponse>> PutAsync(PutRequest<TResource> request, Version? version = null, CancellationToken cancellationToken = default)
     {
         if (request.TenantId.HasValue)
         {
@@ -174,7 +161,9 @@ public class StructurHttpClient<TResource> where TResource : Resource, new()
             _httpClient.DefaultRequestHeaders.Add(HttpHeaders.ProductId, request.ProductId.Value.ToString());
         }
         
-        using HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"{_collectionPath}/{request.Id}", request.Resource, _jsonSerializerOptions, cancellationToken);
+        JsonSerializerOptions jsonSerialiserOptions = BuildJsonSerializerOptions(version);
+
+        using HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"{_collectionPath}/{request.Id}", request.Resource, jsonSerialiserOptions, cancellationToken);
 
         string content = await response.Content.ReadAsStringAsync(cancellationToken);
         
@@ -193,7 +182,7 @@ public class StructurHttpClient<TResource> where TResource : Resource, new()
             };
         }
 
-        ErrorCollectionDocument? errorCollectionDocument = JsonSerializer.Deserialize<ErrorCollectionDocument>(content, _jsonSerializerOptions);
+        ErrorCollectionDocument? errorCollectionDocument = JsonSerializer.Deserialize<ErrorCollectionDocument>(content, jsonSerialiserOptions);
 
         if (errorCollectionDocument is not null)
         {
@@ -203,7 +192,7 @@ public class StructurHttpClient<TResource> where TResource : Resource, new()
         return new ApiFault("Received status code '{StatusCode}' with content: \n{Content}.",  (int)response.StatusCode, content);
     }
     
-    public async Task<Maybe<Fault>> DeleteAsync(DeleteRequest request, CancellationToken cancellationToken = default)
+    public async Task<Maybe<Fault>> DeleteAsync(DeleteRequest request, Version? version = null, CancellationToken cancellationToken = default)
     {
         if (request.TenantId.HasValue)
         {
@@ -223,7 +212,7 @@ public class StructurHttpClient<TResource> where TResource : Resource, new()
             return Maybe<Fault>.None;
         }
 
-        ErrorCollectionDocument? errorCollectionDocument = JsonSerializer.Deserialize<ErrorCollectionDocument>(content, _jsonSerializerOptions);
+        ErrorCollectionDocument? errorCollectionDocument = JsonSerializer.Deserialize<ErrorCollectionDocument>(content, BuildJsonSerializerOptions(version));
 
         if (errorCollectionDocument is not null)
         {
@@ -231,4 +220,24 @@ public class StructurHttpClient<TResource> where TResource : Resource, new()
         }
         
         return new ApiFault("Received status code '{StatusCode}' with content: \n{Content}.",  (int)response.StatusCode, content);
-    }}
+    }
+    
+    private static JsonSerializerOptions BuildJsonSerializerOptions(Version? version) => new()
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { 
+            new DateOnlyJsonConverter(),
+            new OptionalDateOnlyJsonConverter(),
+            new TimeOnlyJsonConverter(),
+            new OptionalTimeOnlyJsonConverter(),
+            new DefaultCustomJsonConverterFactory(version ?? new Version()),
+            new DefaultLinkJsonConverter(),
+            new DefaultFormDocumentJsonConverter(),
+            new DefaultFormFieldJsonConverter(),
+            new DefaultPaginationJsonConverter(),
+            new DefaultErrorCollectionDocumentJsonConverter(),
+            new DefaultErrorJsonConverter()
+        }
+    };
+}

@@ -13,7 +13,7 @@ public class DomainEventDispatcherTests
     {
         DomainEventDispatcher dispatcher = new([]);
         
-        Maybe<Fault> outcome = await dispatcher.DispatchAsync(new TestDomainEvent(EntityId<TestAggregateRoot>.New(), Guid.NewGuid()));
+        Maybe<Fault> outcome = await dispatcher.DispatchAsync(new TestDomainEvent(EntityId<TestAggregateRoot>.New(), Guid.NewGuid()), TestContext.Current.CancellationToken);
         
         Assert.True(outcome.IsNone);
     }
@@ -24,7 +24,7 @@ public class DomainEventDispatcherTests
         SuccessfulTestDomainEventHandler successfulHandler = new();
         DomainEventDispatcher dispatcher = new([successfulHandler]);
         
-        Maybe<Fault> outcome = await dispatcher.DispatchAsync(new TestDomainEvent(EntityId<TestAggregateRoot>.New(), Guid.NewGuid()));
+        Maybe<Fault> outcome = await dispatcher.DispatchAsync(new TestDomainEvent(EntityId<TestAggregateRoot>.New(), Guid.NewGuid()), TestContext.Current.CancellationToken);
         
         Assert.True(outcome.IsNone);
         Assert.Equal(1, successfulHandler.ExecutionCount);
@@ -37,7 +37,7 @@ public class DomainEventDispatcherTests
         SuccessfulTestDomainEventHandler successfulHandler2 = new();
         DomainEventDispatcher dispatcher = new([successfulHandler1, successfulHandler2]);
         
-        Maybe<Fault> outcome = await dispatcher.DispatchAsync(new TestDomainEvent(EntityId<TestAggregateRoot>.New(), Guid.NewGuid()));
+        Maybe<Fault> outcome = await dispatcher.DispatchAsync(new TestDomainEvent(EntityId<TestAggregateRoot>.New(), Guid.NewGuid()), TestContext.Current.CancellationToken);
         
         Assert.True(outcome.IsNone);
         Assert.Equal(1, successfulHandler1.ExecutionCount);
@@ -53,7 +53,7 @@ public class DomainEventDispatcherTests
         UnsuccessfulTestDomainEventHandler unsuccessfulHandler2 = new();
         DomainEventDispatcher dispatcher = new([successfulHandler1, successfulHandler2, unsuccessfulHandler1, unsuccessfulHandler2]);
         
-        Maybe<Fault> outcome = await dispatcher.DispatchAsync(new TestDomainEvent(EntityId<TestAggregateRoot>.New(), Guid.NewGuid()));
+        Maybe<Fault> outcome = await dispatcher.DispatchAsync(new TestDomainEvent(EntityId<TestAggregateRoot>.New(), Guid.NewGuid()), TestContext.Current.CancellationToken);
         
         Assert.True(outcome.IsSome);
         Assert.Equal(1, successfulHandler1.ExecutionCount);
@@ -68,7 +68,7 @@ public class DomainEventDispatcherTests
         UnsuccessfulTestDomainEventHandler unsuccessfulHandler = new();
         DomainEventDispatcher dispatcher = new([unsuccessfulHandler]);
         
-        Maybe<Fault> outcome = await dispatcher.DispatchAsync(new TestDomainEvent(EntityId<TestAggregateRoot>.New(), Guid.NewGuid()));
+        Maybe<Fault> outcome = await dispatcher.DispatchAsync(new TestDomainEvent(EntityId<TestAggregateRoot>.New(), Guid.NewGuid()), TestContext.Current.CancellationToken);
         
         Assert.True(outcome.IsSome);
         Assert.Equal(1, unsuccessfulHandler.ExecutionCount);
@@ -81,7 +81,7 @@ public class DomainEventDispatcherTests
         UnsuccessfulTestDomainEventHandler unsuccessfulHandler2 = new();
         DomainEventDispatcher dispatcher = new([unsuccessfulHandler1, unsuccessfulHandler2]);
         
-        Maybe<Fault> outcome = await dispatcher.DispatchAsync(new TestDomainEvent(EntityId<TestAggregateRoot>.New(), Guid.NewGuid()));
+        Maybe<Fault> outcome = await dispatcher.DispatchAsync(new TestDomainEvent(EntityId<TestAggregateRoot>.New(), Guid.NewGuid()), TestContext.Current.CancellationToken);
         
         Assert.True(outcome.IsSome);
         Assert.Equal(1, unsuccessfulHandler1.ExecutionCount);

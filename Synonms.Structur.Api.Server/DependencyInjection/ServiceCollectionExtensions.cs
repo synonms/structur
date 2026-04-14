@@ -29,6 +29,9 @@ using Synonms.Structur.Api.Server.Users;
 using Synonms.Structur.Api.Server.Users.Context;
 using Synonms.Structur.Api.Server.Users.Persistence;
 using Synonms.Structur.Api.Server.Users.Resolution;
+using Synonms.Structur.Api.Server.Versioning;
+using Synonms.Structur.Api.Server.Versioning.Context;
+using Synonms.Structur.Api.Server.Versioning.Resolution;
 using Synonms.Structur.Core.Attributes;
 using Synonms.Structur.Core.Cqrs;
 using Synonms.Structur.Core.DependencyInjection;
@@ -106,6 +109,7 @@ public static class ServiceCollectionExtensions
             serviceCollection.AddScoped(typeof(ILookupOptionsProvider), typeof(EmptyLookupOptionsProvider));
         }
 
+        serviceCollection.WithVersioning();
         serviceCollection.WithUsers<TUser>();
         serviceCollection.WithTenants<TUser, TTenant>();
         serviceCollection.WithProducts<TUser, TProduct>();
@@ -251,6 +255,18 @@ public static class ServiceCollectionExtensions
         return serviceCollection;
     }
 
+    private static IServiceCollection WithVersioning(this IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddScoped<VersionMiddleware>();
+        serviceCollection.AddScoped<IVersionContext, VersionContext>();
+        serviceCollection.AddScoped<IVersionResolver, VersionResolver>();
+
+        serviceCollection.AddScoped<IVersionResolutionStrategy, HeaderVersionResolutionStrategy>();
+        serviceCollection.AddScoped<IVersionResolutionStrategy, QueryStringVersionResolutionStrategy>();
+        
+        return serviceCollection;
+    }
+
     private static IServiceCollection WithUsers<TUser>(this IServiceCollection serviceCollection)
         where TUser : StructurUser
     {
@@ -340,7 +356,6 @@ public static class ServiceCollectionExtensions
     
     private static IServiceCollection WithOpenApi(this IServiceCollection serviceCollection, Action<OpenApiOptions>? configurationAction = null)
     {
-//        serviceCollection.AddEndpointsApiExplorer();
         serviceCollection.AddOpenApi(options =>
         {
             options.AddDocumentTransformer<StructurDocumentTransformer>();

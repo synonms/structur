@@ -4,7 +4,7 @@ using Synonms.Structur.Domain.ValueObjects;
 
 namespace Synonms.Structur.Api.Server.Tests.Unit.Shared;
 
-internal class TestAggregateRoot : AggregateRoot<TestAggregateRoot>
+public class TestAggregateRoot : AggregateRoot<TestAggregateRoot>
 {
     private TestAggregateRoot()
     {

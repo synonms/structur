@@ -7,4 +7,5 @@ public static class HttpHeaders
     public const string RequestId = "X-Request-ID";
     public const string ProductId = "X-Structur-Product-ID";
     public const string TenantId = "X-Structur-Tenant-ID";
+    public const string Version = "X-Structur-Version";
 }

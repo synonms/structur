@@ -8,6 +8,7 @@ using Synonms.Structur.Api.Server.Http;
 using Synonms.Structur.Api.Server.Products;
 using Synonms.Structur.Api.Server.Tenants;
 using Synonms.Structur.Api.Server.Users;
+using Synonms.Structur.Api.Server.Versioning;
 
 namespace Synonms.Structur.Api.Server.Hosting;
 
@@ -50,6 +51,7 @@ public static class WebApplicationExtensions
         webApplication.UseAuthentication();
         options.PostAuthenticationPipelineConfigurationAction?.Invoke(webApplication);
         
+        webApplication.UseMiddleware<VersionMiddleware>();
         webApplication.UseMiddleware<UserMiddleware<TUser>>();
         webApplication.UseMiddleware<TenantMiddleware<TUser, TTenant>>();
         webApplication.UseMiddleware<ProductMiddleware<TUser, TProduct>>();

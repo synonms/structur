@@ -1,3 +1,4 @@
+using Synonms.Structur.Core.Attributes;
 using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
@@ -8,6 +9,7 @@ using Synonms.Structur.Sample.ClientApi.Features.Employees;
 
 namespace Synonms.Structur.Sample.Api.Features.Employees;
 
+[StructurChildResource(typeof(EmployeeEqualOpportunitiesResource))]
 public class EmployeeEqualOpportunities : AggregateMember<EmployeeEqualOpportunities>
 {
     private EmployeeEqualOpportunities()

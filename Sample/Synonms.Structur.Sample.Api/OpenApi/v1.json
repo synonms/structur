@@ -389,6 +389,7 @@
       },
       "EmployeeResource_Default": {
         "required": [
+          "supportedVersions",
           "employeeReference",
           "nationalInsuranceNumber",
           "forename",
@@ -396,14 +397,17 @@
           "workPermitRequired",
           "homeAddress",
           "emailContacts",
-          "telephoneContacts",
-          "equalOpportunities"
+          "telephoneContacts"
         ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "supportedVersions": {
+            "type": "array",
+            "items": { }
           },
           "employeeReference": {
             "type": "string",
@@ -497,6 +501,7 @@
       },
       "EmployeeResource_Ion": {
         "required": [
+          "supportedVersions",
           "employeeReference",
           "nationalInsuranceNumber",
           "forename",
@@ -504,8 +509,7 @@
           "workPermitRequired",
           "homeAddress",
           "emailContacts",
-          "telephoneContacts",
-          "equalOpportunities"
+          "telephoneContacts"
         ],
         "type": "object",
         "properties": {
@@ -557,6 +561,10 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "supportedVersions": {
+            "type": "array",
+            "items": { }
           },
           "employeeReference": {
             "type": "string",
@@ -740,6 +748,7 @@
       },
       "EmployeeResourceRequest": {
         "required": [
+          "supportedVersions",
           "employeeReference",
           "nationalInsuranceNumber",
           "forename",
@@ -747,14 +756,17 @@
           "workPermitRequired",
           "homeAddress",
           "emailContacts",
-          "telephoneContacts",
-          "equalOpportunities"
+          "telephoneContacts"
         ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "supportedVersions": {
+            "type": "array",
+            "items": { }
           },
           "employeeReference": {
             "type": "string",

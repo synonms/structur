@@ -23,6 +23,12 @@ public class EmployeeResource : Resource
 
     public override string GetCollectionPath() => CollectionPath;
     
+    public override SortedSet<Version> SupportedVersions { get; } = 
+    [
+        new Version(1, 0),
+        new Version(1, 1)
+    ];
+    
     [StructurRequired]
     [StructurImmutable]
     public string EmployeeReference { get; set; } = string.Empty;
@@ -61,5 +67,6 @@ public class EmployeeResource : Resource
     public List<TelephoneContactValueObjectResource> TelephoneContacts { get; set; } = [];
     
     [StructurRequired]
-    public EmployeeEqualOpportunitiesResource EqualOpportunities { get; set; } = new();
+    [StructurVersionHistory(IntroducedMajorVersion = 1, IntroducedMinorVersion = 1)]
+    public EmployeeEqualOpportunitiesResource? EqualOpportunities { get; set; }
 }

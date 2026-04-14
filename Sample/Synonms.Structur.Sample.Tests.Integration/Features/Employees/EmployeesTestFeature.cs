@@ -6,6 +6,7 @@ using Synonms.Structur.Api.Core.Schema.Forms;
 using Synonms.Structur.Api.Core.ValueObjects;
 using Synonms.Structur.Api.Core.ValueObjects.Enumerations;
 using Synonms.Structur.Api.Server.Users;
+using Synonms.Structur.Api.Server.Versioning.Context;
 using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Core.System;
@@ -30,6 +31,7 @@ public class EmployeesTestFeature :
 {
     public string CollectionPath => "employees";
     private readonly IUserActionProvider _userActionProvider = new EmptyUserActionProvider();
+    private readonly IVersionContext _versionContext = new VersionContext();
 
     public EmployeeResource GenerateInvalidResource(EntityId<Employee> id) =>
         new Faker<EmployeeResource>("en_GB")
@@ -67,7 +69,7 @@ public class EmployeesTestFeature :
     public ArrangeAggregateInfo<Employee> GenerateUniqueAggregate(EntityId<Employee> id)
     {
         EmployeeResource resource = GenerateValidResource(id);
-        EmployeeCreatedEvent createdEvent = new(_userActionProvider, id, resource, TestTenant.Id);
+        EmployeeCreatedEvent createdEvent = new(_userActionProvider, _versionContext, id, resource, TestTenant.Id);
         Result<Employee> createdResult = createdEvent.ApplyAsync(null).Result;
             
         return createdResult.Match(

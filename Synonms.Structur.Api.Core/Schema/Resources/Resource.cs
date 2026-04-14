@@ -19,7 +19,18 @@ public abstract class Resource
     }
 
     public abstract string GetCollectionPath();
-    
+
+    public virtual SortedSet<Version> SupportedVersions { get; } = [];
+
+    public Version? GetApplicableVersion(Version? requestedVersion)
+    {
+        if (requestedVersion is null) return new Version();
+        if (SupportedVersions.Count == 0 || requestedVersion > SupportedVersions.Last()) return new Version();
+        if (SupportedVersions.Contains(requestedVersion)) return requestedVersion;
+        
+        return SupportedVersions.Where(x => x < requestedVersion).Max();
+    }
+
     public Guid Id { get; set; }
 
     public Link SelfLink { get; init; }

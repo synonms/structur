@@ -3,12 +3,20 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Core.System;
+using Synonms.Structur.Core.Versioning;
 
 namespace Synonms.Structur.Api.Core.Serialisation.Ion;
 
 public class IonChildResourceJsonConverter<TChildResource> : JsonConverter<TChildResource>
     where TChildResource : ChildResource, new()
 {
+    private readonly Version _version;
+
+    public IonChildResourceJsonConverter(Version version)
+    {
+        _version = version;
+    }
+    
     public override TChildResource Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (!JsonDocument.TryParseValue(ref reader, out JsonDocument? doc))
@@ -44,6 +52,8 @@ public class IonChildResourceJsonConverter<TChildResource> : JsonConverter<TChil
     {
         writer.WriteStartObject();
 
+        VersionHistory objectVersionHistory = typeof(TChildResource).GetVersionHistory();
+        
         writer.WriteString("id", value.Id);
 
         foreach (PropertyInfo propertyInfo in typeof(TChildResource).GetProperties(BindingFlags.Instance | BindingFlags.Public))
@@ -52,9 +62,15 @@ public class IonChildResourceJsonConverter<TChildResource> : JsonConverter<TChil
             {
                 continue;
             }
-            
-            writer.WritePropertyName(propertyInfo.Name.ToCamelCase());
-            JsonSerializer.Serialize(writer, propertyInfo.GetValue(value), options);
+         
+            VersionHistory propertyVersionHistory = propertyInfo.GetVersionHistory();
+            VersionHistory applicableVersionHistory = VersionHistory.Merge(propertyVersionHistory, objectVersionHistory);
+
+            if (applicableVersionHistory.IsApplicableAtVersion(_version))
+            {
+                writer.WritePropertyName(propertyInfo.Name.ToCamelCase());
+                JsonSerializer.Serialize(writer, propertyInfo.GetValue(value), options);
+            }
         }
             
         writer.WriteEndObject();

@@ -2,12 +2,14 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Synonms.Structur.Api.Core.Content;
 using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Core.Serialisation;
 using Synonms.Structur.Api.Core.Serialisation.Ion;
+using Synonms.Structur.Api.Server.Versioning.Context;
 
 namespace Synonms.Structur.Api.Server.Hypermedia.Ion;
 
@@ -28,6 +30,8 @@ public class IonInputFormatter : TextInputFormatter
     
     public override async Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context, Encoding encoding)
     {
+        IVersionContext versionContext = context.HttpContext.RequestServices.GetRequiredService<IVersionContext>();
+        
         JsonSerializerOptions jsonSerializerOptions = new ()
         {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -37,7 +41,7 @@ public class IonInputFormatter : TextInputFormatter
                 new OptionalDateOnlyJsonConverter(),
                 new TimeOnlyJsonConverter(),
                 new OptionalTimeOnlyJsonConverter(),
-                new IonCustomJsonConverterFactory(),
+                new IonCustomJsonConverterFactory(versionContext.Version ?? new Version()),
                 new IonLinkJsonConverter(),
                 new IonFormDocumentJsonConverter(),
                 new IonFormFieldJsonConverter(),

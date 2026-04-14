@@ -3,6 +3,7 @@ using Synonms.Structur.Api.Core.Schema;
 using Synonms.Structur.Api.Core.ValueObjects;
 using Synonms.Structur.Api.Core.ValueObjects.Enumerations;
 using Synonms.Structur.Api.Server.Users;
+using Synonms.Structur.Api.Server.Versioning.Context;
 using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Events;
@@ -30,6 +31,7 @@ public class DataSeeder
         await using AsyncServiceScope serviceScope = webApplication.Services.CreateAsyncScope();
         IMongoClient mongoClient = serviceScope.ServiceProvider.GetRequiredService<IMongoClient>();
         IUserActionProvider userActionProvider = serviceScope.ServiceProvider.GetRequiredService<IUserActionProvider>();
+        IVersionContext versionContext = serviceScope.ServiceProvider.GetRequiredService<IVersionContext>();
         
         SetCollections(mongoClient);
 
@@ -42,7 +44,7 @@ public class DataSeeder
         await SeedProductsAsync();
         await SeedUsersAsync();
         
-        await SeedIndividualsAsync(userActionProvider);
+        await SeedEmployeesAsync(userActionProvider, versionContext);
     }
 
     private void SetCollections(IMongoClient mongoClient)
@@ -155,7 +157,7 @@ public class DataSeeder
         }
     }
     
-    private async Task SeedIndividualsAsync(IUserActionProvider userActionProvider)
+    private async Task SeedEmployeesAsync(IUserActionProvider userActionProvider, IVersionContext versionContext)
     {
         EmployeeResource lebronResource = new(Guid.Parse("a9617306-ffa6-4355-9461-9dfcd6b702d4"), Link.EmptyLink())
         {
@@ -184,7 +186,7 @@ public class DataSeeder
                 }
             ],
             TelephoneContacts = [],
-            EqualOpportunities = new EmployeeEqualOpportunitiesResource()
+            EqualOpportunities = new EmployeeEqualOpportunitiesResource
             {
                 Id = Guid.NewGuid(),
                 BirthDate = new DateOnly(1986, 01, 01),
@@ -217,7 +219,7 @@ public class DataSeeder
                 }
             ],
             TelephoneContacts = [],
-            EqualOpportunities = new EmployeeEqualOpportunitiesResource()
+            EqualOpportunities = new EmployeeEqualOpportunitiesResource
             {
                 Id = Guid.NewGuid(),
                 BirthDate = new DateOnly(1996, 01, 01),
@@ -225,8 +227,8 @@ public class DataSeeder
             }
         };
         
-        EmployeeCreatedEvent lebronCreatedEvent = new(userActionProvider, (EntityId<Employee>)lebronResource.Id, lebronResource, _lakersTenantId);
-        EmployeeCreatedEvent lukaCreatedEvent = new(userActionProvider, (EntityId<Employee>)lukaResource.Id, lukaResource, _lakersTenantId);
+        EmployeeCreatedEvent lebronCreatedEvent = new(userActionProvider, versionContext, (EntityId<Employee>)lebronResource.Id, lebronResource, _lakersTenantId);
+        EmployeeCreatedEvent lukaCreatedEvent = new(userActionProvider, versionContext, (EntityId<Employee>)lukaResource.Id, lukaResource, _lakersTenantId);
         
         await CreateIndividualAsync(lebronCreatedEvent);
         await CreateIndividualAsync(lukaCreatedEvent);
@@ -258,7 +260,7 @@ public class DataSeeder
                 }
             ],
             TelephoneContacts = [],
-            EqualOpportunities = new EmployeeEqualOpportunitiesResource()
+            EqualOpportunities = new EmployeeEqualOpportunitiesResource
             {
                 Id = Guid.NewGuid(),
                 BirthDate = new DateOnly(1966, 01, 01),
@@ -291,7 +293,7 @@ public class DataSeeder
                 }
             ],
             TelephoneContacts = [],
-            EqualOpportunities = new EmployeeEqualOpportunitiesResource()
+            EqualOpportunities = new EmployeeEqualOpportunitiesResource
             {
                 Id = Guid.NewGuid(),
                 BirthDate = new DateOnly(1986, 01, 01),
@@ -299,8 +301,8 @@ public class DataSeeder
             }
         };
         
-        EmployeeCreatedEvent glennCreatedEvent = new(userActionProvider, (EntityId<Employee>)glennResource.Id, glennResource, _spursTenantId);
-        EmployeeCreatedEvent davidCreatedEvent = new(userActionProvider, (EntityId<Employee>)davidResource.Id, davidResource, _spursTenantId);
+        EmployeeCreatedEvent glennCreatedEvent = new(userActionProvider, versionContext, (EntityId<Employee>)glennResource.Id, glennResource, _spursTenantId);
+        EmployeeCreatedEvent davidCreatedEvent = new(userActionProvider, versionContext, (EntityId<Employee>)davidResource.Id, davidResource, _spursTenantId);
         
         await CreateIndividualAsync(glennCreatedEvent);
         await CreateIndividualAsync(davidCreatedEvent);

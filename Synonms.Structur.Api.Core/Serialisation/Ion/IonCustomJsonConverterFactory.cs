@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Synonms.Structur.Api.Core.Schema.Client;
@@ -8,6 +9,8 @@ namespace Synonms.Structur.Api.Core.Serialisation.Ion;
 
 public class IonCustomJsonConverterFactory : JsonConverterFactory
 {
+    private readonly Version _version;
+
     private readonly Dictionary<Type, Type> _supportedGenericConverterTypes = new ()
     {
         { typeof(ResourceDocument<>), typeof(IonResourceDocumentJsonConverter<>) },
@@ -16,6 +19,11 @@ public class IonCustomJsonConverterFactory : JsonConverterFactory
         { typeof(ResourceCollectionResponse<>), typeof(IonResourceCollectionResponseJsonConverter<>) }
     };
 
+    public IonCustomJsonConverterFactory(Version version)
+    {
+        _version = version;
+    }
+    
     public override bool CanConvert(Type typeToConvert)
     {
         if (typeToConvert.IsEntityId())
@@ -78,18 +86,22 @@ public class IonCustomJsonConverterFactory : JsonConverterFactory
         return null;
     }
 
-    private static JsonConverter? CreateResourceConverter(Type resourceType)
+    private JsonConverter? CreateResourceConverter(Type resourceType)
     {
         Type converterType = typeof(IonResourceJsonConverter<>).MakeGenericType(resourceType);
-                
-        return (JsonConverter?)Activator.CreateInstance(converterType);
+        ConstructorInfo? constructorWithVersion = converterType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, [typeof(Version)]);
+        object? instance = constructorWithVersion?.Invoke([_version]);        
+        
+        return (JsonConverter?)instance;
     }
 
-    private static JsonConverter? CreateChildResourceConverter(Type childResourceType)
+    private JsonConverter? CreateChildResourceConverter(Type childResourceType)
     {
         Type converterType = typeof(IonChildResourceJsonConverter<>).MakeGenericType(childResourceType);
-                
-        return (JsonConverter?)Activator.CreateInstance(converterType);
+        ConstructorInfo? constructorWithVersion = converterType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, [typeof(Version)]);
+        object? instance = constructorWithVersion?.Invoke([_version]);        
+        
+        return (JsonConverter?)instance;
     }
 
     private static JsonConverter? CreateEntityIdConverter(Type entityIdType)

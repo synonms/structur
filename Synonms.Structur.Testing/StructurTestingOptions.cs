@@ -1,10 +1,13 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Aspire.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Synonms.Structur.Api.Core.Content;
+using Synonms.Structur.Api.Core.Serialisation;
+using Synonms.Structur.Api.Core.Serialisation.Default;
 using Synonms.Structur.Api.Server.Hypermedia.Default;
 using WireMock.Net.Testcontainers;
 
@@ -59,7 +62,24 @@ public class StructurTestingOptions
 
     public string MediaType { get; set; } = MediaTypes.Json;
 
-    public JsonSerializerOptions? JsonSerializerOptions { get; set; } = DefaultOutputFormatter.JsonSerializerOptions;
+    public JsonSerializerOptions? JsonSerializerOptions { get; set; } = new()
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { 
+            new DateOnlyJsonConverter(),
+            new OptionalDateOnlyJsonConverter(),
+            new TimeOnlyJsonConverter(),
+            new OptionalTimeOnlyJsonConverter(),
+            new DefaultCustomJsonConverterFactory(new Version()),
+            new DefaultLinkJsonConverter(),
+            new DefaultFormDocumentJsonConverter(),
+            new DefaultFormFieldJsonConverter(),
+            new DefaultPaginationJsonConverter(),
+            new DefaultErrorCollectionDocumentJsonConverter(),
+            new DefaultErrorJsonConverter()
+        }
+    };
 
     public AppHostOptions AppHost { get; set; } = new();
     

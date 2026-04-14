@@ -5,12 +5,20 @@ using Synonms.Structur.Api.Core.Iana;
 using Synonms.Structur.Api.Core.Schema;
 using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Core.System;
+using Synonms.Structur.Core.Versioning;
 
 namespace Synonms.Structur.Api.Core.Serialisation.Ion;
 
 public class IonResourceJsonConverter<TResource> : JsonConverter<TResource>
     where TResource : Resource, new()
 {
+    private readonly Version _version;
+
+    public IonResourceJsonConverter(Version version)
+    {
+        _version = version;
+    }
+    
     public override TResource Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (!JsonDocument.TryParseValue(ref reader, out JsonDocument? doc))
@@ -70,13 +78,16 @@ public class IonResourceJsonConverter<TResource> : JsonConverter<TResource>
     {
         writer.WriteStartObject();
 
+        VersionHistory objectVersionHistory = typeof(TResource).GetVersionHistory();
+
         writer.WriteString("id", value.Id);
 
         foreach (PropertyInfo propertyInfo in typeof(TResource).GetProperties(BindingFlags.Instance | BindingFlags.Public))
         {
-            if (propertyInfo.Name.Equals("id", StringComparison.OrdinalIgnoreCase)
-                || propertyInfo.Name.Equals("SelfLink", StringComparison.OrdinalIgnoreCase)
-                || propertyInfo.Name.Equals("Links", StringComparison.OrdinalIgnoreCase))
+            if (propertyInfo.Name.Equals(nameof(Resource.Id), StringComparison.OrdinalIgnoreCase)
+                || propertyInfo.Name.Equals(nameof(Resource.SupportedVersions), StringComparison.OrdinalIgnoreCase)
+                || propertyInfo.Name.Equals(nameof(Resource.SelfLink), StringComparison.OrdinalIgnoreCase)
+                || propertyInfo.Name.Equals(nameof(Resource.Links), StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
@@ -86,8 +97,14 @@ public class IonResourceJsonConverter<TResource> : JsonConverter<TResource>
                 continue;
             }
 
-            writer.WritePropertyName(propertyInfo.Name.ToCamelCase());
-            JsonSerializer.Serialize(writer, propertyInfo.GetValue(value), options);
+            VersionHistory propertyVersionHistory = propertyInfo.GetVersionHistory();
+            VersionHistory applicableVersionHistory = VersionHistory.Merge(propertyVersionHistory, objectVersionHistory);
+
+            if (applicableVersionHistory.IsApplicableAtVersion(_version))
+            {
+                writer.WritePropertyName(propertyInfo.Name.ToCamelCase());
+                JsonSerializer.Serialize(writer, propertyInfo.GetValue(value), options);
+            }
         }
 
         writer.WritePropertyName(IanaLinkRelationConstants.Self);

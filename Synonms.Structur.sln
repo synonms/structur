@@ -38,6 +38,57 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Api.Client
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.Structur.Api.Core", "Synonms.Structur.Api.Core\Synonms.Structur.Api.Core.csproj", "{C0C891F2-146E-47BC-9C5E-A186C197867C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Agents", "Agents", "{5DFC7CB8-059A-461C-AD95-CF71F3656D73}"
+	ProjectSection(SolutionItems) = preProject
+		.github\copilot-instructions.md = .github\copilot-instructions.md
+		AGENTS.md = AGENTS.md
+		.agents\framework-developer.agent.md = .agents\framework-developer.agent.md
+		.agents\readme-specialist.agent.md = .agents\readme-specialist.agent.md
+		.agents\feature-developer.agent.md = .agents\feature-developer.agent.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Skills", "Skills", "{5306BC60-5993-4076-8ABD-95E49086C17C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewSampleFeature", "NewSampleFeature", "{26B0F42C-4C9C-4C1C-B612-10D35D555C9B}"
+	ProjectSection(SolutionItems) = preProject
+		.agents\skills\new-sample-feature\SKILL.md = .agents\skills\new-sample-feature\SKILL.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewAggregateRoot", "NewAggregateRoot", "{E4BAEFF1-932D-4096-9A5C-5BACB9127639}"
+	ProjectSection(SolutionItems) = preProject
+		.agents\skills\new-aggregate-root\SKILL.md = .agents\skills\new-aggregate-root\SKILL.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewAggregateMember", "NewAggregateMember", "{F5EC4F6E-B262-4257-AEFC-832E93F3B3A2}"
+	ProjectSection(SolutionItems) = preProject
+		.agents\skills\new-aggregate-member\SKILL.md = .agents\skills\new-aggregate-member\SKILL.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewValueObject", "NewValueObject", "{6082E48B-86A2-4212-AF03-4DA368209A9B}"
+	ProjectSection(SolutionItems) = preProject
+		.agents\skills\new-value-object\SKILL.md = .agents\skills\new-value-object\SKILL.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewIntegrationTests", "NewIntegrationTests", "{34BC597A-0EA2-4AE1-A652-1B9CD16EFC70}"
+	ProjectSection(SolutionItems) = preProject
+		.agents\skills\new-integration-tests\SKILL.md = .agents\skills\new-integration-tests\SKILL.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewDomainEventHandlers", "NewDomainEventHandlers", "{1B542FF0-878C-4A93-8148-24271ED9E572}"
+	ProjectSection(SolutionItems) = preProject
+		.agents\skills\new-domain-event-handlers\SKILL.md = .agents\skills\new-domain-event-handlers\SKILL.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewProjection", "NewProjection", "{17AEB4E3-2EE5-435B-B00E-E6432EE94A59}"
+	ProjectSection(SolutionItems) = preProject
+		.agents\skills\new-projection\SKILL.md = .agents\skills\new-projection\SKILL.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{65C9D3C8-70E0-45E7-95BA-EC031BE2665E}"
+	ProjectSection(SolutionItems) = preProject
+		readme.md = readme.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,5 +174,13 @@ Global
 		{17AE64CA-8EEF-4F41-9F12-BF9498F3D4BD} = {437DD44B-A17C-4416-B058-D50499BBDF6A}
 		{1903DF76-3069-4E7F-8D43-2853A6826F56} = {1876969C-8CB5-42AF-93A9-A09ECA70FB02}
 		{7020907D-10F7-447F-9EBF-1B415EA4FC73} = {1876969C-8CB5-42AF-93A9-A09ECA70FB02}
+		{5306BC60-5993-4076-8ABD-95E49086C17C} = {5DFC7CB8-059A-461C-AD95-CF71F3656D73}
+		{26B0F42C-4C9C-4C1C-B612-10D35D555C9B} = {5306BC60-5993-4076-8ABD-95E49086C17C}
+		{E4BAEFF1-932D-4096-9A5C-5BACB9127639} = {5306BC60-5993-4076-8ABD-95E49086C17C}
+		{F5EC4F6E-B262-4257-AEFC-832E93F3B3A2} = {5306BC60-5993-4076-8ABD-95E49086C17C}
+		{6082E48B-86A2-4212-AF03-4DA368209A9B} = {5306BC60-5993-4076-8ABD-95E49086C17C}
+		{34BC597A-0EA2-4AE1-A652-1B9CD16EFC70} = {5306BC60-5993-4076-8ABD-95E49086C17C}
+		{1B542FF0-878C-4A93-8148-24271ED9E572} = {5306BC60-5993-4076-8ABD-95E49086C17C}
+		{17AEB4E3-2EE5-435B-B00E-E6432EE94A59} = {5306BC60-5993-4076-8ABD-95E49086C17C}
 	EndGlobalSection
 EndGlobal
