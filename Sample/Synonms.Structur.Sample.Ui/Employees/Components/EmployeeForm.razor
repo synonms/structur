@@ -21,7 +21,7 @@
 
     <CarbonBlazorText Type="CarbonBlazorTextType.HeadingCompact">Contact</CarbonBlazorText>
     
-    <NestedCollectionDataTable TModel="EmailContactValueObjectResource" Title="Email Contacts" ChildResources="@Model.EmailContacts" ChildResourceName="Email Address" ValidationFunc="ValidateEmailContact"
+    <NestedCollectionDataTable TModel="EmailContactResource" Title="Email Contacts" ChildResources="@Model.EmailContacts" ChildResourceName="Email Address" ValidationFunc="ValidateEmailContact"
                                MatcherFunc="@((left, right) => left.Address.Equals(right.Address, StringComparison.OrdinalIgnoreCase))">
         <HeaderRowTemplate>
             <CarbonBlazorDataTableHeaderCell>Address</CarbonBlazorDataTableHeaderCell>
@@ -40,7 +40,7 @@
         </FormTemplate>
     </NestedCollectionDataTable>
     
-    <NestedCollectionDataTable TModel="TelephoneContactValueObjectResource" Title="Telephone Contacts" ChildResources="@Model.TelephoneContacts" ChildResourceName="Telephone Number" ValidationFunc="ValidateTelephoneContact"
+    <NestedCollectionDataTable TModel="TelephoneContactResource" Title="Telephone Contacts" ChildResources="@Model.TelephoneContacts" ChildResourceName="Telephone Number" ValidationFunc="ValidateTelephoneContact"
                                MatcherFunc="@((left, right) => left.Number.Equals(right.Number, StringComparison.OrdinalIgnoreCase))">
         <HeaderRowTemplate>
             <CarbonBlazorDataTableHeaderCell>Number</CarbonBlazorDataTableHeaderCell>
@@ -157,7 +157,7 @@
         return validationOutcomes;
     }
 
-    private IEnumerable<ValidationOutcome> ValidateEmailContact(EmailContactValueObjectResource emailContact)
+    private IEnumerable<ValidationOutcome> ValidateEmailContact(EmailContactResource emailContact)
     {
         List<ValidationOutcome> validationOutcomes = [];
 
@@ -171,7 +171,7 @@
         return validationOutcomes;
     }
     
-    private IEnumerable<ValidationOutcome> ValidateTelephoneContact(TelephoneContactValueObjectResource telephoneContact)
+    private IEnumerable<ValidationOutcome> ValidateTelephoneContact(TelephoneContactResource telephoneContact)
     {
         List<ValidationOutcome> validationOutcomes = [];
 

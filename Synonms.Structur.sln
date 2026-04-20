@@ -89,6 +89,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentat
 		readme.md = readme.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Prompts", "Prompts", "{EEB41A3A-6AB4-4FAD-AF9B-21A67920F3BB}"
+	ProjectSection(SolutionItems) = preProject
+		.agents\prompts\new-feature.prompt.md = .agents\prompts\new-feature.prompt.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -182,5 +187,6 @@ Global
 		{34BC597A-0EA2-4AE1-A652-1B9CD16EFC70} = {5306BC60-5993-4076-8ABD-95E49086C17C}
 		{1B542FF0-878C-4A93-8148-24271ED9E572} = {5306BC60-5993-4076-8ABD-95E49086C17C}
 		{17AEB4E3-2EE5-435B-B00E-E6432EE94A59} = {5306BC60-5993-4076-8ABD-95E49086C17C}
+		{EEB41A3A-6AB4-4FAD-AF9B-21A67920F3BB} = {5DFC7CB8-059A-461C-AD95-CF71F3656D73}
 	EndGlobalSection
 EndGlobal

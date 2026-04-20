@@ -171,7 +171,7 @@ public class DataSeeder
             WorkPermitRequired = false,
             WorkPermitValidUntil = null,
             Notes = null,
-            HomeAddress = new AddressValueObjectResource
+            HomeAddress = new AddressResource
             { 
                 Type = AddressTypeEnumeration.Home,
                 Line1 = "Crypto.com Arena",
@@ -179,7 +179,7 @@ public class DataSeeder
             },
             EmailContacts = 
             [
-                new EmailContactValueObjectResource
+                new EmailContactResource
                 {
                     Address = "l.james@lakers.com",
                     IsPrimary = true
@@ -205,14 +205,14 @@ public class DataSeeder
             WorkPermitRequired = true,
             WorkPermitValidUntil = new DateOnly(2030, 01, 01),
             Notes = null,
-            HomeAddress = new AddressValueObjectResource
+            HomeAddress = new AddressResource
             { 
                 Type = AddressTypeEnumeration.Home,
                 Line1 = "Crypto.com Arena",
                 Postcode = "LA1 1LA"
             },
             EmailContacts = [
-                new EmailContactValueObjectResource
+                new EmailContactResource
                 {
                     Address = "l.doncic@lakers.com",
                     IsPrimary = true
@@ -245,7 +245,7 @@ public class DataSeeder
             WorkPermitRequired = false,
             WorkPermitValidUntil = null,
             Notes = null,
-            HomeAddress = new AddressValueObjectResource
+            HomeAddress = new AddressResource
             { 
                 Type = AddressTypeEnumeration.Home,
                 Line1 = "782 High Road",
@@ -253,7 +253,7 @@ public class DataSeeder
             },
             EmailContacts = 
             [
-                new EmailContactValueObjectResource
+                new EmailContactResource
                 {
                     Address = "g.hoddle@thfc.com",
                     IsPrimary = true
@@ -279,14 +279,14 @@ public class DataSeeder
             WorkPermitRequired = false,
             WorkPermitValidUntil = null,
             Notes = null,
-            HomeAddress = new AddressValueObjectResource
+            HomeAddress = new AddressResource
             { 
                 Type = AddressTypeEnumeration.Home,
                 Line1 = "782 High Road",
                 Postcode = "N17 0BX"
             },
             EmailContacts = [
-                new EmailContactValueObjectResource
+                new EmailContactResource
                 {
                     Address = "d.ginola@thfc.com",
                     IsPrimary = true

@@ -4,11 +4,11 @@ using Synonms.Structur.Core.System.Text;
 
 namespace Synonms.Structur.Api.Core.ValueObjects;
 
-public class EmailContactValueObjectResource : ComplexValueObjectResource
+public class TelephoneContactResource : ComplexValueObjectResource
 {
     [StructurRequired]
-    [StructurPattern(RegularExpressions.EmailAddress)]
-    public string Address { get; set; } = string.Empty;
+    [StructurPattern(RegularExpressions.TelephoneNumber)]
+    public string Number { get; set; } = string.Empty;
 
     public bool IsPrimary { get; set; } = true;
     

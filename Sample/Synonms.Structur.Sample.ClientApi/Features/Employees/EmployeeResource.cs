@@ -60,11 +60,11 @@ public class EmployeeResource : Resource
     public string? Notes { get; set; }
 
     [StructurRequired]
-    public AddressValueObjectResource HomeAddress { get; set; } = new();
+    public AddressResource HomeAddress { get; set; } = new();
 
-    public List<EmailContactValueObjectResource> EmailContacts { get; set; } = [];
+    public List<EmailContactResource> EmailContacts { get; set; } = [];
 
-    public List<TelephoneContactValueObjectResource> TelephoneContacts { get; set; } = [];
+    public List<TelephoneContactResource> TelephoneContacts { get; set; } = [];
     
     [StructurRequired]
     [StructurVersionHistory(IntroducedMajorVersion = 1, IntroducedMinorVersion = 1)]

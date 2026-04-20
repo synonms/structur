@@ -5,7 +5,7 @@ using Synonms.Structur.Core.System.Text;
 
 namespace Synonms.Structur.Api.Core.ValueObjects;
 
-public class AddressValueObjectResource : ComplexValueObjectResource
+public class AddressResource : ComplexValueObjectResource
 {
     [StructurRequired]
     public AddressTypeEnumeration Type { get; set; }

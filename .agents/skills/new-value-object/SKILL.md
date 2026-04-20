@@ -22,7 +22,7 @@ To add new value objects to a consuming project, follow this process:
 8. If the new value object encapsulates multiple properties it is deemed a complex value object and the following steps are required:
    - If it does not already exist, create a new "ValueObjects" folder in the aggregate features directory of the consuming Client API project. For example, `Synonms.Structur.Sample.ClientApi/Features/Employees/ValueObjects`.  This will contain the value object resources.
    - Create the related Complex Value Object Resource class in the value objects folder of the Client API project. This class will define the API contract for the value object. Use the following guidelines:
-     - The class should be named using the Value Object name in Pascal case followed by "ValueObjectResource", for example `EmploymentContractTermsValueObjectResource`.
+     - The class should be named using the Value Object name in Pascal case followed by "Resource", for example `EmploymentContractTermsResource`.
      - It should inherit from `ComplexValueObjectResource`.
      - It should define public mutable properties for the resource as specified in the requirements, for example `public string Name { get; set; }` and `public decimal Price { get; set; }`. The name must match the corresponding property on the Value Object for mapping to work.
      - Scalar properties should be plain C# types (string, int, decimal, etc.) or collections of plain C# types (e.g. `List<string>`).

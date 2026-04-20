@@ -40,7 +40,7 @@ public class EmployeesTestFeature :
             .RuleFor(x => x.NationalInsuranceNumber, string.Empty)
             .RuleFor(x => x.Forename, string.Empty)
             .RuleFor(x => x.Surname, string.Empty)
-            .RuleFor(x => x.HomeAddress, new AddressValueObjectResource { Type = AddressTypeEnumeration.Unknown, Line1 = string.Empty, Postcode = string.Empty})
+            .RuleFor(x => x.HomeAddress, new AddressResource { Type = AddressTypeEnumeration.Unknown, Line1 = string.Empty, Postcode = string.Empty})
             .RuleFor(x => x.EmailContacts, [])
             .RuleFor(x => x.TelephoneContacts, []);
 
@@ -51,14 +51,14 @@ public class EmployeesTestFeature :
             .RuleFor(x => x.NationalInsuranceNumber, faker => faker.Random.String(2, 'A', 'C') + faker.Random.Number(100000, 999999) + faker.Random.String(1, 'A', 'D'))
             .RuleFor(x => x.Forename, faker => faker.Name.FirstName())
             .RuleFor(x => x.Surname, faker => faker.Name.LastName())
-            .RuleFor(x => x.HomeAddress, faker => new AddressValueObjectResource
+            .RuleFor(x => x.HomeAddress, faker => new AddressResource
             {
                 Type = faker.PickRandom(AddressTypeEnumeration.Home, AddressTypeEnumeration.Work), 
                 Line1 = faker.Address.StreetAddress(), 
                 Postcode = faker.Address.ZipCode("??###??")
             })
             .RuleFor(x => x.EmailContacts, (faker, individualResource) => [
-                new EmailContactValueObjectResource
+                new EmailContactResource
                 {
                     Address = faker.Internet.Email(individualResource.Forename, individualResource.Surname),
                     IsPrimary = true
@@ -193,11 +193,11 @@ public class EmployeesTestFeature :
         Assert.Equal(resource.HomeAddress.Line4, aggregateRoot.HomeAddress.Line4?.Value);
         Assert.Equal(resource.HomeAddress.Postcode, aggregateRoot.HomeAddress.Postcode);
         Assert.Equal(resource.HomeAddress.Label, aggregateRoot.HomeAddress.Label?.Value);
-        foreach (EmailContactValueObjectResource emailAddress in resource.EmailContacts)
+        foreach (EmailContactResource emailAddress in resource.EmailContacts)
         {
             Assert.Contains(aggregateRoot.EmailContacts, x => x.Address == emailAddress.Address);
         }
-        foreach (TelephoneContactValueObjectResource telephoneNumber in resource.TelephoneContacts)
+        foreach (TelephoneContactResource telephoneNumber in resource.TelephoneContacts)
         {
             Assert.Contains(aggregateRoot.TelephoneContacts, x => x.Number == telephoneNumber.Number);
         }
