@@ -238,9 +238,9 @@ public static class MappingHelper
 
     public static object? MapRelatedResource<TDestination>(IRouteGenerator routeGenerator, ResourceLinks linksToAddTo, PropertyInfo resourcePropertyInfo, Type? entityIdType, object? aggregateRootValue)
     {
-        // TAggregateRoot.EntityId<TEntity> to TResource.EntityId<TEntity> : A related resource where we pass the Id and potentially present a link.
+        // TAggregateRoot.EntityId<TEntity> to TResource.EntityId<TEntity>/Guid : A related resource where we pass the Id and potentially present a link.
         // or
-        // TAggregateMember.EntityId<TEntity> to TChildResource.EntityId<TEntity> : A related resource where we pass the Id and potentially present a link.
+        // TAggregateMember.EntityId<TEntity> to TChildResource.EntityId<TEntity>/Guid : A related resource where we pass the Id and potentially present a link.
 
         // Check if there is a related resource property, i.e. if this property is 'WidgetId' then look for 'Widget'
         string relatedResourcePropertyName = resourcePropertyInfo.Name.Replace("Id", string.Empty);
@@ -254,20 +254,22 @@ public static class MappingHelper
         if (entityIdType is null) return aggregateRootValue;
 
         Type relatedEntityType = entityIdType.GetGenericArguments().Single();
-                
-        Uri relationUri = routeGenerator.Item(relatedEntityType, Guid.Parse(aggregateRootValue?.ToString() ?? Guid.Empty.ToString()));
+        
+        Guid guid = Guid.Parse(aggregateRootValue?.ToString() ?? Guid.Empty.ToString());
+        
+        Uri relationUri = routeGenerator.Item(relatedEntityType, guid);
         Link relationLink = Link.RelationLink(relationUri);
 
         linksToAddTo.Add(relatedResourcePropertyName.ToCamelCase(), relationLink);
         
-        return aggregateRootValue;
+        return guid;
     }
 
     public static object? MapRelatedResourceCollection(IRouteGenerator routeGenerator, ResourceLinks linksToAddTo, PropertyInfo resourcePropertyInfo, string sourceEntityTypeName, Guid sourceEntityId, object? sourceValue)
     {
-        // TAggregateRoot.IEnumerable<EntityId<TAggregateRoot>> to TResource.IEnumerable<EntityId<TAggregateRoot>>: A related resource collection where we present a link.
+        // TAggregateRoot.IEnumerable<EntityId<TAggregateRoot>> to TResource.IEnumerable<EntityId<TAggregateRoot>/Guid>: A related resource collection where we present a link.
         // or
-        // TAggregateRoot.IEnumerable<EntityId<TAggregateRoot>> to TResource.IEnumerable<EntityId<TAggregateRoot>>: A related resource collection where we present a link.
+        // TAggregateRoot.IEnumerable<EntityId<TAggregateRoot>> to TResource.IEnumerable<EntityId<TAggregateRoot>/Guid>: A related resource collection where we present a link.
         // We only need the Id from the Aggregate for this (to build the url), not a related property value.
 
         Type? entityIdType = resourcePropertyInfo.PropertyType.GetArrayOrEnumerableElementType();
@@ -287,12 +289,26 @@ public static class MappingHelper
 
         linksToAddTo.Add(resourcePropertyInfo.Name.ToCamelCase(), relationLink);
         
-        return sourceValue;
+        List<Guid> guids = [];
+        
+        if (sourceValue is IEnumerable enumerablePropertyValue)
+        {
+            foreach (object item in enumerablePropertyValue)
+            {
+                if (Guid.TryParse(item.ToString(), out Guid guid))
+                {
+                    guids.Add(guid);
+                }
+            }
+        }
+        
+        return guids;
     }
     
     public static object? MapVanillaScalar(Type? sourcePropertyType, object? sourceValue)
     {
         // Either a TAggregateRoot.SimpleValueObject -> TResource.VanillaScalar : A simple (single value) DDD value object property which we cast to a regular resource property
+        // Or a EntityId<TEntity> -> TResource.Guid : Entity Id to Guid
         // Or a fallback to a vanilla -> vanilla
 
         if (sourcePropertyType is null) return null;
@@ -300,6 +316,13 @@ public static class MappingHelper
         if (sourcePropertyType.IsSimpleValueObject())
         {
             object? rawValue = sourcePropertyType.GetSimpleValueObjectValue(sourceValue);
+
+            return rawValue;
+        }
+
+        if (sourcePropertyType.IsEntityId())
+        {
+            object? rawValue = sourceValue as Guid?;
 
             return rawValue;
         }

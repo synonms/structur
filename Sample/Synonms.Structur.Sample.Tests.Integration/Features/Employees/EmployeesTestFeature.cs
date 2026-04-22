@@ -90,7 +90,7 @@ public class EmployeesTestFeature :
         return arrangeAggregateInfo.AggregateRoot;
     }
     
-    public Task PersistPrerequisitesAsync(ArrangeEntitiesInfo arrangeEntitiesInfo) => 
+    public Task PersistPrerequisitesAsync(IServiceScopeFactory serviceScopeFactory, ArrangeEntitiesInfo arrangeEntitiesInfo) => 
         Task.CompletedTask;
 
     public async Task<Employee?> RetrieveAggregateAsync(IServiceScopeFactory serviceScopeFactory, EntityId<Employee> id)

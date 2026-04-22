@@ -38,7 +38,7 @@ public class GuidExtensionsTests
 
         for (int i = 0; i < numberOfIds; i++)
         {
-            await Task.Delay(TimeSpan.FromMilliseconds(3));
+            await Task.Delay(TimeSpan.FromMilliseconds(3), TestContext.Current.CancellationToken);
             generatedIds.Add(i, Guid.NewGuid().ToComb().ToString().Substring(NoOfUnchangedCharacters));
         }
 

@@ -44,12 +44,16 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
         
         foreach (PropertyInfo resourcePropertyInfo in resourcePropertyInfos)
         {
+            ResourcePropertyType resourcePropertyType = resourcePropertyInfo.PropertyType.GetResourcePropertyType();
+            
+            _logger.LogDebug("Mapping property {PropertyName} of type {PropertyType} on resource {ResourceType} and determined resource property type {ResourcePropertyType}", resourcePropertyInfo.Name, resourcePropertyInfo.PropertyType.Name, typeof(TResource).Name, resourcePropertyType);
+            
             PropertyInfo? aggregateRootPropertyInfo = resourcePropertyInfo.GetMatchingPropertyFrom<TAggregateRoot>();
             Type? sourcePropertyType = aggregateRootPropertyInfo?.PropertyType;
             object? sourceValue = aggregateRootPropertyInfo?.GetValue(aggregateRoot);
             Type destinationPropertyType = resourcePropertyInfo.PropertyType;
-        
-            object? resourcePropertyValue = resourcePropertyInfo.PropertyType.GetResourcePropertyType() switch
+
+            object? resourcePropertyValue = resourcePropertyType switch
             {
                 ResourcePropertyType.EmbeddedResource => MappingHelper.MapEmbeddedResource(_resourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),
                 ResourcePropertyType.EmbeddedResourceCollection => MappingHelper.MapEmbeddedResourceCollection(_resourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),

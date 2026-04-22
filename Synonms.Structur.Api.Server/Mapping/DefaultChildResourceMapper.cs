@@ -41,12 +41,16 @@ public class DefaultChildResourceMapper<TAggregateMember, TChildResource> : IChi
 
         foreach (PropertyInfo childResourcePropertyInfo in childResourcePropertyInfos)
         {
+            ResourcePropertyType resourcePropertyType = childResourcePropertyInfo.PropertyType.GetResourcePropertyType();
+            
+            _logger.LogDebug("Mapping property {PropertyName} of type {PropertyType} on child resource {ResourceType} and determined resource property type {ResourcePropertyType}", childResourcePropertyInfo.Name, childResourcePropertyInfo.PropertyType.Name, typeof(TChildResource).Name, resourcePropertyType);
+
             PropertyInfo? aggregateMemberPropertyInfo = childResourcePropertyInfo.GetMatchingPropertyFrom<TAggregateMember>();
             Type? sourcePropertyType = aggregateMemberPropertyInfo?.PropertyType;
             object? sourceValue = aggregateMemberPropertyInfo?.GetValue(aggregateMember);
             Type destinationPropertyType = childResourcePropertyInfo.PropertyType;
-
-            object? childResourcePropertyValue = childResourcePropertyInfo.PropertyType.GetResourcePropertyType() switch
+            
+            object? childResourcePropertyValue = resourcePropertyType switch
             {
                 ResourcePropertyType.EmbeddedResource => MappingHelper.MapEmbeddedResource(_resourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),
                 ResourcePropertyType.EmbeddedResourceCollection => MappingHelper.MapEmbeddedResourceCollection(_resourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),

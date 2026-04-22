@@ -13,7 +13,7 @@ public interface IPostTestFeature<TAggregateRoot, TResource> where TAggregateRoo
 
     TResource GenerateValidResource(EntityId<TAggregateRoot> id);
     
-    Task PersistPrerequisitesAsync(ArrangeEntitiesInfo arrangeEntitiesInfo);
+    Task PersistPrerequisitesAsync(IServiceScopeFactory serviceScopeFactory, ArrangeEntitiesInfo arrangeEntitiesInfo);
     
     Task<TAggregateRoot?> RetrieveAggregateAsync(IServiceScopeFactory serviceScopeFactory, EntityId<TAggregateRoot> id);
     

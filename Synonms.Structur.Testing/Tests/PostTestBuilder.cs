@@ -45,7 +45,7 @@ public class PostTestBuilder<TAggregateRoot, TResource>
         
         public PostArrangeStep WithValidResource(ArrangeEntitiesInfo prerequisiteEntities)
         {
-            _testFeature.PersistPrerequisitesAsync(prerequisiteEntities).Wait();
+            _testFeature.PersistPrerequisitesAsync(_testFixture.ServiceScopeFactory, prerequisiteEntities).Wait();
 
             TResource resource = _testFeature.GenerateValidResource(_id);
             
@@ -57,7 +57,7 @@ public class PostTestBuilder<TAggregateRoot, TResource>
 
         public PostArrangeStep WithInvalidResource(ArrangeEntitiesInfo prerequisiteEntities)
         {
-            _testFeature.PersistPrerequisitesAsync(prerequisiteEntities).Wait();
+            _testFeature.PersistPrerequisitesAsync(_testFixture.ServiceScopeFactory, prerequisiteEntities).Wait();
             
             TResource resource = _testFeature.GenerateInvalidResource(_id);
             

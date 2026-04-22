@@ -72,7 +72,7 @@ public static class TypeExtensions
                 return ResourcePropertyType.Unknown;
             }
 
-            if (enumerableElementType.IsEntityId())
+            if (enumerableElementType.IsEntityId() || enumerableElementType ==  typeof(Guid))
             {
                 return ResourcePropertyType.RelatedResourceCollection;
             }
@@ -95,7 +95,7 @@ public static class TypeExtensions
             return ResourcePropertyType.VanillaCollection;
         }
         
-        if (nonNullableType.IsEntityId())
+        if (nonNullableType.IsEntityId() || nonNullableType ==  typeof(Guid))
         {
             return ResourcePropertyType.RelatedResource;
         }

@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Synonms.Structur.Core.Faults;
 
 namespace Synonms.Structur.Core.Functional;

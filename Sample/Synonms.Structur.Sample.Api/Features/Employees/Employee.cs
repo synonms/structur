@@ -10,7 +10,7 @@ using Synonms.Structur.Sample.ClientApi.Features.Employees;
 
 namespace Synonms.Structur.Sample.Api.Features.Employees;
 
-[StructurResource(typeof(EmployeeResource), "employees", allowAnonymous: true, pageLimit: 5)]
+[StructurResource(typeof(EmployeeResource), "employees", allowAnonymous: true, isDeleteDisabled: true, pageLimit: 5)]
 public class Employee : AggregateRoot<Employee>
 {
     public const int ForenameMaxLength = 100;
@@ -153,7 +153,7 @@ public class Employee : AggregateRoot<Employee>
 
         if (applicableVersion is null || applicableVersion.IsUnspecified() || applicableVersion >= new Version(1, 1))
         {
-            builder = builder.WithMandatoryScalarProperty(resource.EqualOpportunities, x => EmployeeEqualOpportunities.Create(nameof(EqualOpportunities), x), out equalOpportunities);
+            builder = builder.WithMandatoryScalarProperty(resource.EqualOpportunities, x => EmployeeEqualOpportunities.Create(nameof(EqualOpportunities), x ?? new EmployeeEqualOpportunitiesResource()), out equalOpportunities);
         }
 
         return builder.Build()
