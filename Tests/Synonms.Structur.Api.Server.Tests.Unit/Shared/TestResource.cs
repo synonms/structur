@@ -15,32 +15,36 @@ public class TestResource : Resource
     
     public override string GetCollectionPath() => "tests";
 
+    public Guid? SomeRelatedAggregateId { get; set; }
+
     public string? SomeString { get; set; }
     
     public int? SomeInt { get; set; }
 
-    public decimal? SomeDecimal { get; set; }
-
     public bool? SomeBool { get; set; }
 
-    public string[]? SomeArray { get; set; }
-    
-    public IEnumerable<string>? SomeEnumerable { get; set; }
+    public List<string>? SomeList { get; set; }
 
     public DateOnly? SomeDate { get; set; }
     
-    public TimeOnly? SomeTime { get; set; }
-    
     public DateTime? SomeDateTime { get; set; }
     
-    public TimeSpan? SomeTimeSpan { get; set; }
+    public TestChildResource? ChildResource { get; set; }
     
-    public IEnumerable<TestChildResource>? ChildResources { get; set; }
+    public List<TestChildResource>? ChildResources { get; set; }
 }
 
 public class TestChildResource : ChildResource
 {
-    public string Property1 { get; set; } = string.Empty;
+    public TestChildResource()
+    {
+    }
 
-    public int Property2 { get; set; }
+    public TestChildResource(Guid id) : base(id)
+    {
+    }
+    
+    public string? Property1 { get; set; }
+
+    public int? Property2 { get; set; }
 }

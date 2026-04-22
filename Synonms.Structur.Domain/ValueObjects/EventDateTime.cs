@@ -33,7 +33,7 @@ public class EventDateTime : DateTimeValueObject
         return CreateMandatory(propertyName, value.Value, minimum, maximum).ToMaybe();
     }
         
-    internal static EventDateTime Convert(DateTime value) =>
+    public static EventDateTime Convert(DateTime value) =>
         CreateMandatory(nameof(EventDateTime), value, value, value).Match(
             valueObject => valueObject,
             _ => new EventDateTime(DateTime.MinValue)

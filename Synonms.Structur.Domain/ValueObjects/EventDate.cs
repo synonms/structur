@@ -33,7 +33,7 @@ public class EventDate : DateOnlyValueObject
         return CreateMandatory(propertyName, value.Value, minimum, maximum).ToMaybe();
     }
         
-    internal static EventDate Convert(DateOnly value) =>
+    public static EventDate Convert(DateOnly value) =>
         CreateMandatory(nameof(EventDate), value, value, value).Match(
             valueObject => valueObject,
             _ => new EventDate(DateOnly.MinValue)
