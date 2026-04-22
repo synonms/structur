@@ -1,14 +1,16 @@
+using Microsoft.OpenApi;
+
 namespace Synonms.Structur.Api.Server.OpenApi;
 
 public class PropertyDataType
 {
-    public PropertyDataType(string type, string format = "")
+    public PropertyDataType(JsonSchemaType type, string format = "")
     {
         Type = type;
         Format = format;
     }
 
-    public string Type { get; }
+    public JsonSchemaType Type { get; }
 
     public string Format { get; }
 }

@@ -1,4 +1,4 @@
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Synonms.Structur.Api.Server.OpenApi;
 
@@ -13,7 +13,7 @@ public static class OpenApiDocumentExtensions
 
         if (openApiDocument.Components.Schemas is null)
         {
-            openApiDocument.Components.Schemas = new Dictionary<string, OpenApiSchema>();
+            openApiDocument.Components.Schemas = new Dictionary<string, IOpenApiSchema>();
         }
         
         if (openApiDocument.Components.Schemas.ContainsKey(componentSchemaName) is false)
@@ -25,11 +25,12 @@ public static class OpenApiDocumentExtensions
         
         OpenApiSchema schemaWithReference = new()
         {
-            Reference = new OpenApiReference
-            {
-                Type = ReferenceType.Schema,
-                Id = componentSchemaName
-            }
+            // TODO: Fix breaking change in OpenApi lib
+            // Reference = new OpenApiReference
+            // {
+            //     Type = ReferenceType.Schema,
+            //     Id = componentSchemaName
+            // }
         };
         
         return schemaWithReference;

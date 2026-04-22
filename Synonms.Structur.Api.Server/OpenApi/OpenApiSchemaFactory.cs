@@ -1,7 +1,7 @@
 using System.Reflection;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Server.Schema.Resources;
 using Synonms.Structur.Core.Attributes;
@@ -14,35 +14,35 @@ public static class OpenApiSchemaFactory
 {
     private static readonly Dictionary<Type, PropertyDataType> PrimitiveTypesAndFormats = new()
     {
-        { typeof(bool), new PropertyDataType(OpenApiDataTypes.Boolean) },
-        { typeof(byte), new PropertyDataType(OpenApiDataTypes.Integer) },
-        { typeof(sbyte), new PropertyDataType(OpenApiDataTypes.Integer) },
-        { typeof(short), new PropertyDataType(OpenApiDataTypes.Integer) },
-        { typeof(ushort), new PropertyDataType(OpenApiDataTypes.Integer) },
-        { typeof(int), new PropertyDataType(OpenApiDataTypes.Integer, OpenApiIntegerFormats.Int32) },
-        { typeof(uint), new PropertyDataType(OpenApiDataTypes.Integer) },
-        { typeof(long), new PropertyDataType(OpenApiDataTypes.Integer, OpenApiIntegerFormats.Int64) },
-        { typeof(ulong), new PropertyDataType(OpenApiDataTypes.Integer) },
-        { typeof(float), new PropertyDataType(OpenApiDataTypes.Number, OpenApiNumberFormats.Float) },
-        { typeof(double), new PropertyDataType(OpenApiDataTypes.Number, OpenApiNumberFormats.Double) },
-        { typeof(decimal), new PropertyDataType(OpenApiDataTypes.Number) },
-        { typeof(byte[]), new PropertyDataType(OpenApiDataTypes.String, OpenApiStringFormats.Byte) },
-        { typeof(string), new PropertyDataType(OpenApiDataTypes.String) },
-        { typeof(char), new PropertyDataType(OpenApiDataTypes.String) },
-        { typeof(DateTime), new PropertyDataType(OpenApiDataTypes.String, OpenApiStringFormats.DateTime) },
-        { typeof(DateTimeOffset), new PropertyDataType(OpenApiDataTypes.String) },
-        { typeof(DateOnly), new PropertyDataType(OpenApiDataTypes.String, OpenApiStringFormats.Date) },
-        { typeof(TimeOnly), new PropertyDataType(OpenApiDataTypes.String, OpenApiStringFormats.Time) },
-        { typeof(Guid), new PropertyDataType(OpenApiDataTypes.String, OpenApiStringFormats.Uuid) },
-        { typeof(Uri), new PropertyDataType(OpenApiDataTypes.String, OpenApiStringFormats.Uri) }
+        { typeof(bool), new PropertyDataType(JsonSchemaType.Boolean) },
+        { typeof(byte), new PropertyDataType(JsonSchemaType.Integer) },
+        { typeof(sbyte), new PropertyDataType(JsonSchemaType.Integer) },
+        { typeof(short), new PropertyDataType(JsonSchemaType.Integer) },
+        { typeof(ushort), new PropertyDataType(JsonSchemaType.Integer) },
+        { typeof(int), new PropertyDataType(JsonSchemaType.Integer, OpenApiIntegerFormats.Int32) },
+        { typeof(uint), new PropertyDataType(JsonSchemaType.Integer) },
+        { typeof(long), new PropertyDataType(JsonSchemaType.Integer, OpenApiIntegerFormats.Int64) },
+        { typeof(ulong), new PropertyDataType(JsonSchemaType.Integer) },
+        { typeof(float), new PropertyDataType(JsonSchemaType.Number, OpenApiNumberFormats.Float) },
+        { typeof(double), new PropertyDataType(JsonSchemaType.Number, OpenApiNumberFormats.Double) },
+        { typeof(decimal), new PropertyDataType(JsonSchemaType.Number) },
+        { typeof(byte[]), new PropertyDataType(JsonSchemaType.String, OpenApiStringFormats.Byte) },
+        { typeof(string), new PropertyDataType(JsonSchemaType.String) },
+        { typeof(char), new PropertyDataType(JsonSchemaType.String) },
+        { typeof(DateTime), new PropertyDataType(JsonSchemaType.String, OpenApiStringFormats.DateTime) },
+        { typeof(DateTimeOffset), new PropertyDataType(JsonSchemaType.String) },
+        { typeof(DateOnly), new PropertyDataType(JsonSchemaType.String, OpenApiStringFormats.Date) },
+        { typeof(TimeOnly), new PropertyDataType(JsonSchemaType.String, OpenApiStringFormats.Time) },
+        { typeof(Guid), new PropertyDataType(JsonSchemaType.String, OpenApiStringFormats.Uuid) },
+        { typeof(Uri), new PropertyDataType(JsonSchemaType.String, OpenApiStringFormats.Uri) }
     };
 
-    public static OpenApiSchema GetOrCreateSchemaReferenceForResource(ILogger logger, OpenApiDocument openApiDocument, StructurResourceAttribute resourceAttribute, string componentSchemaName, Dictionary<string, OpenApiSchema>? additionalProperties = null) =>
+    public static OpenApiSchema GetOrCreateSchemaReferenceForResource(ILogger logger, OpenApiDocument openApiDocument, StructurResourceAttribute resourceAttribute, string componentSchemaName, Dictionary<string, IOpenApiSchema>? additionalProperties = null) =>
         openApiDocument.GetOrCreateSchemaReference(componentSchemaName, () =>
         {
-            Dictionary<string, OpenApiSchema> properties = additionalProperties ?? new Dictionary<string, OpenApiSchema>();
+            Dictionary<string, IOpenApiSchema> properties = additionalProperties ?? new Dictionary<string, IOpenApiSchema>();
 
-            properties.Add("id", new OpenApiSchema { Type = "string", Format = "uuid" });
+            properties.Add("id", new OpenApiSchema { Type = JsonSchemaType.String, Format = "uuid" });
                 /*            { "createdAt", new OpenApiSchema { Type = "string", Format = "date-time" } },
                             { "updatedAt", new OpenApiSchema { Type = "string", Format = "date-time" } }*/
                 
@@ -64,7 +64,7 @@ public static class OpenApiSchemaFactory
 
             OpenApiSchema componentSchema = new()
             {
-                Type = "object",
+                Type = JsonSchemaType.Object,
                 AdditionalPropertiesAllowed = true,
                 Properties = properties,
                 Required = requiredProperties.ToHashSet()
@@ -76,7 +76,7 @@ public static class OpenApiSchemaFactory
     private static OpenApiSchema GetOrCreateSchemaReferenceForResource(ILogger logger, OpenApiDocument openApiDocument, string componentSchemaName, Type objectType) =>
         openApiDocument.GetOrCreateSchemaReference(componentSchemaName, () =>
         {
-            Dictionary<string, OpenApiSchema> properties = new();
+            Dictionary<string, IOpenApiSchema> properties = new();
             List<string> requiredProperties = [];
 
             string[] propertiesToExclude =
@@ -96,7 +96,7 @@ public static class OpenApiSchemaFactory
 
             return new OpenApiSchema
             {
-                Type = OpenApiDataTypes.Object,
+                Type = JsonSchemaType.Object,
                 Required = requiredProperties.ToHashSet(),
                 Properties = properties
             };
@@ -133,7 +133,7 @@ public static class OpenApiSchemaFactory
 
         return new OpenApiSchema
         {
-            Type = OpenApiDataTypes.Array, 
+            Type = JsonSchemaType.Array, 
             Items = GenerateSchemaForProperty(logger, openApiDocument, propertyName, elementType)
         };
     }
@@ -143,11 +143,11 @@ public static class OpenApiSchemaFactory
         bool isNullable = enumPropertyType.IsNullable();
         Type nonNullableType = isNullable ? (enumPropertyType.GetNullableType() ?? enumPropertyType) : enumPropertyType;
         
-        List<IOpenApiAny> enumNames = Enum.GetNames(nonNullableType).Select(x => (IOpenApiAny)new OpenApiString(x)).ToList();
+        List<JsonNode> enumNames = Enum.GetNames(nonNullableType).Select(JsonNode (x) => JsonValue.Create(x)).ToList();
         
         return new OpenApiSchema
         {
-            Type = OpenApiDataTypes.String, 
+            Type = JsonSchemaType.String, 
             Enum = enumNames
         };
     }
@@ -162,8 +162,7 @@ public static class OpenApiSchemaFactory
             return new OpenApiSchema
             {
                 Type = propertyDataType.Type, 
-                Format = propertyDataType.Format,
-                Nullable = isNullable
+                Format = propertyDataType.Format
             };
         }
         

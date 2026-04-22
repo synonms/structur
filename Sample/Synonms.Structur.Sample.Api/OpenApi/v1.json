@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.1",
   "info": {
     "title": "Synonms.Structur.Sample.Api | v1",
     "version": "1.0.0"
@@ -63,7 +63,7 @@
     "/employments/create-form": {
       "get": {
         "tags": [
-          "Employments"
+          "tag-employments"
         ],
         "summary": "Get a form describing how to add a new resource to a collection.",
         "operationId": "Employments.CreateForm",
@@ -72,14 +72,10 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmploymentResourceForm_Default"
-                }
+                "schema": { }
               },
               "application/ion+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmploymentResourceForm_Ion"
-                }
+                "schema": { }
               }
             }
           }
@@ -89,7 +85,7 @@
     "/employments": {
       "get": {
         "tags": [
-          "Employments"
+          "tag-employments"
         ],
         "summary": "Get a paged collection of resources.",
         "operationId": "Employments.GetAll",
@@ -98,14 +94,10 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmploymentResourceCollectionResponse_Default"
-                }
+                "schema": { }
               },
               "application/ion+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmploymentResourceCollectionResponse_Ion"
-                }
+                "schema": { }
               }
             }
           }
@@ -113,21 +105,17 @@
       },
       "post": {
         "tags": [
-          "Employments"
+          "tag-employments"
         ],
         "summary": "Add a new resource to a collection.",
         "operationId": "Employments.Create",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmploymentResourceRequest"
-              }
+              "schema": { }
             },
             "application/ion+json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmploymentResourceRequest"
-              }
+              "schema": { }
             }
           }
         },
@@ -141,7 +129,7 @@
     "/employments/{id}/edit-form": {
       "get": {
         "tags": [
-          "Employments"
+          "tag-employments"
         ],
         "summary": "Get a form describing how to update an existing resource.",
         "operationId": "Employments.EditForm",
@@ -162,14 +150,10 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmploymentResourceForm_Default"
-                }
+                "schema": { }
               },
               "application/ion+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmploymentResourceForm_Ion"
-                }
+                "schema": { }
               }
             }
           }
@@ -179,7 +163,7 @@
     "/employments/{id}": {
       "get": {
         "tags": [
-          "Employments"
+          "tag-employments"
         ],
         "summary": "Get an individual resource by Id.",
         "operationId": "Employments.GetById",
@@ -200,14 +184,10 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmploymentResourceResponse_Default"
-                }
+                "schema": { }
               },
               "application/ion+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmploymentResourceResponse_Ion"
-                }
+                "schema": { }
               }
             }
           }
@@ -215,7 +195,7 @@
       },
       "put": {
         "tags": [
-          "Employments"
+          "tag-employments"
         ],
         "summary": "Updates an existing resource.",
         "operationId": "Employments.Update",
@@ -234,14 +214,10 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmploymentResourceRequest"
-              }
+              "schema": { }
             },
             "application/ion+json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmploymentResourceRequest"
-              }
+              "schema": { }
             }
           }
         },
@@ -255,7 +231,7 @@
     "/employees/create-form": {
       "get": {
         "tags": [
-          "Employees"
+          "tag-employees"
         ],
         "summary": "Get a form describing how to add a new resource to a collection.",
         "operationId": "Employees.CreateForm",
@@ -264,14 +240,10 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmployeeResourceForm_Default"
-                }
+                "schema": { }
               },
               "application/ion+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmployeeResourceForm_Ion"
-                }
+                "schema": { }
               }
             }
           }
@@ -281,7 +253,7 @@
     "/employees": {
       "get": {
         "tags": [
-          "Employees"
+          "tag-employees"
         ],
         "summary": "Get a paged collection of resources.",
         "operationId": "Employees.GetAll",
@@ -290,14 +262,10 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmployeeResourceCollectionResponse_Default"
-                }
+                "schema": { }
               },
               "application/ion+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmployeeResourceCollectionResponse_Ion"
-                }
+                "schema": { }
               }
             }
           }
@@ -305,21 +273,17 @@
       },
       "post": {
         "tags": [
-          "Employees"
+          "tag-employees"
         ],
         "summary": "Add a new resource to a collection.",
         "operationId": "Employees.Create",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmployeeResourceRequest"
-              }
+              "schema": { }
             },
             "application/ion+json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmployeeResourceRequest"
-              }
+              "schema": { }
             }
           }
         },
@@ -333,7 +297,7 @@
     "/employees/{id}/edit-form": {
       "get": {
         "tags": [
-          "Employees"
+          "tag-employees"
         ],
         "summary": "Get a form describing how to update an existing resource.",
         "operationId": "Employees.EditForm",
@@ -354,14 +318,10 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmployeeResourceForm_Default"
-                }
+                "schema": { }
               },
               "application/ion+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmployeeResourceForm_Ion"
-                }
+                "schema": { }
               }
             }
           }
@@ -371,7 +331,7 @@
     "/employees/{id}": {
       "get": {
         "tags": [
-          "Employees"
+          "tag-employees"
         ],
         "summary": "Get an individual resource by Id.",
         "operationId": "Employees.GetById",
@@ -392,14 +352,10 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmployeeResourceResponse_Default"
-                }
+                "schema": { }
               },
               "application/ion+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmployeeResourceResponse_Ion"
-                }
+                "schema": { }
               }
             }
           }
@@ -407,7 +363,7 @@
       },
       "put": {
         "tags": [
-          "Employees"
+          "tag-employees"
         ],
         "summary": "Updates an existing resource.",
         "operationId": "Employees.Update",
@@ -426,14 +382,10 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmployeeResourceRequest"
-              }
+              "schema": { }
             },
             "application/ion+json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmployeeResourceRequest"
-              }
+              "schema": { }
             }
           }
         },
@@ -447,670 +399,6 @@
   },
   "components": {
     "schemas": {
-      "Guid": {
-        "required": [
-          "variant",
-          "version"
-        ],
-        "type": "object",
-        "properties": {
-          "variant": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "version": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "PeriodResource": {
-        "required": [
-          "units",
-          "interval"
-        ],
-        "type": "object",
-        "properties": {
-          "units": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "interval": {
-            "type": "string",
-            "format": ""
-          }
-        }
-      },
-      "Nullable`1": {
-        "required": [
-          "hasValue",
-          "value"
-        ],
-        "type": "object",
-        "properties": {
-          "hasValue": {
-            "type": "boolean",
-            "format": ""
-          },
-          "value": {
-            "$ref": "#/components/schemas/Guid"
-          }
-        }
-      },
-      "EmploymentContractResource": {
-        "required": [
-          "startDate",
-          "employerNoticePeriod",
-          "employeeNoticePeriod",
-          "position",
-          "location",
-          "canClaimTravelExpensesToOffice"
-        ],
-        "type": "object",
-        "properties": {
-          "startDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "probationEndDate": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "endDate": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "employerNoticePeriod": {
-            "$ref": "#/components/schemas/PeriodResource"
-          },
-          "employeeNoticePeriod": {
-            "$ref": "#/components/schemas/PeriodResource"
-          },
-          "position": {
-            "type": "string",
-            "format": ""
-          },
-          "location": {
-            "type": "string",
-            "format": ""
-          },
-          "locationNotes": {
-            "type": "string",
-            "format": ""
-          },
-          "reportsToEmployeeId": {
-            "$ref": "#/components/schemas/Nullable`1"
-          },
-          "carRegistrationPlate": {
-            "type": "string",
-            "format": ""
-          },
-          "notes": {
-            "type": "string",
-            "format": ""
-          },
-          "canClaimTravelExpensesToOffice": {
-            "type": "boolean",
-            "format": ""
-          }
-        }
-      },
-      "UkBankDetailsResource": {
-        "required": [
-          "bankName",
-          "sortCode",
-          "accountNumber",
-          "accountName"
-        ],
-        "type": "object",
-        "properties": {
-          "bankName": {
-            "type": "string",
-            "format": ""
-          },
-          "sortCode": {
-            "type": "string",
-            "format": ""
-          },
-          "accountNumber": {
-            "type": "string",
-            "format": ""
-          },
-          "accountName": {
-            "type": "string",
-            "format": ""
-          },
-          "buildingSocietyRollNumber": {
-            "type": "string",
-            "format": ""
-          }
-        }
-      },
-      "EmploymentResource_Default": {
-        "required": [
-          "supportedVersions",
-          "employeeId",
-          "employeeNumber",
-          "continuousStartDate",
-          "contracts",
-          "bankDetails"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "supportedVersions": {
-            "type": "array",
-            "items": { }
-          },
-          "employeeId": {
-            "$ref": "#/components/schemas/Guid"
-          },
-          "employeeNumber": {
-            "type": "string",
-            "format": ""
-          },
-          "continuousStartDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "contracts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EmploymentContractResource"
-            }
-          },
-          "bankDetails": {
-            "$ref": "#/components/schemas/UkBankDetailsResource"
-          }
-        }
-      },
-      "EmploymentResourceCollectionResponse_Default": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EmploymentResource_Default"
-            }
-          },
-          "offset": {
-            "type": "integer"
-          },
-          "limit": {
-            "type": "integer"
-          },
-          "size": {
-            "type": "integer"
-          }
-        }
-      },
-      "EmploymentResource_Ion": {
-        "required": [
-          "supportedVersions",
-          "employeeId",
-          "employeeNumber",
-          "continuousStartDate",
-          "contracts",
-          "bankDetails"
-        ],
-        "type": "object",
-        "properties": {
-          "self": {
-            "type": "object",
-            "properties": {
-              "href": {
-                "type": "string",
-                "format": "uri"
-              },
-              "rel": {
-                "type": "string"
-              },
-              "method": {
-                "type": "string"
-              }
-            }
-          },
-          "edit-form": {
-            "type": "object",
-            "properties": {
-              "href": {
-                "type": "string",
-                "format": "uri"
-              },
-              "rel": {
-                "type": "string"
-              },
-              "method": {
-                "type": "string"
-              }
-            }
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "supportedVersions": {
-            "type": "array",
-            "items": { }
-          },
-          "employeeId": {
-            "$ref": "#/components/schemas/Guid"
-          },
-          "employeeNumber": {
-            "type": "string",
-            "format": ""
-          },
-          "continuousStartDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "contracts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EmploymentContractResource"
-            }
-          },
-          "bankDetails": {
-            "$ref": "#/components/schemas/UkBankDetailsResource"
-          }
-        }
-      },
-      "EmploymentResourceCollectionResponse_Ion": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EmploymentResource_Ion"
-            }
-          },
-          "self": {
-            "type": "object",
-            "properties": {
-              "href": {
-                "type": "string",
-                "format": "uri"
-              },
-              "rel": {
-                "type": "string"
-              },
-              "method": {
-                "type": "string"
-              }
-            }
-          },
-          "first": {
-            "type": "object",
-            "properties": {
-              "href": {
-                "type": "string",
-                "format": "uri"
-              },
-              "rel": {
-                "type": "string"
-              },
-              "method": {
-                "type": "string"
-              }
-            }
-          },
-          "previous": {
-            "type": "object",
-            "properties": {
-              "href": {
-                "type": "string",
-                "format": "uri"
-              },
-              "rel": {
-                "type": "string"
-              },
-              "method": {
-                "type": "string"
-              }
-            }
-          },
-          "next": {
-            "type": "object",
-            "properties": {
-              "href": {
-                "type": "string",
-                "format": "uri"
-              },
-              "rel": {
-                "type": "string"
-              },
-              "method": {
-                "type": "string"
-              }
-            }
-          },
-          "last": {
-            "type": "object",
-            "properties": {
-              "href": {
-                "type": "string",
-                "format": "uri"
-              },
-              "rel": {
-                "type": "string"
-              },
-              "method": {
-                "type": "string"
-              }
-            }
-          },
-          "offset": {
-            "type": "integer"
-          },
-          "limit": {
-            "type": "integer"
-          },
-          "size": {
-            "type": "integer"
-          },
-          "create-form": {
-            "type": "object",
-            "properties": {
-              "href": {
-                "type": "string",
-                "format": "uri"
-              },
-              "rel": {
-                "type": "string"
-              },
-              "method": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
-      "EmploymentResourceRequest": {
-        "required": [
-          "supportedVersions",
-          "employeeId",
-          "employeeNumber",
-          "continuousStartDate",
-          "contracts",
-          "bankDetails"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "supportedVersions": {
-            "type": "array",
-            "items": { }
-          },
-          "employeeId": {
-            "$ref": "#/components/schemas/Guid"
-          },
-          "employeeNumber": {
-            "type": "string",
-            "format": ""
-          },
-          "continuousStartDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "contracts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EmploymentContractResource"
-            }
-          },
-          "bankDetails": {
-            "$ref": "#/components/schemas/UkBankDetailsResource"
-          }
-        }
-      },
-      "EmploymentResourceForm_Default": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "desc": {
-                  "type": "string"
-                },
-                "enabled": {
-                  "type": "boolean"
-                },
-                "etype": {
-                  "type": "string"
-                },
-                "eform": {
-                  "type": "array"
-                },
-                "form": {
-                  "type": "array"
-                },
-                "label": {
-                  "type": "string"
-                },
-                "max": { },
-                "maxlength": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "maxsize": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "min": { },
-                "minlength": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "minsize": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "mutable": {
-                  "type": "boolean"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "options": {
-                  "type": "array"
-                },
-                "pattern": {
-                  "type": "string"
-                },
-                "placeholder": {
-                  "type": "string"
-                },
-                "required": {
-                  "type": "boolean"
-                },
-                "secret": {
-                  "type": "boolean"
-                },
-                "type": {
-                  "type": "string"
-                },
-                "value": { },
-                "visible": {
-                  "type": "boolean"
-                }
-              }
-            }
-          },
-          "self": {
-            "type": "object",
-            "properties": {
-              "href": {
-                "type": "string",
-                "format": "uri"
-              },
-              "rel": {
-                "type": "string"
-              },
-              "method": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
-      "EmploymentResourceForm_Ion": {
-        "type": "object",
-        "properties": {
-          "href": {
-            "type": "string",
-            "format": "uri"
-          },
-          "rel": {
-            "type": "string"
-          },
-          "method": {
-            "type": "string"
-          },
-          "value": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "desc": {
-                  "type": "string"
-                },
-                "enabled": {
-                  "type": "boolean"
-                },
-                "etype": {
-                  "type": "string"
-                },
-                "eform": {
-                  "type": "array"
-                },
-                "form": {
-                  "type": "array"
-                },
-                "label": {
-                  "type": "string"
-                },
-                "max": { },
-                "maxlength": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "maxsize": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "min": { },
-                "minlength": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "minsize": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "mutable": {
-                  "type": "boolean"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "options": {
-                  "type": "array"
-                },
-                "pattern": {
-                  "type": "string"
-                },
-                "placeholder": {
-                  "type": "string"
-                },
-                "required": {
-                  "type": "boolean"
-                },
-                "secret": {
-                  "type": "boolean"
-                },
-                "type": {
-                  "type": "string"
-                },
-                "value": { },
-                "visible": {
-                  "type": "boolean"
-                }
-              }
-            }
-          },
-          "self": {
-            "type": "object",
-            "properties": {
-              "href": {
-                "type": "string",
-                "format": "uri"
-              },
-              "rel": {
-                "type": "string"
-              },
-              "method": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
-      "EmploymentResourceResponse_Default": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "$ref": "#/components/schemas/EmploymentResource_Default"
-          },
-          "self": {
-            "type": "object",
-            "properties": {
-              "href": {
-                "type": "string",
-                "format": "uri"
-              },
-              "rel": {
-                "type": "string"
-              },
-              "method": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
-      "EmploymentResourceResponse_Ion": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "$ref": "#/components/schemas/EmploymentResource_Ion"
-          },
-          "self": {
-            "type": "object",
-            "properties": {
-              "href": {
-                "type": "string",
-                "format": "uri"
-              },
-              "rel": {
-                "type": "string"
-              },
-              "method": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "AddressResource": {
         "required": [
           "type",
@@ -1164,27 +452,6 @@
         "type": "object",
         "properties": {
           "address": {
-            "type": "string",
-            "format": ""
-          },
-          "isPrimary": {
-            "type": "boolean",
-            "format": ""
-          },
-          "label": {
-            "type": "string",
-            "format": ""
-          }
-        }
-      },
-      "TelephoneContactResource": {
-        "required": [
-          "number",
-          "isPrimary"
-        ],
-        "type": "object",
-        "properties": {
-          "number": {
             "type": "string",
             "format": ""
           },
@@ -1284,51 +551,22 @@
           },
           "workPermitValidUntil": {
             "type": "string",
-            "format": "date",
-            "nullable": true
+            "format": "date"
           },
           "notes": {
             "type": "string",
             "format": ""
           },
-          "homeAddress": {
-            "$ref": "#/components/schemas/AddressResource"
-          },
+          "homeAddress": { },
           "emailContacts": {
             "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EmailContactResource"
-            }
+            "items": { }
           },
           "telephoneContacts": {
             "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TelephoneContactResource"
-            }
+            "items": { }
           },
-          "equalOpportunities": {
-            "$ref": "#/components/schemas/EmployeeEqualOpportunitiesResource"
-          }
-        }
-      },
-      "EmployeeResourceCollectionResponse_Default": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EmployeeResource_Default"
-            }
-          },
-          "offset": {
-            "type": "integer"
-          },
-          "limit": {
-            "type": "integer"
-          },
-          "size": {
-            "type": "integer"
-          }
+          "equalOpportunities": { }
         }
       },
       "EmployeeResource_Ion": {
@@ -1426,30 +664,39 @@
           },
           "workPermitValidUntil": {
             "type": "string",
-            "format": "date",
-            "nullable": true
+            "format": "date"
           },
           "notes": {
             "type": "string",
             "format": ""
           },
-          "homeAddress": {
-            "$ref": "#/components/schemas/AddressResource"
-          },
+          "homeAddress": { },
           "emailContacts": {
             "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EmailContactResource"
-            }
+            "items": { }
           },
           "telephoneContacts": {
             "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TelephoneContactResource"
-            }
+            "items": { }
           },
-          "equalOpportunities": {
-            "$ref": "#/components/schemas/EmployeeEqualOpportunitiesResource"
+          "equalOpportunities": { }
+        }
+      },
+      "EmployeeResourceCollectionResponse_Default": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": { }
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "integer"
           }
         }
       },
@@ -1458,9 +705,7 @@
         "properties": {
           "value": {
             "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EmployeeResource_Ion"
-            }
+            "items": { }
           },
           "self": {
             "type": "object",
@@ -1560,98 +805,6 @@
                 "type": "string"
               }
             }
-          }
-        }
-      },
-      "EmployeeResourceRequest": {
-        "required": [
-          "supportedVersions",
-          "employeeReference",
-          "nationalInsuranceNumber",
-          "forename",
-          "surname",
-          "workPermitRequired",
-          "homeAddress",
-          "emailContacts",
-          "telephoneContacts"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "supportedVersions": {
-            "type": "array",
-            "items": { }
-          },
-          "employeeReference": {
-            "type": "string",
-            "format": ""
-          },
-          "nationalInsuranceNumber": {
-            "type": "string",
-            "format": ""
-          },
-          "title": {
-            "enum": [
-              "Unknown",
-              "Dr",
-              "Miss",
-              "Mr",
-              "Mrs",
-              "Ms",
-              "Mx",
-              "Prof"
-            ],
-            "type": "string"
-          },
-          "forename": {
-            "type": "string",
-            "format": ""
-          },
-          "middleNames": {
-            "type": "string",
-            "format": ""
-          },
-          "surname": {
-            "type": "string",
-            "format": ""
-          },
-          "knownAs": {
-            "type": "string",
-            "format": ""
-          },
-          "workPermitRequired": {
-            "type": "boolean",
-            "format": ""
-          },
-          "workPermitValidUntil": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "notes": {
-            "type": "string",
-            "format": ""
-          },
-          "homeAddress": {
-            "$ref": "#/components/schemas/AddressResource"
-          },
-          "emailContacts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EmailContactResource"
-            }
-          },
-          "telephoneContacts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TelephoneContactResource"
-            }
-          },
-          "equalOpportunities": {
-            "$ref": "#/components/schemas/EmployeeEqualOpportunitiesResource"
           }
         }
       },
@@ -1849,12 +1002,93 @@
           }
         }
       },
+      "EmployeeResourceRequest": {
+        "required": [
+          "supportedVersions",
+          "employeeReference",
+          "nationalInsuranceNumber",
+          "forename",
+          "surname",
+          "workPermitRequired",
+          "homeAddress",
+          "emailContacts",
+          "telephoneContacts"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "supportedVersions": {
+            "type": "array",
+            "items": { }
+          },
+          "employeeReference": {
+            "type": "string",
+            "format": ""
+          },
+          "nationalInsuranceNumber": {
+            "type": "string",
+            "format": ""
+          },
+          "title": {
+            "enum": [
+              "Unknown",
+              "Dr",
+              "Miss",
+              "Mr",
+              "Mrs",
+              "Ms",
+              "Mx",
+              "Prof"
+            ],
+            "type": "string"
+          },
+          "forename": {
+            "type": "string",
+            "format": ""
+          },
+          "middleNames": {
+            "type": "string",
+            "format": ""
+          },
+          "surname": {
+            "type": "string",
+            "format": ""
+          },
+          "knownAs": {
+            "type": "string",
+            "format": ""
+          },
+          "workPermitRequired": {
+            "type": "boolean",
+            "format": ""
+          },
+          "workPermitValidUntil": {
+            "type": "string",
+            "format": "date"
+          },
+          "notes": {
+            "type": "string",
+            "format": ""
+          },
+          "homeAddress": { },
+          "emailContacts": {
+            "type": "array",
+            "items": { }
+          },
+          "telephoneContacts": {
+            "type": "array",
+            "items": { }
+          },
+          "equalOpportunities": { }
+        }
+      },
       "EmployeeResourceResponse_Default": {
         "type": "object",
         "properties": {
-          "value": {
-            "$ref": "#/components/schemas/EmployeeResource_Default"
-          },
+          "value": { },
           "self": {
             "type": "object",
             "properties": {
@@ -1875,8 +1109,376 @@
       "EmployeeResourceResponse_Ion": {
         "type": "object",
         "properties": {
+          "value": { },
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "EmploymentContractResource": {
+        "required": [
+          "startDate",
+          "employerNoticePeriod",
+          "employeeNoticePeriod",
+          "position",
+          "location",
+          "canClaimTravelExpensesToOffice"
+        ],
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "probationEndDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "employerNoticePeriod": { },
+          "employeeNoticePeriod": { },
+          "position": {
+            "type": "string",
+            "format": ""
+          },
+          "location": {
+            "type": "string",
+            "format": ""
+          },
+          "locationNotes": {
+            "type": "string",
+            "format": ""
+          },
+          "reportsToEmployeeId": { },
+          "carRegistrationPlate": {
+            "type": "string",
+            "format": ""
+          },
+          "notes": {
+            "type": "string",
+            "format": ""
+          },
+          "canClaimTravelExpensesToOffice": {
+            "type": "boolean",
+            "format": ""
+          }
+        }
+      },
+      "EmploymentResource_Default": {
+        "required": [
+          "supportedVersions",
+          "employeeId",
+          "employeeNumber",
+          "continuousStartDate",
+          "contracts",
+          "bankDetails"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "supportedVersions": {
+            "type": "array",
+            "items": { }
+          },
+          "employeeId": { },
+          "employeeNumber": {
+            "type": "string",
+            "format": ""
+          },
+          "continuousStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "contracts": {
+            "type": "array",
+            "items": { }
+          },
+          "bankDetails": { }
+        }
+      },
+      "EmploymentResource_Ion": {
+        "required": [
+          "supportedVersions",
+          "employeeId",
+          "employeeNumber",
+          "continuousStartDate",
+          "contracts",
+          "bankDetails"
+        ],
+        "type": "object",
+        "properties": {
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "edit-form": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "supportedVersions": {
+            "type": "array",
+            "items": { }
+          },
+          "employeeId": { },
+          "employeeNumber": {
+            "type": "string",
+            "format": ""
+          },
+          "continuousStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "contracts": {
+            "type": "array",
+            "items": { }
+          },
+          "bankDetails": { }
+        }
+      },
+      "EmploymentResourceCollectionResponse_Default": {
+        "type": "object",
+        "properties": {
           "value": {
-            "$ref": "#/components/schemas/EmployeeResource_Ion"
+            "type": "array",
+            "items": { }
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "integer"
+          }
+        }
+      },
+      "EmploymentResourceCollectionResponse_Ion": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": { }
+          },
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "first": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "previous": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "next": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "last": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "create-form": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "EmploymentResourceForm_Default": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "desc": {
+                  "type": "string"
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "etype": {
+                  "type": "string"
+                },
+                "eform": {
+                  "type": "array"
+                },
+                "form": {
+                  "type": "array"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "max": { },
+                "maxlength": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "maxsize": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "min": { },
+                "minlength": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "minsize": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "mutable": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array"
+                },
+                "pattern": {
+                  "type": "string"
+                },
+                "placeholder": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "secret": {
+                  "type": "boolean"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "value": { },
+                "visible": {
+                  "type": "boolean"
+                }
+              }
+            }
           },
           "self": {
             "type": "object",
@@ -1894,6 +1496,285 @@
             }
           }
         }
+      },
+      "EmploymentResourceForm_Ion": {
+        "type": "object",
+        "properties": {
+          "href": {
+            "type": "string",
+            "format": "uri"
+          },
+          "rel": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "desc": {
+                  "type": "string"
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "etype": {
+                  "type": "string"
+                },
+                "eform": {
+                  "type": "array"
+                },
+                "form": {
+                  "type": "array"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "max": { },
+                "maxlength": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "maxsize": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "min": { },
+                "minlength": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "minsize": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "mutable": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array"
+                },
+                "pattern": {
+                  "type": "string"
+                },
+                "placeholder": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "secret": {
+                  "type": "boolean"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "value": { },
+                "visible": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "EmploymentResourceRequest": {
+        "required": [
+          "supportedVersions",
+          "employeeId",
+          "employeeNumber",
+          "continuousStartDate",
+          "contracts",
+          "bankDetails"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "supportedVersions": {
+            "type": "array",
+            "items": { }
+          },
+          "employeeId": { },
+          "employeeNumber": {
+            "type": "string",
+            "format": ""
+          },
+          "continuousStartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "contracts": {
+            "type": "array",
+            "items": { }
+          },
+          "bankDetails": { }
+        }
+      },
+      "EmploymentResourceResponse_Default": {
+        "type": "object",
+        "properties": {
+          "value": { },
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "EmploymentResourceResponse_Ion": {
+        "type": "object",
+        "properties": {
+          "value": { },
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Guid": {
+        "required": [
+          "variant",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "variant": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Nullable`1": {
+        "required": [
+          "hasValue",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "hasValue": {
+            "type": "boolean",
+            "format": ""
+          },
+          "value": { }
+        }
+      },
+      "PeriodResource": {
+        "required": [
+          "units",
+          "interval"
+        ],
+        "type": "object",
+        "properties": {
+          "units": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "interval": {
+            "type": "string",
+            "format": ""
+          }
+        }
+      },
+      "TelephoneContactResource": {
+        "required": [
+          "number",
+          "isPrimary"
+        ],
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "string",
+            "format": ""
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "format": ""
+          },
+          "label": {
+            "type": "string",
+            "format": ""
+          }
+        }
+      },
+      "UkBankDetailsResource": {
+        "required": [
+          "bankName",
+          "sortCode",
+          "accountNumber",
+          "accountName"
+        ],
+        "type": "object",
+        "properties": {
+          "bankName": {
+            "type": "string",
+            "format": ""
+          },
+          "sortCode": {
+            "type": "string",
+            "format": ""
+          },
+          "accountNumber": {
+            "type": "string",
+            "format": ""
+          },
+          "accountName": {
+            "type": "string",
+            "format": ""
+          },
+          "buildingSocietyRollNumber": {
+            "type": "string",
+            "format": ""
+          }
+        }
       }
     }
   },
@@ -1906,6 +1787,12 @@
     },
     {
       "name": "Root"
+    },
+    {
+      "name": "Employments"
+    },
+    {
+      "name": "Employees"
     }
   ]
 }

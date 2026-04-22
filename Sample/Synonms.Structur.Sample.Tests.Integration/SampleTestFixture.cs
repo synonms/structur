@@ -46,10 +46,7 @@ public class SampleTestFixture() : StructurTestFixture(
         {
             ApiResourceName = Resources.Api,
             ApiEndpointName = null,
-            ConfigureBuilder = httpClientBuilder =>
-            {
-                httpClientBuilder.AddStandardResilienceHandler();
-            },
+            ConfigureBuilder = httpClientBuilder => { },
             ConfigureClient = httpClient =>
             {
                 httpClient.DefaultRequestHeaders.Add("Accept", MediaTypes.Json);
