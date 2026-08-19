@@ -1,0 +1,72 @@
+@page "/employments/{id:guid}"
+
+<PageTitle>Employment</PageTitle>
+
+<CarbonBlazorStack FlexDirection="FlexDirection.Column" Gap="2rem">
+    <CarbonBlazorPane Title="Employment">
+        @if (_employment is null)
+        {
+            <CarbonBlazorLoadingSpinner></CarbonBlazorLoadingSpinner>
+        }
+        else
+        {
+            <EmploymentForm Model="_employment" OperationType="OperationType.Read" ValidSubmitCallback="(() => { })"></EmploymentForm>
+        }
+    </CarbonBlazorPane>
+</CarbonBlazorStack>
+
+@code {
+    private EmploymentResource? _employment;
+    
+    [Inject]
+    public required StructurHttpClient<EmploymentResource> EmploymentsHttpClient { get; set; }
+    
+    [Inject] 
+    public INotificationBroker NotificationBroker { get; set; } = null!;
+
+    [Inject] 
+    public NavigationManager NavigationManager { get; set; } = null!;
+
+    [Inject]
+    public TenantContextAccessor TenantContextAccessor { get; set; } = null!;
+
+    [Parameter] 
+    public Guid Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        await RefreshEmploymentAsync();
+    }
+
+    private async Task RefreshEmploymentAsync()
+    {
+        try
+        {
+            GetByIdRequest args = new()
+            {
+                TenantId = TenantContextAccessor.SelectedTenantId,
+                Id = Id
+            };
+            
+            Result<ResourceDocument<EmploymentResource>> result = await EmploymentsHttpClient.GetByIdAsync(args);
+
+            result.Match(
+                document =>
+                {
+                    _employment = document.Resource;
+                },
+                fault =>
+                {
+                    Console.WriteLine($"[FAULT] GetEmployment request returned fault: {fault}");
+                    NotificationBroker.Send("API Error", "GetEmployment request returned a fault.", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Error);
+                });
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine($"[EXCEPTION] GetEmployment request failed: {exception.Message}");
+            NotificationBroker.Send("API Error", "GetEmployment request threw an exception.", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Error);
+        }
+    }
+}

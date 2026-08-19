@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.11" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.11" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.DotNet.HotReload.WebAssembly.Browser" Version="10.0.204" />
+        <PackageReference Include="Synonms.CarbonBlazor" Version="9.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\images\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Synonms.Structur.Api.Client\Synonms.Structur.Api.Client.csproj" />
+      <ProjectReference Include="..\Synonms.Structur.Sample.ClientApi\Synonms.Structur.Sample.ClientApi.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Features\Employees\Components\EmployeeForm.razor" />
+      <AdditionalFiles Include="Features\Employees\Pages\CreateEmployeePage.razor" />
+      <AdditionalFiles Include="Features\Employees\Pages\EmployeesPage.razor" />
+      <AdditionalFiles Include="Features\Employees\Pages\ReadEmployeePage.razor" />
+      <AdditionalFiles Include="Features\Employees\Pages\UpdateEmployeePage.razor" />
+      <AdditionalFiles Include="Features\Employees\_Imports.razor" />
+    </ItemGroup>
+</Project>

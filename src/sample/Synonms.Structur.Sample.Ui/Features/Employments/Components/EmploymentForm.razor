@@ -1,0 +1,149 @@
+<CarbonBlazorForm TModel="EmploymentResource" Model="@Model" ValidationFunc="@ValidateForm" ValidSubmitCallback="@OnValidSubmit" IsReadOnly="@(OperationType == OperationType.Read)" CancelCallback="@OnCancelClicked" EditCallback="@OnUpdateClicked">
+    <CarbonBlazorTextInput Label="Reference" @bind-Value="@Model.EmploymentReference" FieldIdentifier="@_employmentReferenceFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create)"></CarbonBlazorTextInput>
+    <CarbonBlazorDatePicker Label="Continuous Start Date" @bind-Value="@Model.ContinuousStartDate" FieldIdentifier="@_continuousStartDateFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorDatePicker>
+
+    <CarbonBlazorText Type="CarbonBlazorTextType.HeadingCompact">Bank Details</CarbonBlazorText>
+    <CarbonBlazorTextInput Label="Bank Name" @bind-Value="@Model.BankDetails.BankName" FieldIdentifier="@_bankNameFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+    <CarbonBlazorTextInput Label="Sort Code" @bind-Value="@Model.BankDetails.SortCode" FieldIdentifier="@_bankSortCodeFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+    <CarbonBlazorTextInput Label="Account Name" @bind-Value="@Model.BankDetails.AccountName" FieldIdentifier="@_bankAccountNameFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+    <CarbonBlazorTextInput Label="Account Number" @bind-Value="@Model.BankDetails.AccountNumber" FieldIdentifier="@_bankAccountNumberFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+    <CarbonBlazorTextInput Label="Building Society Roll No" @bind-Value="@Model.BankDetails.BuildingSocietyRollNumber" FieldIdentifier="@_buildingSocietyRollNumberFieldIdentifier" IsReadOnly="@(OperationType != OperationType.Create && OperationType != OperationType.Update)"></CarbonBlazorTextInput>
+
+    <CarbonBlazorText Type="CarbonBlazorTextType.HeadingCompact">Contracts</CarbonBlazorText>
+    
+    <NestedCollectionDataTable TModel="EmploymentContractResource" Title="Employment Contracts" ChildResources="@Model.Contracts" ChildResourceName="Employment Contract" ValidationFunc="ValidateEmploymentContract"
+                               MatcherFunc="@((left, right) => left.Id == right.Id)">
+        <HeaderRowTemplate>
+            <CarbonBlazorDataTableHeaderCell>Start Date</CarbonBlazorDataTableHeaderCell>
+            <CarbonBlazorDataTableHeaderCell>End Date</CarbonBlazorDataTableHeaderCell>
+            <CarbonBlazorDataTableHeaderCell>Position</CarbonBlazorDataTableHeaderCell>
+            <CarbonBlazorDataTableHeaderCell>Location</CarbonBlazorDataTableHeaderCell>
+        </HeaderRowTemplate>
+        <DataRowTemplate>
+            <CarbonBlazorDataTableDataCell>@context.StartDate</CarbonBlazorDataTableDataCell>
+            <CarbonBlazorDataTableDataCell>@context.EndDate</CarbonBlazorDataTableDataCell>
+            <CarbonBlazorDataTableDataCell>@context.Position</CarbonBlazorDataTableDataCell>
+            <CarbonBlazorDataTableDataCell>@context.Location</CarbonBlazorDataTableDataCell>
+        </DataRowTemplate>
+        <FormTemplate>
+            <CarbonBlazorDatePicker Label="Start Date" @bind-Value="@context.StartDate" FieldIdentifier="@(FieldIdentifier.Create(() => context.StartDate))"></CarbonBlazorDatePicker>
+            <CarbonBlazorDatePicker Label="End Date" @bind-Value="@context.EndDate" FieldIdentifier="@(FieldIdentifier.Create(() => context.EndDate))"></CarbonBlazorDatePicker>
+            <CarbonBlazorTextInput Label="Position" @bind-Value="@context.Position" FieldIdentifier="@(FieldIdentifier.Create(() => context.Position))"></CarbonBlazorTextInput>
+            <CarbonBlazorTextInput Label="Location" @bind-Value="@context.Location" FieldIdentifier="@(FieldIdentifier.Create(() => context.Location))"></CarbonBlazorTextInput>
+        </FormTemplate>
+    </NestedCollectionDataTable>
+
+</CarbonBlazorForm>
+
+@code {
+    private FieldIdentifier _employmentReferenceFieldIdentifier;
+    private FieldIdentifier _continuousStartDateFieldIdentifier;
+    
+    private FieldIdentifier _bankNameFieldIdentifier;
+    private FieldIdentifier _bankSortCodeFieldIdentifier;
+    private FieldIdentifier _bankAccountNameFieldIdentifier;
+    private FieldIdentifier _bankAccountNumberFieldIdentifier;
+    private FieldIdentifier _buildingSocietyRollNumberFieldIdentifier;
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public EmploymentResource Model { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback ValidSubmitCallback { get; set; }
+    
+    [Parameter, EditorRequired]
+    public OperationType OperationType { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        _employmentReferenceFieldIdentifier = FieldIdentifier.Create(() => Model.EmploymentReference);
+        _continuousStartDateFieldIdentifier = FieldIdentifier.Create(() => Model.ContinuousStartDate);
+        
+        _bankNameFieldIdentifier = FieldIdentifier.Create(() => Model.BankDetails.BankName);
+        _bankSortCodeFieldIdentifier = FieldIdentifier.Create(() => Model.BankDetails.SortCode);
+        _bankAccountNameFieldIdentifier = FieldIdentifier.Create(() => Model.BankDetails.AccountName);
+        _bankAccountNumberFieldIdentifier = FieldIdentifier.Create(() => Model.BankDetails.AccountNumber);
+        _buildingSocietyRollNumberFieldIdentifier = FieldIdentifier.Create(() => Model.BankDetails.BuildingSocietyRollNumber);
+    }
+
+    private IEnumerable<ValidationOutcome> ValidateForm(EmploymentResource resource)
+    {
+        List<ValidationOutcome> validationOutcomes = [];
+
+        if (string.IsNullOrWhiteSpace(resource.EmploymentReference))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_employmentReferenceFieldIdentifier, "Reference must be populated"));
+        }
+        
+        if (string.IsNullOrWhiteSpace(resource.BankDetails.BankName))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_bankNameFieldIdentifier, "Bank Name must be populated"));
+        }
+
+        if (string.IsNullOrWhiteSpace(resource.BankDetails.SortCode))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_bankSortCodeFieldIdentifier, "Bank Sort Code must be populated"));
+        }
+
+        if (string.IsNullOrWhiteSpace(resource.BankDetails.AccountName))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_bankAccountNameFieldIdentifier, "Bank Account Name must be populated"));
+        }
+
+        if (string.IsNullOrWhiteSpace(resource.BankDetails.AccountNumber))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(_bankAccountNumberFieldIdentifier, "Bank Account Number must be populated"));
+        }
+
+        return validationOutcomes;
+    }
+
+    private IEnumerable<ValidationOutcome> ValidateEmploymentContract(EmploymentContractResource employmentContract)
+    {
+        List<ValidationOutcome> validationOutcomes = [];
+
+        FieldIdentifier startDateField = FieldIdentifier.Create(() => employmentContract.StartDate);
+        FieldIdentifier positionField = FieldIdentifier.Create(() => employmentContract.Position);
+        FieldIdentifier locationField = FieldIdentifier.Create(() => employmentContract.Location);
+        
+        if (employmentContract.StartDate == DateOnly.MinValue)
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(startDateField, "Start Date must be entered."));
+        }
+        
+        if (string.IsNullOrWhiteSpace(employmentContract.Position))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(positionField, "Position must be entered."));
+        }
+
+        if (string.IsNullOrWhiteSpace(employmentContract.Location))
+        {
+            validationOutcomes.Add(ValidationOutcome.Error(locationField, "Location must be entered."));
+        }
+        
+        return validationOutcomes;
+    }
+    
+    private void OnCancelClicked() =>
+        NavigationManager.NavigateTo("employments");
+
+    private void OnUpdateClicked()
+    {
+        if (OperationType != OperationType.Read)
+        {
+            return;
+        }
+        
+        NavigationManager.NavigateTo("employments/" + Model.Id + "/update");
+    }
+
+    private async Task OnValidSubmit()
+    {
+        await ValidSubmitCallback.InvokeAsync();
+    }
+}

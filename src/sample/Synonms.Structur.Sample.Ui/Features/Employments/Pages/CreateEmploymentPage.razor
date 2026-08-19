@@ -1,0 +1,57 @@
+@page "/employments/create"
+
+<PageTitle>Create Employment</PageTitle>
+
+<CarbonBlazorPane Title="Create Employment">
+    <EmploymentForm Model="_model" OperationType="OperationType.Create" ValidSubmitCallback="OnValidSubmitAsync"></EmploymentForm>
+</CarbonBlazorPane>
+
+@code {
+    private readonly EmploymentResource _model = new()
+    {
+        Id = Guid.NewGuid()
+    };
+
+    [Inject]
+    public required TenantContextAccessor TenantContextAccessor { get; set; }
+
+    [Inject]
+    public required StructurHttpClient<EmploymentResource> EmploymentsHttpClient { get; set; }
+
+    [Inject]
+    public INotificationBroker NotificationBroker { get; set; } = null!;
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = null!;
+
+    private async Task OnValidSubmitAsync()
+    {
+        try
+        {
+            PostRequest<EmploymentResource> request = new()
+            {
+                TenantId = TenantContextAccessor.SelectedTenantId,
+                Resource = _model
+            };
+            
+            Result<PostResponse> result = await EmploymentsHttpClient.PostAsync(request);
+
+            result.Match(
+                postResponse =>
+                {
+                    NotificationBroker.Send("Success", "Employment create request succeeded", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Success);
+                    NavigationManager.NavigateTo("employees/" + postResponse.Id);
+                },
+                fault =>
+                {
+                    Console.WriteLine($"[FAULT] CreateEmployment request returned fault: {fault}");
+                    NotificationBroker.Send("API Error", "CreateEmployment request returned a fault.", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Error);
+                });
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine($"[EXCEPTION] CreateEmployment request threw exception: {exception.Message}");
+            NotificationBroker.Send("API Error", "CreateEmployment request threw an exception.", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Error);
+        }
+    }
+}

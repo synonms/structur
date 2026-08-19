@@ -1,0 +1,104 @@
+@page "/employments"
+
+<PageTitle>Employments</PageTitle>
+
+<CarbonBlazorPane Title="Employments">
+    @if (_employments is null)
+    {
+        <CarbonBlazorLoadingSpinner></CarbonBlazorLoadingSpinner>
+    }
+    else
+    {
+        <CarbonBlazorDataTable @ref="@_dataTable" TModel="EmploymentResource" Models="@_employments" TotalSize="@_employments.Count" Offset="0" PageLimit="10" ShouldFillPane="true">
+            <ToolbarButtons>
+                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="XS" OnClick="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.ExtraSmall))"></CarbonBlazorButton>
+                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="S" OnClick="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.Small))"></CarbonBlazorButton>
+                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="M" OnClick="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.Medium))"></CarbonBlazorButton>
+                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="L" OnClick="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.Large))"></CarbonBlazorButton>
+                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="XL" OnClick="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.ExtraLarge))"></CarbonBlazorButton>
+                <CarbonBlazorButton Display="CarbonBlazorButtonDisplay.TextAndIcon" IconType="CarbonBlazorIconType.Add" Text="Add" ClickedCallback="@CreateEmployment"></CarbonBlazorButton>
+            </ToolbarButtons>
+            <HeaderRowTemplate>
+                <CarbonBlazorDataTableHeaderCell>Id</CarbonBlazorDataTableHeaderCell>
+                <CarbonBlazorDataTableHeaderCell>Employee</CarbonBlazorDataTableHeaderCell>
+                <CarbonBlazorDataTableHeaderCell>Reference</CarbonBlazorDataTableHeaderCell>
+                <CarbonBlazorDataTableHeaderCell>Start Date</CarbonBlazorDataTableHeaderCell>
+                <CarbonBlazorDataTableHeaderCell></CarbonBlazorDataTableHeaderCell>
+            </HeaderRowTemplate>
+            <DataRowTemplate>
+                <CarbonBlazorDataTableDataCell>@context.Id</CarbonBlazorDataTableDataCell>
+                <CarbonBlazorDataTableDataCell>@context.EmployeeId</CarbonBlazorDataTableDataCell>
+                <CarbonBlazorDataTableDataCell>@context.EmploymentReference</CarbonBlazorDataTableDataCell>
+                <CarbonBlazorDataTableDataCell>@context.ContinuousStartDate.ToString("dd/MM/yyyy")</CarbonBlazorDataTableDataCell>
+                <CarbonBlazorDataTableDataCell>
+                    <CarbonBlazorButtonSet Style="justify-content: end;">
+                        <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.IconOnly" IconType="CarbonBlazorIconType.Search" ClickedCallback="@(() => ReadEmployment(context))"></CarbonBlazorButton>
+                        <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.IconOnly" IconType="CarbonBlazorIconType.Edit" ClickedCallback="@(() => UpdateEmployment(context))"></CarbonBlazorButton>
+                    </CarbonBlazorButtonSet>
+                </CarbonBlazorDataTableDataCell>
+            </DataRowTemplate>
+        </CarbonBlazorDataTable>
+    }
+</CarbonBlazorPane>
+
+@code {
+    private CarbonBlazorDataTable<EmploymentResource> _dataTable = null!;
+    private List<EmploymentResource>? _employments;
+
+    [Inject]
+    public required TenantContextAccessor TenantContextAccessor { get; set; }
+    
+    [Inject]
+    public required StructurHttpClient<EmploymentResource> EmploymentsHttpClient { get; set; }
+    
+    [Inject]
+    public required INotificationBroker NotificationBroker { get; set; }
+
+    [Inject]
+    public required NavigationManager NavigationManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        await RefreshEmploymentsAsync();
+    }
+
+    private async Task RefreshEmploymentsAsync()
+    {
+        try
+        {
+            GetAllRequest args = new()
+            {
+                TenantId = TenantContextAccessor.SelectedTenantId
+            };
+            
+            Result<ResourceCollectionDocument<EmploymentResource>> result = await EmploymentsHttpClient.GetAllAsync(args);
+
+            result.Match(
+                document =>
+                {
+                    _employments = document.Resources.ToList();
+                },
+                fault =>
+                {
+                    Console.WriteLine($"[FAULT] GetEmployments request returned fault: {fault}");
+                    NotificationBroker.Send("API Error", "GetEmployments request returned a fault.", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Error);
+                });
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine($"[EXCEPTION] GetEmployments request failed: {exception.Message}");
+            NotificationBroker.Send("API Error", "GetEmployments request threw an exception.", CarbonBlazorNotificationStyle.LowContrast, CarbonBlazorNotificationLevel.Error);
+        }
+    }
+
+    private void CreateEmployment() =>
+        NavigationManager.NavigateTo("employments/create");
+
+    private void ReadEmployment(EmploymentResource employment) =>
+        NavigationManager.NavigateTo("employments/" + employment.Id);
+
+    private void UpdateEmployment(EmploymentResource employment) =>
+        NavigationManager.NavigateTo("employments/" + employment.Id + "/update");
+}

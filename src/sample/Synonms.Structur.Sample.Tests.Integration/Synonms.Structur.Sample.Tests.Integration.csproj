@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Bogus" Version="35.6.5" />
         <PackageReference Include="coverlet.collector" Version="10.0.1">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -15,8 +16,8 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
         <PackageReference Include="xunit.v3" Version="4.0.0" />
         <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
@@ -25,7 +26,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Synonms.Structur.Domain\Synonms.Structur.Domain.csproj" />
+      <ProjectReference Include="..\..\Synonms.Structur.Testing\Synonms.Structur.Testing.csproj" />
+      <ProjectReference Include="..\Synonms.Structur.Sample.Api\Synonms.Structur.Sample.Api.csproj" />
+      <ProjectReference Include="..\Synonms.Structur.Sample.AppHost\Synonms.Structur.Sample.AppHost.csproj" />
+      <ProjectReference Include="..\Synonms.Structur.Sample.ClientApi\Synonms.Structur.Sample.ClientApi.csproj" />
     </ItemGroup>
 
 </Project>

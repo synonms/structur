@@ -9,6 +9,23 @@ The framework is designed to be flexible and extensible, allowing Developers to 
 It also includes support for OpenAPI/Swagger for API documentation and testing, making it easier to create well-documented APIs that are easy to use and maintain.
 
 
+## Agents
+Custom agents are defined in the `.agents` folder and are responsible for specific tasks in the development process.  Markdown files are named `[AGENT_NAME].agent.md` and contain the agent's purpose, responsibilities, and workflows.  The following agents are defined:
+- **framework-developer** - Maintains and enhances the core functionality of the Structur framework.
+- **implementation-validator** - Validates that code implementations match their technical specifications and identifies gaps between requirements and implementation.
+- **integration-test-writer** - Writes integration tests to verify that the system works as expected when all components are integrated.
+- **readme-specialist** - Specialised agent for creating and improving README files and project documentation.
+- **sample-api-developer** - Implements features in the Sample API projects to demonstrate the usage of the Structur framework.
+- **sample-ui-developer** - Implements features in the Sample UI projects to demonstrate the usage of the Structur framework.
+- **sample-integration-test-writer** - Writes integration tests for the Sample projects to ensure that the implemented features work as expected.
+- **spec-writer** - Writes technical specifications for new features and enhancements.
+- **unit-test-writer** - Writes unit tests to define expected behaviour based on User Stories
+- **user-story-writer** - Writes User Stories to define the expected behaviour of a feature from the perspective of the end user.
+
+## Workflows
+When asked to implement a new feature, follow the detailed instructions in [Feature Implementation](.agents/workflows/feature-implementation.md) to orchestrate the process from user story creation to final validation and testing.
+
+
 ## Architecture Overview
 
 ### High-Level Design
