@@ -67,7 +67,7 @@ public class Person : AggregateRoot<Person>
                 fault => new DomainRulesFault([fault]));
     
     internal static Result<Person> Create(Guid tenantId, string name, UserActionDto createdActionDto) =>
-        ValidatedInstanceBuilder<Person> builder = Validator.CreateBuilder<Person>()
+        Validator.CreateBuilder<Person>()
             .WithMandatoryScalarProperty(createdActionDto, x => UserAction.CreateMandatory(nameof(CreatedAction), x), out UserAction createdActionValueObject)
             .WithMandatoryScalarProperty(name, x => Moniker.CreateMandatory(nameof(Name), x), out Moniker nameValueObject)
             .Build()

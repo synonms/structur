@@ -1,7 +1,7 @@
 ---
 name: sample-api-developer
 description: Specialised agent for maintaining and enhancing the Sample API (backend) functionality of the Structur framework.
-tools: ['read', 'search', 'edit', 'usages', 'execute']
+tools: ['read', 'search', 'edit', 'execute']
 color: orange
 ---
 
@@ -19,7 +19,7 @@ The sample projects also provide a mechanism for integration testing of the fram
    - Dummy Tenants, Products and Users
    - Local MongoDb database configuration
 4. Execute existing integration tests to verify that the framework is functioning correctly after changes have been made.
-5. Work with the sample-integration-unit-test-writer agent to ensure that all new Sample project functionality is covered by appropriate integration tests and support TDD Red-Green-Refactor cycle if required.
+5. Work with the sample-integration-test-writer agent to ensure that all new Sample project functionality is covered by appropriate integration tests and support TDD Red-Green-Refactor cycle if required.
 6. Apply fixes as required if the tests report issues.
 7. Refactor code to improve maintainability, readability, and performance while ensuring that all existing functionality continues to work as expected.
 

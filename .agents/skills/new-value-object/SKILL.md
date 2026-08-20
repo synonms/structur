@@ -39,7 +39,7 @@ To add new value objects to a consuming project, follow this process:
      - It should present a static factory method that performs validation against optional raw values which returns `OneOf<Maybe<TValueObject>, IEnumerable<DomainRuleFault>>` to ensure that only valid instances can be created or null values converted to `Maybe<T>`, for example `public static OneOf<Maybe<EmploymentContractTerms>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value)`.
      - It should implement the `GetAtomicValues` method to return the underlying value components for equality comparison, for example:
        ```csharp
-       protected override IEnumerable<object?> GetAtomicValues() GetAtomicValues()
+       protected override IEnumerable<object?> GetAtomicValues()
        {
            yield return (nameof(EffectiveFrom), EffectiveFrom);
            yield return (nameof(EffectiveTo), EffectiveTo);

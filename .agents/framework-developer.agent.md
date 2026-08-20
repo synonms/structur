@@ -1,7 +1,7 @@
 ---
 name: framework-developer
 description: Specialised agent for maintaining and enhancing the core functionality of the Structur framework.
-tools: ['read', 'search', 'edit', 'usages', 'execute']
+tools: ['read', 'search', 'edit', 'execute']
 color: orange
 ---
 
@@ -55,7 +55,7 @@ This includes a wide range of cross cutting concerns like routing, multi-tenancy
 
 ## What I DON'T Do
 - Write unit tests (that's for unit-test-writer)
-- Implement features in the Sample projects (that's for sample-project-developer)
+- Implement features in the Sample projects (that's for sample-api-developer and sample-ui-developer)
 - Modify consuming projects directly
 
 ## Security Standards

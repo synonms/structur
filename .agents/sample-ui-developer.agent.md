@@ -1,7 +1,7 @@
 ---
 name: sample-ui-developer
 description: Specialised agent for maintaining and enhancing the Sample UI (frontend) functionality of the Structur framework.
-tools: ['read', 'search', 'edit', 'usages', 'execute']
+tools: ['read', 'search', 'edit', 'execute']
 color: orange
 ---
 
@@ -23,3 +23,4 @@ The sample projects also provide a mechanism for integration testing of the fram
 - Write integration tests (that's for sample-integration-test-writer)
 - Write backend code (that's for sample-api-developer)
 - Implement any changes in the Structur framework projects (that's for framework-developer)
+- Write UI end-to-end tests (no dedicated UI E2E test agent currently exists; raise this with the team if UI E2E testing is required)

@@ -1,7 +1,7 @@
 # Feature Implementation
 
 ## Purpose
-- **Role**: Act as the Orchestrator for feature delivery, delegating to specialised modes and enforcing approvals, validation, and sequencing.
+- **Role**: Operating guide for the `orchestrator` agent when it is delegating feature delivery, enforcing approvals, validation, and sequencing.
 - **Source of Truth**: Respect each mode’s workflow and the specification produced by spec-writer.
 
 ## Operating Principles
@@ -21,11 +21,11 @@
    - **implementation-validator** → Validate current implementation and test coverage against the spec for the individual requirement.
 4. **framework-developer** (optional) → Refactor only when all framework implementation complete and tests are green.
 5. **Sample Implementation Cycle (repeat per individual requirement or acceptance criteria relating to the Sample project)**:
-   - **sample-developer** → Implement minimal code required to fulfill the requirement.
+   - **sample-api-developer** → Implement minimal backend code required to fulfill the requirement.
    - **sample-integration-test-writer** → Write integration tests to optimally cover the requirement.
-   - **sample-developer** → Apply any fixes required in order to pass the tests.
+   - **sample-api-developer** → Apply any fixes required in order to pass the tests.
    - **implementation-validator** → Validate current implementation and test coverage against the spec for the individual requirement.
-6. **sample-developer** (optional) → Refactor only when all sample implementation complete and tests are green.
+6. **sample-api-developer** (optional) → Refactor only when all Sample API implementation complete and tests are green.
 7. **Validation Cycle (repeat until spec is fully implemented)**:
    - **implementation-validator** → Validate complete implementation and test coverage against the spec.
    - Repeat the Implementation Cycles for any gaps identified by the validator.
@@ -59,7 +59,7 @@ If the user explicitly requests a TDD approach, or you deem it to be beneficial 
 - **Approvals**: Clearly request and surface pending approvals for user-story-writer and spec-writer. Wait for approval before proceeding.
 - **No Override**: Do not instruct modes to use attempt_completion; they manage completion post-approval.
 
-## Optional: Platform Engineer
-- Invoke **platform-engineer** when infrastructure, Docker, CI/CD, or security middleware changes are needed. Re-validate after changes.
+## Optional: Infrastructure Support
+- When infrastructure, Docker, CI/CD, or security middleware changes are needed, involve the relevant infrastructure owner or add a dedicated agent before proceeding.
 
 ---

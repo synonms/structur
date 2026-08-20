@@ -5,7 +5,7 @@ description: Guide for adding integration tests for aggregate features in the in
 
 To add new integration tests to a consuming project, follow this process:
 
-1. Determine the target consuming Integration Tests project for the new tests. For example, `Synonms.Structur.Sample.tests.Integration`.
+1. Determine the target consuming Integration Tests project for the new tests. For example, `Synonms.Structur.Sample.Tests.Integration`.
 2. Determine the pluralised form of the aggregate name to be used as the collection name for the feature. For example, if the aggregate name is "Employee" the collection name would be "Employees".
 3. Determine the destination folder for the new tests in the consuming project as `{IntegrationTestProject}/Features/{CollectionName}`. For example, `Synonms.Structur.Sample.Tests.Integration/Features/Employees`.  Create it if it does not exist.  In this folder:
    - Add a Test Feature class.  This class defines how to create/manipulate/persist the required objects and perform assertions, while the Tests class contains the XUnit tests.  Use these guidelines:

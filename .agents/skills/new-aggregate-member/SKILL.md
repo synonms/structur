@@ -15,7 +15,7 @@ To add new aggregate members to a consuming project, follow this process:
      - It should provide a default empty private constructor as required by some ORMs.
      - It should provide an overloaded private constructor that takes `Guid id` parameter to pass to the base class, for example `private EmploymentContractResource(Guid id) : base(id) { }`.
      - Scalar properties should be plain C# types (string, int, decimal, etc.) or collections of plain C# types (e.g. `List<string>`).
-4. Determine the destination folder for the new feature in the consuming API project as `{ApiProject}/Features/{CollectionName}`. For example, `Synonms.Structur.Sample.Api/Features/Products`.  This will contain the backend code.  Create it if it does not exist.  In this folder:
+4. Determine the destination folder for the new feature in the consuming API project as `{ApiProject}/Features/{CollectionName}`. For example, `Synonms.Structur.Sample.Api/Features/Employees`.  This will contain the backend code.  Create it if it does not exist.  In this folder:
     - Determine the aggregate member name (singular) for the new aggregate member, for example `EmploymentContract`.
     - Create the Aggregate Member class in the aggregate features folder of the Api project. Use the following guidelines:
       - The class should be named using the singular name of the member in Pascal case, for example `EmploymentContract`.

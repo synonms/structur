@@ -1,7 +1,7 @@
 ---
 name: employment-feature
 description: Prompt template for creating new aggregate features in the internal Sample projects and external projects consuming the Structur framework.
-agent: feature-developer
+agent: sample-api-developer
 tools: ['read', 'search', 'edit']
 ---
 
