@@ -8,23 +8,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.11" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.11" PrivateAssets="all" />
-        <PackageReference Include="Microsoft.DotNet.HotReload.WebAssembly.Browser" Version="10.0.204" />
-        <PackageReference Include="Synonms.CarbonBlazor" Version="9.0.3" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
+        <PackageReference Include="Synonms.CarbonBlazor" />
     </ItemGroup>
 
     <ItemGroup>
         <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="wwwroot\images\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\..\Synonms.Structur.Api.Client\Synonms.Structur.Api.Client.csproj" />
-      <ProjectReference Include="..\Synonms.Structur.Sample.ClientApi\Synonms.Structur.Sample.ClientApi.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -34,5 +24,10 @@
       <AdditionalFiles Include="Features\Employees\Pages\ReadEmployeePage.razor" />
       <AdditionalFiles Include="Features\Employees\Pages\UpdateEmployeePage.razor" />
       <AdditionalFiles Include="Features\Employees\_Imports.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Synonms.Structur.Api.Client\Synonms.Structur.Api.Client.csproj" />
+      <ProjectReference Include="..\Synonms.Structur.Sample.ClientApi\Synonms.Structur.Sample.ClientApi.csproj" />
     </ItemGroup>
 </Project>

@@ -13,10 +13,12 @@ using Synonms.Structur.Core.System;
 using Synonms.Structur.Domain.ValueObjects;
 using Synonms.Structur.Sample.Api.Features.Employees;
 using Synonms.Structur.Sample.Api.Features.Employees.Events;
+using Synonms.Structur.Sample.Api.Features.Employees.Persistence;
 using Synonms.Structur.Sample.Api.Infrastructure;
 using Synonms.Structur.Sample.ClientApi.Features.Employees;
 using Synonms.Structur.Testing;
 using Synonms.Structur.Testing.Tests;
+using Synonms.Structur.Infrastructure.MongoDb.Aggregates;
 using EmailContactTypeEnumeration = Synonms.Structur.Api.Core.ValueObjects.Enumerations.EmailContactTypeEnumeration;
 
 namespace Synonms.Structur.Sample.Tests.Integration.Features.Employees;
@@ -84,10 +86,10 @@ public class EmployeesTestFeature :
         IServiceScope scope = serviceScopeFactory.CreateScope();
         IMongoClient mongoClient = scope.ServiceProvider.GetRequiredService<IMongoClient>();
         
-        IMongoCollection<Employee> collection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
-            .GetCollection<Employee>(SampleDatabase.MongoDatabaseConfiguration.CollectionNamesByAggregateType[typeof(Employee)]);
+        IMongoCollection<EmployeeRecord> collection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
+            .GetCollection<EmployeeRecord>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employee>());
 
-        await collection.InsertOneAsync(arrangeAggregateInfo.AggregateRoot, cancellationToken: TestContext.Current.CancellationToken);
+        await collection.InsertOneAsync(MongoDbRecordMapper.Map<EmployeeRecord>(arrangeAggregateInfo.AggregateRoot), cancellationToken: TestContext.Current.CancellationToken);
 
         return arrangeAggregateInfo.AggregateRoot;
     }
@@ -100,12 +102,12 @@ public class EmployeesTestFeature :
         IServiceScope scope = serviceScopeFactory.CreateScope();
         IMongoClient mongoClient = scope.ServiceProvider.GetRequiredService<IMongoClient>();
         
-        IMongoCollection<Employee> collection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
-            .GetCollection<Employee>(SampleDatabase.MongoDatabaseConfiguration.CollectionNamesByAggregateType[typeof(Employee)]);
+        IMongoCollection<EmployeeRecord> collection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
+            .GetCollection<EmployeeRecord>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employee>());
 
-        Employee? individual = (await collection.FindAsync(x => x.Id == id)).FirstOrDefault();
+        EmployeeRecord? employeeRecord = (await collection.FindAsync(x => x.Id == id.Value)).FirstOrDefault();
 
-        return individual;
+        return employeeRecord is null ? null : MongoDbRecordMapper.Map<Employee>(employeeRecord);
     }
 
     public void ValidateResource(Employee aggregateRoot, EmployeeResource resource)

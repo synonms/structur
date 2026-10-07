@@ -11,13 +11,16 @@ using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Sample.Api.Features.Employees;
 using Synonms.Structur.Sample.Api.Features.Employees.Events;
+using Synonms.Structur.Sample.Api.Features.Employees.Persistence;
 using Synonms.Structur.Sample.Api.Features.Employments;
 using Synonms.Structur.Sample.Api.Features.Employments.Events;
+using Synonms.Structur.Sample.Api.Features.Employments.Persistence;
 using Synonms.Structur.Sample.Api.Infrastructure;
 using Synonms.Structur.Sample.ClientApi.Features.Employees;
 using Synonms.Structur.Sample.ClientApi.Features.Employments;
 using Synonms.Structur.Testing;
 using Synonms.Structur.Testing.Tests;
+using Synonms.Structur.Infrastructure.MongoDb.Aggregates;
 
 namespace Synonms.Structur.Sample.Tests.Integration.Features.Employments;
 
@@ -83,10 +86,10 @@ public class EmploymentsTestFeature :
         IServiceScope scope = serviceScopeFactory.CreateScope();
         IMongoClient mongoClient = scope.ServiceProvider.GetRequiredService<IMongoClient>();
 
-        IMongoCollection<Employment> collection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
-            .GetCollection<Employment>(SampleDatabase.MongoDatabaseConfiguration.CollectionNamesByAggregateType[typeof(Employment)]);
+        IMongoCollection<EmploymentRecord> collection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
+            .GetCollection<EmploymentRecord>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employment>());
 
-        await collection.InsertOneAsync(arrangeAggregateInfo.AggregateRoot, cancellationToken: TestContext.Current.CancellationToken);
+        await collection.InsertOneAsync(MongoDbRecordMapper.Map<EmploymentRecord>(arrangeAggregateInfo.AggregateRoot), cancellationToken: TestContext.Current.CancellationToken);
 
         return arrangeAggregateInfo.AggregateRoot;
     }
@@ -96,12 +99,12 @@ public class EmploymentsTestFeature :
         IServiceScope scope = serviceScopeFactory.CreateScope();
         IMongoClient mongoClient = scope.ServiceProvider.GetRequiredService<IMongoClient>();
         
-        IMongoCollection<Employee> employeesCollection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
-            .GetCollection<Employee>(SampleDatabase.MongoDatabaseConfiguration.CollectionNamesByAggregateType[typeof(Employee)]);
+        IMongoCollection<EmployeeRecord> employeesCollection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
+            .GetCollection<EmployeeRecord>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employee>());
 
         foreach (Employee employee in arrangeEntitiesInfo.Entities?.Where(e => e is Employee).Cast<Employee>() ?? [])
         {
-            await employeesCollection.InsertOneAsync(employee, cancellationToken: TestContext.Current.CancellationToken);
+            await employeesCollection.InsertOneAsync(MongoDbRecordMapper.Map<EmployeeRecord>(employee), cancellationToken: TestContext.Current.CancellationToken);
         }
     }
 
@@ -110,12 +113,12 @@ public class EmploymentsTestFeature :
         IServiceScope scope = serviceScopeFactory.CreateScope();
         IMongoClient mongoClient = scope.ServiceProvider.GetRequiredService<IMongoClient>();
 
-        IMongoCollection<Employment> collection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
-            .GetCollection<Employment>(SampleDatabase.MongoDatabaseConfiguration.CollectionNamesByAggregateType[typeof(Employment)]);
+        IMongoCollection<EmploymentRecord> collection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
+            .GetCollection<EmploymentRecord>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employment>());
 
-        Employment? employment = (await collection.FindAsync(x => x.Id == id)).FirstOrDefault();
+        EmploymentRecord? employmentRecord = (await collection.FindAsync(x => x.Id == id.Value)).FirstOrDefault();
 
-        return employment;
+        return employmentRecord is null ? null : MongoDbRecordMapper.Map<Employment>(employmentRecord);
     }
 
     public void ValidateResource(Employment aggregateRoot, EmploymentResource resource)

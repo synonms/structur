@@ -14,7 +14,7 @@ public class MongoDbProductRepository<TProduct> : IProductRepository<TProduct>
     public MongoDbProductRepository(IMongoClient mongoClient, MongoDatabaseConfiguration mongoDatabaseConfiguration)
     {
         _mongoCollection = mongoClient.GetDatabase(mongoDatabaseConfiguration.DatabaseName)
-            .GetCollection<TProduct>(MongoDbConstants.Database.Collections.Tenants);
+            .GetCollection<TProduct>(MongoDbConstants.Database.Collections.Products);
     }
 
     public Task<IEnumerable<TProduct>> ReadAvailableProductsAsync(CancellationToken cancellationToken) =>

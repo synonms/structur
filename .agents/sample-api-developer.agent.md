@@ -1,7 +1,7 @@
 ---
 name: sample-api-developer
 description: Specialised agent for maintaining and enhancing the Sample API (backend) functionality of the Structur framework.
-tools: ['read', 'search', 'edit', 'execute']
+tools: ['read', 'search', 'edit', 'execute', 'ide_debug']
 color: orange
 ---
 

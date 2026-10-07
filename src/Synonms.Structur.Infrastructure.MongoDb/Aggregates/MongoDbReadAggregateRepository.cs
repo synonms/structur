@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using Synonms.Structur.Core.Collections;
 using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Functional;
@@ -12,41 +12,59 @@ namespace Synonms.Structur.Infrastructure.MongoDb.Aggregates;
 public class MongoDbReadAggregateRepository<TAggregateRoot> : IReadAggregateRepository<TAggregateRoot>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
 {
-    private readonly IMongoCollection<TAggregateRoot> _mongoCollection;
+    private readonly IMongoCollection<BsonDocument> _mongoCollection;
+    private readonly Type _recordType;
     
     public MongoDbReadAggregateRepository(IMongoClient mongoClient, MongoDatabaseConfiguration mongoDatabaseConfiguration)
     {
-        if (mongoDatabaseConfiguration.CollectionNamesByAggregateType.ContainsKey(typeof(TAggregateRoot)) is false)
-        {
-            throw new InvalidOperationException($"Mongo collection name for type {typeof(TAggregateRoot).Name} is not configured.");
-        }
-
+        _recordType = mongoDatabaseConfiguration.GetRecordType<TAggregateRoot>();
         _mongoCollection = mongoClient.GetDatabase(mongoDatabaseConfiguration.DatabaseName)
-            .GetCollection<TAggregateRoot>(mongoDatabaseConfiguration.CollectionNamesByAggregateType[typeof(TAggregateRoot)]);
+            .GetCollection<BsonDocument>(mongoDatabaseConfiguration.GetCollectionName<TAggregateRoot>());
     }
     
-    public virtual Expression<Func<TAggregateRoot, bool>> GlobalFilter => x => x.DeletedAction == null;
+    public virtual FilterDefinition<BsonDocument> GlobalFilter =>
+        Builders<BsonDocument>.Filter.Eq(nameof(AggregateRoot<TAggregateRoot>.DeletedAction), BsonNull.Value);
     
-    public async Task<bool> AnyAsync(Expression<Func<TAggregateRoot, bool>> predicate, CancellationToken cancellationToken) =>
-        await _mongoCollection.Find(CombineFilters(predicate)).FirstOrDefaultAsync(cancellationToken) is not null;
+    public async Task<bool> AnyAsync(Expression<Func<TAggregateRoot, bool>> predicate, CancellationToken cancellationToken)
+    {
+        Func<TAggregateRoot, bool> compiledPredicate = predicate.Compile();
+        List<TAggregateRoot> aggregateRoots = await LoadAsync(GlobalFilter, cancellationToken);
+        return aggregateRoots.Any(compiledPredicate);
+    }
 
-    public async Task<Maybe<TAggregateRoot>> FindAsync(EntityId<TAggregateRoot> id, CancellationToken cancellationToken) =>
-        await _mongoCollection.Find(CombineFilters(x => x.Id == id)).FirstOrDefaultAsync(cancellationToken);
+    public async Task<Maybe<TAggregateRoot>> FindAsync(EntityId<TAggregateRoot> id, CancellationToken cancellationToken)
+    {
+        FilterDefinition<BsonDocument> filter = Builders<BsonDocument>.Filter.And(
+            GlobalFilter,
+            Builders<BsonDocument>.Filter.Eq("_id", id.Value));
 
-    public async Task<Maybe<TAggregateRoot>> FindFirstAsync(Expression<Func<TAggregateRoot, bool>> predicate, CancellationToken cancellationToken) =>
-        await _mongoCollection.Find(CombineFilters(predicate)).FirstOrDefaultAsync(cancellationToken);
+        BsonDocument? document = await _mongoCollection.Find(filter).FirstOrDefaultAsync(cancellationToken);
+        return document is null ? Maybe<TAggregateRoot>.None : MapToAggregateRoot(document);
+    }
+
+    public async Task<Maybe<TAggregateRoot>> FindFirstAsync(Expression<Func<TAggregateRoot, bool>> predicate, CancellationToken cancellationToken)
+    {
+        Func<TAggregateRoot, bool> compiledPredicate = predicate.Compile();
+        List<TAggregateRoot> aggregateRoots = await LoadAsync(GlobalFilter, cancellationToken);
+        TAggregateRoot? aggregateRoot = aggregateRoots.FirstOrDefault(compiledPredicate);
+        return aggregateRoot is null ? Maybe<TAggregateRoot>.None : aggregateRoot;
+    }
 
     public Task<List<TAggregateRoot>> ListAllAsync(CancellationToken cancellationToken) =>
-        _mongoCollection.Find(GlobalFilter).ToListAsync(cancellationToken);
+        LoadAsync(GlobalFilter, cancellationToken);
 
-    public Task<List<TAggregateRoot>> ListAsync(Expression<Func<TAggregateRoot, bool>> predicate, CancellationToken cancellationToken) =>
-        _mongoCollection.Find(CombineFilters(predicate)).ToListAsync(cancellationToken);
+    public async Task<List<TAggregateRoot>> ListAsync(Expression<Func<TAggregateRoot, bool>> predicate, CancellationToken cancellationToken)
+    {
+        Func<TAggregateRoot, bool> compiledPredicate = predicate.Compile();
+        List<TAggregateRoot> aggregateRoots = await LoadAsync(GlobalFilter, cancellationToken);
+        return aggregateRoots.Where(compiledPredicate).ToList();
+    }
 
     public IQueryable<TAggregateRoot> Query() =>
-        _mongoCollection.AsQueryable().Where(GlobalFilter);
+        Load(GlobalFilter).AsQueryable();
 
     public IQueryable<TAggregateRoot> Query(Expression<Func<TAggregateRoot, bool>> predicate) =>
-        _mongoCollection.AsQueryable().Where(GlobalFilter).Where(predicate);
+        Query().Where(predicate);
 
     public Task<PaginatedList<TAggregateRoot>> ReadAllAsync(int offset, int limit, Func<IQueryable<TAggregateRoot>, IQueryable<TAggregateRoot>> sortFunc, CancellationToken cancellationToken) =>
         Task.FromResult(PaginatedList<TAggregateRoot>.Create(sortFunc.Invoke(Query()), offset, limit));
@@ -55,12 +73,20 @@ public class MongoDbReadAggregateRepository<TAggregateRoot> : IReadAggregateRepo
         Task.FromResult(PaginatedList<TAggregateRoot>.Create(sortFunc.Invoke(Query(predicate)), offset, limit));
 
     public Task<List<TResult>> SelectAsync<TResult>(Expression<Func<TAggregateRoot, bool>> predicate, Expression<Func<TAggregateRoot, TResult>> selector, CancellationToken cancellationToken) =>
-        Query(predicate).Select(selector).ToListAsync(cancellationToken);
-    
-    private FilterDefinition<TAggregateRoot> CombineFilters(Expression<Func<TAggregateRoot, bool>> predicate)
+        Task.FromResult(Query(predicate).Select(selector).ToList());
+
+    protected TAggregateRoot MapToAggregateRoot(BsonDocument document) =>
+        MongoDbRecordMapper.MapToAggregateRoot<TAggregateRoot>(document, _recordType);
+
+    protected async Task<List<TAggregateRoot>> LoadAsync(FilterDefinition<BsonDocument> filter, CancellationToken cancellationToken)
     {
-        FilterDefinitionBuilder<TAggregateRoot>? builder = Builders<TAggregateRoot>.Filter;
-        FilterDefinition<TAggregateRoot>? combinedFilter = builder.And(GlobalFilter, predicate);
-        return combinedFilter;
+        List<BsonDocument> documents = await _mongoCollection.Find(filter).ToListAsync(cancellationToken);
+        return documents.Select(MapToAggregateRoot).ToList();
+    }
+
+    protected List<TAggregateRoot> Load(FilterDefinition<BsonDocument> filter)
+    {
+        using IAsyncCursor<BsonDocument> cursor = _mongoCollection.FindSync(filter, cancellationToken: CancellationToken.None);
+        return cursor.ToList().Select(MapToAggregateRoot).ToList();
     }
 }

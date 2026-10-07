@@ -1,0 +1,29 @@
+<Solution>
+  <Folder Name="/Agents/">
+    <File Path=".github/copilot-instructions.md" />
+    <File Path="AGENTS.md" />
+  </Folder>
+  <Folder Name="/Sample/">
+    <Project Path="src/sample/Synonms.Structur.Sample.Api/Synonms.Structur.Sample.Api.csproj" />
+    <Project Path="src/sample/Synonms.Structur.Sample.AppHost/Synonms.Structur.Sample.AppHost.csproj" />
+    <Project Path="src/sample/Synonms.Structur.Sample.ClientApi/Synonms.Structur.Sample.ClientApi.csproj" />
+    <Project Path="src/sample/Synonms.Structur.Sample.ServiceDefaults/Synonms.Structur.Sample.ServiceDefaults.csproj" />
+    <Project Path="src/sample/Synonms.Structur.Sample.Tests.Integration/Synonms.Structur.Sample.Tests.Integration.csproj" />
+    <Project Path="src/sample/Synonms.Structur.Sample.Ui/Synonms.Structur.Sample.Ui.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Synonms.Structur.Api.Client/Synonms.Structur.Api.Client.csproj" />
+    <Project Path="src/Synonms.Structur.Api.Core/Synonms.Structur.Api.Core.csproj" />
+    <Project Path="src/Synonms.Structur.Api.Server/Synonms.Structur.Api.Server.csproj" />
+    <Project Path="src/Synonms.Structur.Core/Synonms.Structur.Core.csproj" />
+    <Project Path="src/Synonms.Structur.Domain/Synonms.Structur.Domain.csproj" />
+    <Project Path="src/Synonms.Structur.Infrastructure.MongoDb/Synonms.Structur.Infrastructure.MongoDb.csproj" />
+    <Project Path="src/Synonms.Structur.Infrastructure/Synonms.Structur.Infrastructure.csproj" />
+    <Project Path="src/Synonms.Structur.Testing/Synonms.Structur.Testing.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/Synonms.Structur.Api.Server.Tests.Unit/Synonms.Structur.Api.Server.Tests.Unit.csproj" />
+    <Project Path="tests/Synonms.Structur.Core.Tests.Unit/Synonms.Structur.Core.Tests.Unit.csproj" />
+    <Project Path="tests/Synonms.Structur.Domain.Tests.Unit/Synonms.Structur.Domain.Tests.Unit.csproj" />
+  </Folder>
+</Solution>

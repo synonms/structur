@@ -5,7 +5,7 @@
 <CarbonBlazorDataTable @ref="@_dataTable" TModel="TModel" Title="@Title" Models="@ChildResources" TotalSize="@ChildResources.Count" Offset="0" PageLimit="20"
                        PaginationMode="CarbonBlazorPaginationMode.Client" FilterModelsFunc="@FilterChildResourcesFunc">
     <ToolbarButtons>
-        <CarbonBlazorButton Display="CarbonBlazorButtonDisplay.TextAndIcon" Icon="CarbonBlazorIcon.Add" Text="Add" OnClick="@(() => BeginOperation(Mode.Create, new TModel()))"></CarbonBlazorButton>
+        <CarbonBlazorButton Display="CarbonBlazorButtonDisplay.TextAndIcon" IconType="CarbonBlazorIconType.Add" Text="Add" ClickedCallback="@(() => BeginOperation(Mode.Create, new TModel()))"></CarbonBlazorButton>
     </ToolbarButtons>
     <HeaderRowTemplate>
         @HeaderRowTemplate
@@ -15,9 +15,9 @@
         @DataRowTemplate(context)
         <CarbonBlazorDataTableDataCell>
             <CarbonBlazorButtonSet JustifyContent="JustifyContent.End">
-                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Size="CarbonBlazorButtonSize.LargeExpressive" Display="CarbonBlazorButtonDisplay.IconOnly" Icon="CarbonBlazorIcon.View" OnClick="@(() => BeginOperation(Mode.Read, context))"></CarbonBlazorButton>
-                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Size="CarbonBlazorButtonSize.LargeExpressive" Display="CarbonBlazorButtonDisplay.IconOnly" Icon="CarbonBlazorIcon.Edit" OnClick="@(() => BeginOperation(Mode.Update, context))"></CarbonBlazorButton>
-                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Size="CarbonBlazorButtonSize.LargeExpressive" Display="CarbonBlazorButtonDisplay.IconOnly" Icon="CarbonBlazorIcon.TrashCan" OnClick="@(() => BeginOperation(Mode.Delete, context))"></CarbonBlazorButton>
+                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Size="CarbonBlazorButtonSize.LargeExpressive" Display="CarbonBlazorButtonDisplay.IconOnly" IconType="CarbonBlazorIconType.View" ClickedCallback="@(() => BeginOperation(Mode.Read, context))"></CarbonBlazorButton>
+                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Size="CarbonBlazorButtonSize.LargeExpressive" Display="CarbonBlazorButtonDisplay.IconOnly" IconType="CarbonBlazorIconType.Edit" ClickedCallback="@(() => BeginOperation(Mode.Update, context))"></CarbonBlazorButton>
+                <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Size="CarbonBlazorButtonSize.LargeExpressive" Display="CarbonBlazorButtonDisplay.IconOnly" IconType="CarbonBlazorIconType.TrashCan" ClickedCallback="@(() => BeginOperation(Mode.Delete, context))"></CarbonBlazorButton>
             </CarbonBlazorButtonSet>
         </CarbonBlazorDataTableDataCell>
     </DataRowTemplate>

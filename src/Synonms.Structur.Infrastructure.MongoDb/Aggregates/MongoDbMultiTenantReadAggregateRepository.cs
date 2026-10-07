@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Synonms.Structur.Api.Server.Tenants.Context;
 using Synonms.Structur.Domain.Aggregates;
@@ -17,5 +18,8 @@ public class MongoDbMultiTenantReadAggregateRepository<TAggregateRoot> : MongoDb
         _tenantContext = tenantContext;
     }
 
-    public override Expression<Func<TAggregateRoot, bool>> GlobalFilter => x => x.DeletedAction == null && x.TenantId == (_tenantContext.GetTenantId() ?? Guid.Empty);
+    public override FilterDefinition<BsonDocument> GlobalFilter =>
+        Builders<BsonDocument>.Filter.And(
+            Builders<BsonDocument>.Filter.Eq(nameof(AggregateRoot<TAggregateRoot>.DeletedAction), BsonNull.Value),
+            Builders<BsonDocument>.Filter.Eq(nameof(AggregateRoot<TAggregateRoot>.TenantId), _tenantContext.GetTenantId() ?? Guid.Empty));
 }

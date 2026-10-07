@@ -7,9 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="9.0.0" />
-        <PackageReference Include="MongoDB.Bson" Version="3.11.0" />
-        <PackageReference Include="MongoDB.Driver" Version="3.11.0" />
+        <PackageReference Include="AspNetCore.HealthChecks.MongoDb" />
+        <PackageReference Include="MongoDB.Bson" />
+        <PackageReference Include="MongoDB.Driver" />
     </ItemGroup>
     
     <ItemGroup>

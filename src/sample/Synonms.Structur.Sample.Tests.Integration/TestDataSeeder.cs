@@ -2,6 +2,7 @@ using MongoDB.Driver;
 using Synonms.Structur.Domain.Events;
 using Synonms.Structur.Infrastructure.MongoDb;
 using Synonms.Structur.Sample.Api.Features.Employees;
+using Synonms.Structur.Sample.Api.Features.Employees.Persistence;
 using Synonms.Structur.Sample.Api.Infrastructure;
 
 namespace Synonms.Structur.Sample.Tests.Integration;
@@ -12,7 +13,7 @@ public class TestDataSeeder
     private IMongoCollection<SampleProduct>? _productsCollection;
     private IMongoCollection<SampleUser>? _usersCollection;
     private IMongoCollection<DomainEvent>? _domainEventsCollection;
-    private IMongoCollection<Employee>? _individualsCollection;
+    private IMongoCollection<EmployeeRecord>? _employeesCollection;
 
     public async Task SeedIntegrationTestDataAsync(IMongoClient mongoClient, bool clearData = true)
     {
@@ -36,7 +37,7 @@ public class TestDataSeeder
         _productsCollection ??= database.GetCollection<SampleProduct>(MongoDbConstants.Database.Collections.Products);
         _usersCollection ??= database.GetCollection<SampleUser>(MongoDbConstants.Database.Collections.Users);
         _domainEventsCollection ??= database.GetCollection<DomainEvent>(MongoDbConstants.Database.Collections.DomainEvents);
-        _individualsCollection ??= database.GetCollection<Employee>(SampleDatabase.Collections.Employees);
+        _employeesCollection ??= database.GetCollection<EmployeeRecord>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employee>());
     }
 
     private async Task ClearDataAsync()
@@ -45,7 +46,7 @@ public class TestDataSeeder
         await _productsCollection.DeleteManyAsync(x => true);
         await _usersCollection.DeleteManyAsync(x => true);
         await _domainEventsCollection.DeleteManyAsync(x => true);
-        await _individualsCollection.DeleteManyAsync(x => true);
+        await _employeesCollection.DeleteManyAsync(x => true);
     }
     
     private async Task SeedTenantsAsync()

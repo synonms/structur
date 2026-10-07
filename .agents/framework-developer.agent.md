@@ -1,7 +1,7 @@
 ---
 name: framework-developer
 description: Specialised agent for maintaining and enhancing the core functionality of the Structur framework.
-tools: ['read', 'search', 'edit', 'execute']
+tools: ['read', 'search', 'edit', 'execute', 'ide_debug']
 color: orange
 ---
 
