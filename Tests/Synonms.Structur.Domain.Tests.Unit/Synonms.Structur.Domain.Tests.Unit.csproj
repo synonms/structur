@@ -22,6 +22,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\Synonms.Structur.Domain\Synonms.Structur.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Synonms.Structur.Infrastructure.MongoDb\Synonms.Structur.Infrastructure.MongoDb.csproj" />
     </ItemGroup>
 
 </Project>

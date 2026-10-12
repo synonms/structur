@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Synonms.Structur.Core.Collections;
 
 public class BiDirectionalLookup<TLeft, TRight>
@@ -35,9 +37,9 @@ public class BiDirectionalLookup<TLeft, TRight>
         _rightToLeftMapping.Add(right, left);
     }
 
-    public bool TryGetByFirst(TLeft first, out TRight second) =>
+    public bool TryGetByFirst(TLeft first, [MaybeNullWhen(false)] out TRight second) =>
         _leftToRightMapping.TryGetValue(first, out second);
 
-    public bool TryGetBySecond(TRight second, out TLeft first) =>
+    public bool TryGetBySecond(TRight second, [MaybeNullWhen(false)] out TLeft first) =>
         _rightToLeftMapping.TryGetValue(second, out first);
 }

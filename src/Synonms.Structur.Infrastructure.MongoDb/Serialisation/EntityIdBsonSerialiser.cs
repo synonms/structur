@@ -49,7 +49,7 @@ public class EntityIdBsonSerialiser<TEntity> : IBsonSerializer<EntityId<TEntity>
         }
         else
         {
-            throw new NotSupportedException($"{nameof(MonikerBsonSerialiser)} does not support serialisation of {value.GetType().Name}.");
+            throw new NotSupportedException($"EntityIdBsonSerialiser does not support serialisation of {value.GetType().Name}.");
         }
     }
 }
