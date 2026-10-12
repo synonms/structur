@@ -17,7 +17,7 @@ public enum TitleEnumeration
     Prof
 }
 
-public class Title : ValueObject<Title, string>, IValueObject<Title, string>
+public class Title : ScalarValueObject<Title, string>, IScalarValueObject<Title, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<TitleEnumeration>().ToList(); 
     

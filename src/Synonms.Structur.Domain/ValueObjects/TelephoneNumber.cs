@@ -6,7 +6,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class TelephoneNumber : ValueObject<TelephoneNumber, string>, IValueObject<TelephoneNumber, string>
+public class TelephoneNumber : ScalarValueObject<TelephoneNumber, string>, IScalarValueObject<TelephoneNumber, string>
 {
     private TelephoneNumber(string value)
     {

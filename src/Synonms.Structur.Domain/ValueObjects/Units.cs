@@ -5,7 +5,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Units : ValueObject<Units, int>, IValueObject<Units, int>
+public class Units : ScalarValueObject<Units, int>, IScalarValueObject<Units, int>
 {
     private const int DefaultMinValue = 0;
     private const int DefaultMaxValue = int.MaxValue;

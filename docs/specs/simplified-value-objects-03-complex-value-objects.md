@@ -1,66 +1,115 @@
 # Simplified value objects 03: complex value objects
 
-**Status:** Draft implementation plan  
-**Scope:** Define immutable construction and explicit mapping/rehydration contracts for object-shaped value objects, including nested scalar values. Depends on [plan 01](simplified-value-objects-01-contracts.md); the scalar JSON converter in [plan 02](simplified-value-objects-02-json-converters.md) is a building block, not a prerequisite for persistence.
+**Status:** Implemented — domain-owned DTO contract, conventional API output mapping and MongoDB DTO delegation
 
-## Goal and context
+**Scope:** Object-shaped value objects, independent of the scalar hierarchy. `IComplexValueObject<TSelf,TData>` is the construction/mapping contract; `ComplexValueObject<TSelf>` is optional equality support.
 
-Support value objects containing several meaningful properties without weakening validation or hiding compatibility behavior behind reflection. Keep API object shape and existing aggregate validation while making nested values easier to serialize and map. Persistence must be able to load legacy graphs permissively, independently of validated public construction.
+## Domain contract
 
-This addresses the complex-value-object portion of the original request: retain value semantics and encapsulation while reducing bespoke serializer/mapping work; see the [user story](../user-stories/value-objects.md).
+[`IComplexValueObject<TSelf,TData>`](../../src/Synonms.Structur.Domain/ValueObjects/Abstractions/IComplexValueObject.cs) lives in Domain:
 
-## Scope and non-goals
+```csharp
+public interface IComplexValueObject<TSelf, TData>
+    where TSelf : class, IComplexValueObject<TSelf, TData>
+    where TData : class
+{
+    TData ToData();
+    static abstract OneOf<TSelf, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, TData data);
+    static abstract OneOf<Maybe<TSelf>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, TData? data);
+    static abstract TSelf Rehydrate(TData data);
+}
+```
 
-In scope: complex value-object construction contracts, exact-type/value equality, nested scalar handling, API-vs-persistence construction paths and representative built-in coverage.
+`Address`, `Period`, `EmailContact`, `TelephoneContact` and `UkBankDetails` implement this contract with an adjacent `*Data` class. These DTOs have no API, JSON or MongoDB dependency. Members are raw scalar values; nested complex members in consumer DTOs should use their own data contracts rather than domain instances. Nullable string, integer and boolean members represent incomplete input, not an assertion that a successfully constructed value may lack required state.
 
-Out of scope: generic reflection that mutates private backing fields, making all public constructors validating, changing resources into domain objects, replacing MongoDB's BSON round-trip mapper before parity is established, or requiring source generation (plan 07).
+`UserAction` remains outside this contract: it is audit state, with `UserActionDto`, `UserActionRecord` and its existing persistence lifecycle. This change does not invent audit identities or change audit timestamps, tags or events.
 
-## Existing implementation
+### Validated construction
 
-- [`ComplexValueObject`](../../src/Synonms.Structur.Domain/ValueObjects/Abstractions/ComplexValueObject.cs) compares atomic values with `SequenceEqual`, but currently does not check exact runtime type in `Equals(object)`.
-- [`Address`](../../src/Synonms.Structur.Domain/ValueObjects/Address.cs) has a private constructor, private setters, nested scalar properties and validated `CreateMandatory`/`CreateOptional` factories.
-- [`DefaultResourceJsonConverter<TResource>`](../../src/Synonms.Structur.Api.Core/Serialisation/Default/DefaultResourceJsonConverter.cs) deserializes properties into declared resource types. Domain factories currently perform API-to-domain validation.
-- MongoDB registration and BSON class maps are in [`StructurBsonSerialisation`](../../src/Synonms.Structur.Infrastructure.MongoDb/Serialisation/StructurBsonSerialisation.cs); persistence mapping details are in [plan 05](simplified-value-objects-05-mongodb-persistence.md).
+- Existing multiparameter factories forward to DTO overloads, preserving source compatibility.
+- Mandatory null DTOs return the existing required-field domain fault at `propertyName`.
+- Missing required DTO members produce existing validator faults, using paths such as `Address.Line1`, `Period.Units` and `Email.IsPrimary`. Missing strings are passed to existing scalar validators as empty input rather than causing null dereferences.
+- Optional null DTOs return `None`. Existing partial-input behavior is preserved: an address missing any of type/line1/postcode, a period missing units/interval, a contact missing type/address-or-number/primary flag, or bank details missing any required component returns `None`, even if other supplied components are invalid.
+- Complete optional input goes through mandatory validation. A boolean `false` and integer `0` are populated input, not absence.
 
-## Proposed design
+### Projection, reconstruction and equality
 
-Keep complex construction type-owned. Do not make an arbitrary public constructor or record `init` setter a substitute for validated factory construction: object initializers/`with` can otherwise bypass invariants. Do not add a generic private-field mutation mechanism.
+`ToData` projects current state directly; it does not validate or reconstruct. Required scalars are projected through `Value`, optional scalars through nullable `Value`. Collection-bearing implementations must own their input and return fresh collections or immutable snapshots, never expose mutable owned collections.
 
-Use explicitly registered, strongly typed adapters; do not attempt to force variable-shaped factories into a reflection-inferred universal constructor. Define an `IComplexValueObjectAdapter<TValueObject, TResource>` per resource/domain pair with a typed `CreateMandatory(propertyName, resource)` returning the existing `OneOf<TValueObject, IEnumerable<DomainRuleFault>>`, and a cached ordered set of member bindings for output mapping. Define a separate `IComplexValueObjectRehydrator<TValueObject, TPersistedShape>` per persisted/domain pair with a `Rehydrate(persistedShape)` method. Register adapters in the API/mapping or persistence composition root, keyed by the concrete source/destination types. Keep both contracts and metadata free of STJ and BSON types; adapters may live in the layer that already references those packages. An adapter implementation can call existing factories and existing per-type conversions, but API construction and trusted rehydration must never share a fallback path.
+`Rehydrate` constructs directly and calls each nested scalar's **existing** `Rehydrate`. The built-in complex methods never call complex `CreateMandatory`. Scalar policies have intentionally not been rewritten: for example, invalid persisted email input still becomes the existing empty email fallback, and negative units still become the existing zero fallback. A projection of that state must remain possible even when today's mandatory factory rejects it.
 
-Each adapter owns and exposes metadata that can:
+For the five built-ins, every required raw DTO member must be non-null during reconstruction. [`ComplexValueObjectData.Required`](../../src/Synonms.Structur.Domain/ValueObjects/Abstractions/ComplexValueObjectData.cs) rejects missing/null required members rather than constructing a broken graph or fabricating a sentinel. Optional missing/null members remain null. Empty or otherwise representable non-null input enters the nested scalar's established policy.
 
-- construct from a typed API/resource-shaped input by invoking the existing validated factory (or an equivalent typed factory);
-- construct from persistence data through a separately named trusted rehydration method, preserving the type's existing conversions/default policy;
-- enumerate readable members and map member values without changing external resource naming or validation behavior.
+Equality is exact runtime type and member-wise value equality, with matching hash codes. Built-ins compare their scalar members' raw values, not DTO identity. [`ComplexValueObjectEquality`](../../src/Synonms.Structur.Domain/ValueObjects/Abstractions/ComplexValueObjectEquality.cs) supports ordered sequence equality and recursive sequence hashing; record/list reference equality is not a substitute. Collection order matters. The integration-only address-book fixture demonstrates ownership and ordered equality, including derived-type inequality, without adding an unrelated framework domain class.
 
-The first implementation must prove this runtime integration without a generator. Cache adapter/member metadata at registration/plan creation. The adapter—not generic reflection—owns conversions and factory invocation. If an existing type cannot provide a meaningful rehydration policy, retain its current persistence mechanism and record the limitation rather than using validated creation as a fallback.
+The five built-ins and address-book fixture inherit [`ComplexValueObject<TSelf>`](../../src/Synonms.Structur.Domain/ValueObjects/Abstractions/ComplexValueObject.cs), overriding only protected `object?[] EqualityMembers`. The base supplies typed `IEquatable<TSelf>`, object equality and hashing with null/reference/exact-runtime-type checks. It has no DTO parameter or construction responsibilities. Serializer and mapper discovery still uses the interface, allowing types with another base to supply their own equality.
 
-These handwritten adapters are an intermediate compatibility mechanism, not the final "one value-object declaration" authoring experience. Reuse conventional readable-member bindings for output and keep type-owned factories/default policies on the value object; adapters should only connect existing contracts. Plan 07 can generate this connection metadata for consumer types. Do not require consumers to implement new JSON or BSON parsers merely because their object has multiple properties.
+## API output mapping
 
-The API resource remains a separate DTO. Deserializing a complex resource does not itself imply an aggregate has passed validation; aggregate `Create`/`Update` continues to collect current domain-rule faults. For trusted persistence, define a per-property policy for missing, explicit null, invalid-but-representable and malformed/unrepresentable members. Optional missing/null values normally remain absent; required missing values use explicit per-type/property rehydration policy. Preserve each existing `Convert` behavior during initial rollout.
+[`ComplexValueObjectResourceMapping`](../../src/Synonms.Structur.Api.Server/Mapping/ComplexValueObjectResourceMapping.cs) supplies:
 
-Complex equality must be exact concrete type plus ordered atomic-value equality. For collection-valued members, explicitly choose sequence equality and matching hash behavior; do not assume autogenerated record equality is equivalent.
+- separate complex-contract detection via Domain type extensions, not `IsValueObject`;
+- a cached typed bridge to `ToData`;
+- cached compiled member read/write bindings by data/resource type pair;
+- conventional public property-name matching, nested data/resource mapping, null preservation, arrays and list-compatible enumerable destinations;
+- raw string-to-API-enum conversion, e.g. `AddressData.Type` to `AddressResource.Type`, retaining case-sensitive enum parsing;
+- preservation of unmatched resource defaults/metadata.
 
-## Implementation sequence
+`DefaultResourceMapper`, `DefaultChildResourceMapper` and `MappingHelper` route complex output through this path. Existing aggregate/resource links, IDs and routing remain owned by their normal mappers. Complex collections preserve ordering and null elements. Built-ins need no handwritten mapping adapters.
 
-1. Inventory complex value objects, their factories, constructors, setters, atomic-value definitions and Mongo class-map behavior. Start with `Address`; inspect actual deserialization behavior before changing visibility or serializer conventions.
-2. Define a typed adapter contract and separate API factory from trusted persistence factory. Keep adapter registration in a layer that can reference Domain and the relevant serializer/mapping APIs.
-3. Correct `ComplexValueObject` exact-type equality and collection hash/equality only with characterization tests to prevent unrelated behavior changes.
-4. Implement adapters for a nested object and a collection-bearing object. Ensure nested scalar factories on the API path are validated and rehydration remains permissive.
-5. Integrate API serialization/mapping where necessary, preserving resource DTOs and normal aggregate validation.
-6. Integrate persistence only after recording old BSON shapes and each field's existing `Convert` behavior; do not replace the current BSON record round trip without parity evidence.
+For exceptional/noncanonical shapes, register a typed output adapter at startup:
 
-## Acceptance criteria and targeted regression verification
+```csharp
+ComplexValueObjectResourceMapping.Register<MyValue, MyResource>(value => /* explicit output projection */);
+```
 
-- API construction invokes current validated complex factories; invalid members produce the existing domain faults through the existing aggregate/resource path.
-- Trusted persistence construction does not invoke the API validation factory and preserves current per-type conversion behavior.
-- Tests cover nested valid/invalid scalar values, optional members, collection ordering/equality, exact-type equality, and missing/null/invalid-representable/malformed member cases.
-- `Address` retains its API/resource object shape and private construction boundary; no generic private-member mutation is introduced.
-- Run focused Domain unit tests and add focused API Server tests for complex-resource mapping/serialization. Build Domain, API Server and MongoDB if its adapter surface is touched.
+Adapters take precedence, including for nested data/resource pairs. Arbitrary concrete collection destinations beyond arrays and types assignable from `List<T>` require an adapter.
 
-## Compatibility, rollout and pitfalls
+Nested projections contain data DTOs, not their original domain objects: register an `AddressData`-to-resource adapter for an address inside another projected DTO. An `Address`-to-resource adapter only applies when the source is an `Address`. Adapters are consulted even after conventional plans are cached.
 
-Implement after scalar contracts; generator support is optional and later. Keep validated creation and trusted persistence as visibly separate calls. A missing required property is not the same as explicit JSON/BSON null, a representable legacy value outside current validation, or a structurally malformed value. A viable sentinel may be domain-owned even if it fails today's creation rules; it must not be used for new API commands.
+Collection element types are resolved from their actual `IEnumerable<T>` contracts, including inherited interfaces. Ambiguous/non-generic enumerables and non-vector arrays require explicit adapters rather than falling through to object-property mapping.
 
-Persistence reads must not mark audit state, mutate entity tags, emit events or rewrite records. Diagnostics may report that a substitution occurred, but must exclude raw sensitive values. Broad catch-and-default behavior is prohibited; corrupt/unrepresentable shapes need a surfaced, diagnostic error.
+**API input is unchanged:** resources deserialize into resource DTOs through existing JSON converters, then aggregate/value-object factories validate them and aggregate domain faults. There is no default complex domain JSON converter, no resource-to-domain permissive mapping and no conversion of domain faults into `JsonException`.
+
+## MongoDB persistence and compatibility
+
+[`ComplexValueObjectBsonSerializationProvider`](../../src/Synonms.Structur.Infrastructure.MongoDb/Serialisation/ComplexValueObjectBsonSerializationProvider.cs) selects the contract-based [`ComplexValueObjectBsonSerialiser`](../../src/Synonms.Structur.Infrastructure.MongoDb/Serialisation/ComplexValueObjectBsonSerialiser.cs). It delegates BSON storage to the registered `TData` serializer and reconstructs with `TSelf.Rehydrate`.
+
+Call `StructurBsonSerialisation.TryRegisterSerialisersFrom(...)` before MongoDB first resolves affected types. Explicit serializers from the framework/consumer assemblies retain precedence; providers are registered once. Custom serializers remain the escape hatch for noncanonical historical shapes.
+
+### Characterized legacy shape
+
+Before replacing the old automatic class-map path, an integration characterization confirmed that `Address` stores a PascalCase object with raw scalar fields and explicit optional BSON nulls; valid documents round-trip. The old reader left required members null when missing or explicitly null. The new required-member rejection is an intentional diagnostic tightening for these invalid graphs, not a scalar fallback change.
+
+Integration tests compare the new DTO-backed output against the old `BsonClassMapSerializer<T>` output for **all five** migrated built-ins. Names, field ordering, primitive shapes and optional nulls agree. No global naming/discriminator convention changes are introduced. Consumers using bespoke class maps/conventions that differ between domain and data types must retain a custom serializer or configure matching DTO maps.
+
+### Read/write policy
+
+| Persisted state | Policy |
+|---|---|
+| Whole optional complex value missing or BSON null | Remains null under the record's existing defaults / serializer null handling |
+| Required DTO member missing or explicit null | Reconstruction fails with a diagnostic `BsonSerializationException` |
+| Optional member missing/null | Remains absent |
+| Representable member outside current validation | Nested scalar `Rehydrate` keeps its existing fallback/preservation policy |
+| Alternate primitive representation supported by Mongo's raw serializer | Remains supported, e.g. representable string boolean input |
+| Malformed/unrepresentable member shape | Diagnostic failure; no catch-and-default graph |
+
+Diagnostics identify the complex contract and missing/null-or-malformed reason, excluding raw stored values and unsafe inner exception messages. Writes use `ToData` without revalidation. Reads do not repair records or modify audit state.
+
+`IBsonDocumentSerializer` metadata delegates field names to the DTO document serializer but supplies the actual domain member type/serializer, allowing nested scalar filters and complex collection element queries. The existing BSON round-trip [`MongoDbRecordMapper`](../../src/Synonms.Structur.Infrastructure.MongoDb/Aggregates/MongoDbRecordMapper.cs) is unchanged.
+
+Custom domain scalar/member serializers must match the DTO's raw storage representation for query operands to agree with stored data. Default-shape parity does not guarantee parity for bespoke serializers; retain a custom complex serializer when those representations cannot be aligned.
+
+## Verification and deferred work
+
+[`Synonms.Structur.Tests.Integration`](../../tests/Synonms.Structur.Tests.Integration) contains framework-only integration fixtures for generic factories, nested validation paths, optional semantics, reconstruction/projection, exact-type/ordered equality, collection ownership, resource JSON shape/enums/nulls, legacy BSON parity, record round trips, missing/null/malformed data, query member metadata and explicit adapter/serializer precedence. No live MongoDB server is needed; these tests exercise the MongoDB driver's serializers, filters and record mapper.
+
+Relevant commands:
+
+```powershell
+dotnet test --project tests/Synonms.Structur.Tests.Integration/Synonms.Structur.Tests.Integration.csproj --no-restore
+dotnet test --project tests/Synonms.Structur.Api.Server.Tests.Unit/Synonms.Structur.Api.Server.Tests.Unit.csproj --no-restore
+dotnet test --project tests/Synonms.Structur.Domain.Tests.Unit/Synonms.Structur.Domain.Tests.Unit.csproj --no-restore --filter-class '*ValueObjectBsonSerialiserTests'
+```
+
+Deferred: source generation, a total mapping-plan rewrite, replacement of BSON record mapping, migration of consumer classes, arbitrary collection construction, polymorphic complex DTO/discriminator contracts, and live-database query execution. Scalar fallback policies and contradictory raw-preserving assertions in `ValueObjectContractTests` are outside this change. The preexisting scalar `ValueObject.Equals(object)` recursive dispatch is also unchanged; complex member equality does not depend on that path.

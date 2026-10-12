@@ -17,6 +17,11 @@ public static class MappingHelper
     public static object? ConvertValue(Type fromType, Type toType, object? fromValue)
     {
         if (fromValue is null) return null;
+
+        if (ComplexValueObjectResourceMapping.SupportsSource(fromType))
+        {
+            return ComplexValueObjectResourceMapping.Map(fromType, toType, fromValue);
+        }
         
         if (fromType.IsValueObject())
         {
@@ -244,6 +249,11 @@ public static class MappingHelper
     
     public static object? MapVanillaCollection(Type? sourcePropertyCollectionType, Type destinationPropertyCollectionType, object? sourceValue)
     {
+        if (sourcePropertyCollectionType is not null && ComplexValueObjectResourceMapping.SupportsSource(sourcePropertyCollectionType))
+        {
+            return ComplexValueObjectResourceMapping.Map(sourcePropertyCollectionType, destinationPropertyCollectionType, sourceValue);
+        }
+
         // Either TAggregateRoot.IEnumerable<SimpleValueObject> -> TResource.IEnumerable<VanillaScalar> : A DDD ValueObject collection where we present a nested array of vanilla values.
         // Or fallback to IEnumerable<vanilla> -> IEnumerable<vanilla>
                     

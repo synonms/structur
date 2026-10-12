@@ -12,10 +12,11 @@
 - Prefer internal instance methods for aggregate mutations.
 
 ## Value objects
-- Use `SimpleValueObject<T>` or a scalar specialisation such as `StringValueObject`.
-- Use `ComplexValueObject` for multi-property value objects.
+- For scalar values, implement `IValueObject<TSelf, TValue>` and use `ValueObject<TSelf, TValue>` for shared equality behavior; expose a read-only `Value` and an outward raw-value conversion.
+- For multi-property values, implement `IComplexValueObject<TSelf, TData>` with a domain-owned raw DTO, validated factories, `ToData`, and an explicit trusted `Rehydrate` missing-member policy. Optionally inherit `ComplexValueObject<TSelf>` and override protected `EqualityMembers` for shared exact-type, ordered member equality and hashing; serializers and mappers only require the interface.
 - Validate in factory methods, not in constructors.
-- Provide `Convert` helpers and implicit conversions where the type is a single scalar.
+- Keep scalar rehydration policies unchanged unless separately reviewed; never add implicit conversions from raw input into value objects.
+- Complex output mapping projects to the raw DTO first. Register nested adapters for the actual DTO-to-resource pair; a domain-value-object adapter does not apply to its projected DTO.
 
 ## Functional error handling
 - Avoid exceptions for expected business failures.

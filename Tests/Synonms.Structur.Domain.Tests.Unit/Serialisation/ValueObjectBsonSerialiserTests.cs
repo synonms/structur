@@ -26,7 +26,7 @@ public class ValueObjectBsonSerialiserTests
         Type[] valueObjectTypes = typeof(AddressLine).Assembly.GetTypes()
             .Where(type => type.IsClass && !type.IsAbstract && !type.ContainsGenericParameters)
             .Where(type => type.GetInterfaces().Any(contract => contract.IsGenericType
-                                                                 && contract.GetGenericTypeDefinition() == typeof(IValueObject<,>)
+                                                                 && contract.GetGenericTypeDefinition() == typeof(IScalarValueObject<,>)
                                                                  && contract.GetGenericArguments()[0] == type))
             .ToArray();
 
@@ -35,7 +35,7 @@ public class ValueObjectBsonSerialiserTests
         foreach (Type type in valueObjectTypes)
         {
             Type contract = type.GetInterfaces().Single(interfaceType => interfaceType.IsGenericType
-                                                                          && interfaceType.GetGenericTypeDefinition() == typeof(IValueObject<,>)
+                                                                          && interfaceType.GetGenericTypeDefinition() == typeof(IScalarValueObject<,>)
                                                                           && interfaceType.GetGenericArguments()[0] == type);
             Type valueType = contract.GetGenericArguments()[1];
             object value = Rehydrate(type, ExampleValue(valueType));
@@ -199,7 +199,7 @@ public class ValueObjectBsonSerialiserTests
         public TValueObject? Value { get; set; }
     }
 
-    public sealed class FutureDecimal : ValueObject<FutureDecimal, decimal>, IValueObject<FutureDecimal, decimal>
+    public sealed class FutureDecimal : ScalarValueObject<FutureDecimal, decimal>, IScalarValueObject<FutureDecimal, decimal>
     {
         private FutureDecimal(decimal value) => Value = value;
 
@@ -216,7 +216,7 @@ public class ValueObjectBsonSerialiserTests
         public static FutureDecimal Rehydrate(decimal value) => new(value);
     }
 
-    public sealed class CustomOverrideValue : ValueObject<CustomOverrideValue, decimal>, IValueObject<CustomOverrideValue, decimal>
+    public sealed class CustomOverrideValue : ScalarValueObject<CustomOverrideValue, decimal>, IScalarValueObject<CustomOverrideValue, decimal>
     {
         private CustomOverrideValue(decimal value) => Value = value;
 

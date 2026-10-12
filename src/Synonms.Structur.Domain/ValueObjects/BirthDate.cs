@@ -5,7 +5,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class BirthDate : ValueObject<BirthDate, DateOnly>, IValueObject<BirthDate, DateOnly>
+public class BirthDate : ScalarValueObject<BirthDate, DateOnly>, IScalarValueObject<BirthDate, DateOnly>
 {
     private const int DefaultMinimumAge = 0;
     private const int DefaultMaximumAge = 120;

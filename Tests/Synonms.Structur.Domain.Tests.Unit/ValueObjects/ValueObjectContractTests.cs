@@ -49,8 +49,8 @@ public class ValueObjectContractTests
     [Fact]
     public void Equality_RequiresSameConcreteTypeAndScalarValue()
     {
-        IValueObject<Moniker, string> moniker = Moniker.Rehydrate("same");
-        IValueObject<EmailAddress, string> emailAddress = EmailAddress.Rehydrate("same");
+        IScalarValueObject<Moniker, string> moniker = Moniker.Rehydrate("same");
+        IScalarValueObject<EmailAddress, string> emailAddress = EmailAddress.Rehydrate("same");
 
         Assert.True(moniker.Equals(Moniker.Rehydrate("same")));
         Assert.False(moniker.Equals(emailAddress));
@@ -61,17 +61,17 @@ public class ValueObjectContractTests
     [Fact]
     public void Value_HasNoPublicSetter()
     {
-        global::System.Reflection.PropertyInfo? valueProperty = typeof(IValueObject<Moniker, string>).GetProperty(nameof(IValueObject<,>.Value));
+        global::System.Reflection.PropertyInfo? valueProperty = typeof(IScalarValueObject<Moniker, string>).GetProperty(nameof(IScalarValueObject<,>.Value));
 
         Assert.NotNull(valueProperty);
         Assert.Null(valueProperty.GetSetMethod());
     }
 
     private static OneOf<TSelf, IEnumerable<DomainRuleFault>> CreateMandatory<TSelf, TValue>(string propertyName, TValue value)
-        where TSelf : IValueObject<TSelf, TValue> =>
+        where TSelf : IScalarValueObject<TSelf, TValue> =>
         TSelf.CreateMandatory(propertyName, value);
 
     private static TSelf Rehydrate<TSelf, TValue>(TValue value)
-        where TSelf : IValueObject<TSelf, TValue> =>
+        where TSelf : IScalarValueObject<TSelf, TValue> =>
         TSelf.Rehydrate(value);
 }

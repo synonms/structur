@@ -12,7 +12,7 @@ public static class StructurBsonSerialisation
     private static bool _valueObjectProviderRegistered;
 
     /// <summary>
-    /// Registers explicit serializers and automatic serialization for scalar value objects.
+    /// Registers explicit serializers and automatic serialization for scalar and complex value objects.
     /// </summary>
     /// <remarks>
     /// Call before MongoDB first looks up serializers for domain types. Explicit registrations take
@@ -72,6 +72,7 @@ public static class StructurBsonSerialisation
             }
 
             BsonSerializer.RegisterSerializationProvider(new ValueObjectBsonSerializationProvider());
+            BsonSerializer.RegisterSerializationProvider(new ComplexValueObjectBsonSerializationProvider());
             _valueObjectProviderRegistered = true;
         }
     }

@@ -14,7 +14,7 @@ internal sealed class ValueObjectBsonSerializationProvider : IBsonSerializationP
 
         Type? valueObjectContract = type.GetInterfaces()
             .FirstOrDefault(contract => contract.IsGenericType
-                                        && contract.GetGenericTypeDefinition() == typeof(IValueObject<,>)
+                                        && contract.GetGenericTypeDefinition() == typeof(IScalarValueObject<,>)
                                         && contract.GetGenericArguments()[0] == type);
 
         if (valueObjectContract is null)

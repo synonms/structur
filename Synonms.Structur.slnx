@@ -22,6 +22,7 @@
     <Project Path="src/Synonms.Structur.Testing/Synonms.Structur.Testing.csproj" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="tests/Synonms.Structur.Tests.Integration/Synonms.Structur.Tests.Integration.csproj" />
     <Project Path="tests/Synonms.Structur.Api.Server.Tests.Unit/Synonms.Structur.Api.Server.Tests.Unit.csproj" />
     <Project Path="tests/Synonms.Structur.Core.Tests.Unit/Synonms.Structur.Core.Tests.Unit.csproj" />
     <Project Path="tests/Synonms.Structur.Domain.Tests.Unit/Synonms.Structur.Domain.Tests.Unit.csproj" />

@@ -6,7 +6,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class CarRegistrationPlate : ValueObject<CarRegistrationPlate, string>, IValueObject<CarRegistrationPlate, string>
+public class CarRegistrationPlate : ScalarValueObject<CarRegistrationPlate, string>, IScalarValueObject<CarRegistrationPlate, string>
 {
     private CarRegistrationPlate(string value)
     {

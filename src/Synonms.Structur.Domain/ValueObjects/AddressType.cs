@@ -15,7 +15,7 @@ public enum AddressTyeEnumeration
     Other
 }
 
-public class AddressType : ValueObject<AddressType, string>, IValueObject<AddressType, string>
+public class AddressType : ScalarValueObject<AddressType, string>, IScalarValueObject<AddressType, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<AddressTyeEnumeration>().ToList();
     

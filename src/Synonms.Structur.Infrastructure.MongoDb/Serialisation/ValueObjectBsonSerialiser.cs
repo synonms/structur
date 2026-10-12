@@ -11,7 +11,7 @@ namespace Synonms.Structur.Infrastructure.MongoDb.Serialisation;
 /// All scalar types use their registered MongoDB serializer.
 /// </remarks>
 public class ValueObjectBsonSerialiser<TSelf, TValue> : IBsonSerializer<TSelf?>
-    where TSelf : class, IValueObject<TSelf, TValue>
+    where TSelf : class, IScalarValueObject<TSelf, TValue>
 {
     private readonly IBsonSerializer<TValue> _valueSerialiser;
 

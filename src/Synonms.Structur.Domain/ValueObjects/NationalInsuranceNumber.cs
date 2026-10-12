@@ -6,7 +6,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class NationalInsuranceNumber : ValueObject<NationalInsuranceNumber, string>, IValueObject<NationalInsuranceNumber, string>
+public class NationalInsuranceNumber : ScalarValueObject<NationalInsuranceNumber, string>, IScalarValueObject<NationalInsuranceNumber, string>
 {
     public const int ValidLength = 9;
 

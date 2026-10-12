@@ -5,7 +5,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Salutation : ValueObject<Salutation, string>, IValueObject<Salutation, string>
+public class Salutation : ScalarValueObject<Salutation, string>, IScalarValueObject<Salutation, string>
 {
     public const int DefaultMaxLength = 10;
 

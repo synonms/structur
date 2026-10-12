@@ -5,7 +5,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class EventDateTime : ValueObject<EventDateTime, DateTime>, IValueObject<EventDateTime, DateTime>
+public class EventDateTime : ScalarValueObject<EventDateTime, DateTime>, IScalarValueObject<EventDateTime, DateTime>
 {
     private EventDateTime(DateTime value)
     {

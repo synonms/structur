@@ -6,7 +6,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Postcode : ValueObject<Postcode, string>, IValueObject<Postcode, string>
+public class Postcode : ScalarValueObject<Postcode, string>, IScalarValueObject<Postcode, string>
 {
     private Postcode(string value)
     {

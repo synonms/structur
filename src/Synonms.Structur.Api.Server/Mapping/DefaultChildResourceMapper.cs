@@ -50,7 +50,9 @@ public class DefaultChildResourceMapper<TAggregateMember, TChildResource> : IChi
             object? sourceValue = aggregateMemberPropertyInfo?.GetValue(aggregateMember);
             Type destinationPropertyType = childResourcePropertyInfo.PropertyType;
             
-            object? childResourcePropertyValue = resourcePropertyType switch
+            object? childResourcePropertyValue = sourcePropertyType is not null && ComplexValueObjectResourceMapping.SupportsSource(sourcePropertyType)
+                ? ComplexValueObjectResourceMapping.Map(sourcePropertyType, destinationPropertyType, sourceValue)
+                : resourcePropertyType switch
             {
                 ResourcePropertyType.EmbeddedResource => MappingHelper.MapEmbeddedResource(_resourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),
                 ResourcePropertyType.EmbeddedResourceCollection => MappingHelper.MapEmbeddedResourceCollection(_resourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),

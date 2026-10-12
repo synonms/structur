@@ -19,7 +19,7 @@ public enum BeliefSystemEnumeration
     Unspecified
 }
 
-public class BeliefSystem : ValueObject<BeliefSystem, string>, IValueObject<BeliefSystem, string>
+public class BeliefSystem : ScalarValueObject<BeliefSystem, string>, IScalarValueObject<BeliefSystem, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<BeliefSystemEnumeration>().ToList();
 

@@ -6,7 +6,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class UkBankSortCode : ValueObject<UkBankSortCode, string>, IValueObject<UkBankSortCode, string>
+public class UkBankSortCode : ScalarValueObject<UkBankSortCode, string>, IScalarValueObject<UkBankSortCode, string>
 {
     private UkBankSortCode(string value)
     {

@@ -13,7 +13,7 @@ public enum EmailContactTypeEnumeration
     Other
 }
 
-public class EmailContactType : ValueObject<EmailContactType, string>, IValueObject<EmailContactType, string>
+public class EmailContactType : ScalarValueObject<EmailContactType, string>, IScalarValueObject<EmailContactType, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<EmailContactTypeEnumeration>().ToList();
 

@@ -17,7 +17,7 @@ public enum MaritalStatusEnumeration
     Cohabiting
 }
 
-public class MaritalStatus : ValueObject<MaritalStatus, string>, IValueObject<MaritalStatus, string>
+public class MaritalStatus : ScalarValueObject<MaritalStatus, string>, IScalarValueObject<MaritalStatus, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<MaritalStatusEnumeration>().ToList();
 

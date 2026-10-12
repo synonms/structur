@@ -5,7 +5,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Moniker : ValueObject<Moniker, string>, IValueObject<Moniker, string>
+public class Moniker : ScalarValueObject<Moniker, string>, IScalarValueObject<Moniker, string>
 {
     public const int DefaultMaxLength = 250;
     

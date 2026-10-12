@@ -6,7 +6,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class AddressLine : ValueObject<AddressLine, string>, IValueObject<AddressLine, string>
+public class AddressLine : ScalarValueObject<AddressLine, string>, IScalarValueObject<AddressLine, string>
 {
     private const int DefaultMaxLength = 100;
     

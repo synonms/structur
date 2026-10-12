@@ -5,7 +5,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Notes : ValueObject<Notes, string>, IValueObject<Notes, string>
+public class Notes : ScalarValueObject<Notes, string>, IScalarValueObject<Notes, string>
 {
     public const int DefaultMaxLength = 2000;
     

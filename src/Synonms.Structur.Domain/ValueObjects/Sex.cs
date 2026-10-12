@@ -12,7 +12,7 @@ public enum SexEnumeration
     Female
 }
 
-public class Sex : ValueObject<Sex, string>, IValueObject<Sex, string>
+public class Sex : ScalarValueObject<Sex, string>, IScalarValueObject<Sex, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<SexEnumeration>().ToList();
 

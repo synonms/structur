@@ -15,7 +15,7 @@ public enum GenderReassignmentEnumeration
     Unspecified
 }
 
-public class GenderReassignment : ValueObject<GenderReassignment, string>, IValueObject<GenderReassignment, string>
+public class GenderReassignment : ScalarValueObject<GenderReassignment, string>, IScalarValueObject<GenderReassignment, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<GenderReassignmentEnumeration>().ToList();
 

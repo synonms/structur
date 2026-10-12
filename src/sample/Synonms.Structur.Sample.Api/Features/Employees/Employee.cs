@@ -83,9 +83,9 @@ public class Employee : AggregateRoot<Employee>
             .WithOptionalScalarProperty(resource.KnownAs, x => Moniker.CreateOptional(nameof(KnownAs), x), out Moniker? knownAsValueObject)
             .WithOptionalScalarProperty(resource.WorkPermitValidUntil, x => EffectiveDate.CreateOptional(nameof(WorkPermitValidUntil), x), out EffectiveDate? workPermitValidUntilValueObject)
             .WithOptionalScalarProperty(resource.Notes, x => Notes.CreateOptional(nameof(Notes), x), out Notes? notesValueObject)
-            .WithMandatoryScalarProperty(resource.HomeAddress, x => Address.CreateMandatory(nameof(HomeAddress), x.Type.ToString(), x.Line1, x.Line2, x.Line3, x.Line4, x.Postcode, x.Label), out Address homeAddressValueObject)
-            .WithCollectionProperty(resource.EmailContacts, x => EmailContact.CreateMandatory(nameof(EmailContact), x.Type.ToString(), x.Address, x.IsPrimary, x.Label), out List<EmailContact> emailAddressValueObjects)
-            .WithCollectionProperty(resource.TelephoneContacts, x => TelephoneContact.CreateMandatory(nameof(TelephoneContact), x.Type.ToString(), x.Number, x.IsPrimary, x.Label), out List<TelephoneContact> telephoneNumberValueObjects)
+            .WithMandatoryScalarProperty(resource.HomeAddress, x => Address.CreateMandatory(nameof(HomeAddress), new AddressData { Type = x.Type.ToString(), Line1 = x.Line1, Line2 = x.Line2, Line3 = x.Line3, Line4 = x.Line4, Postcode = x.Postcode, Label = x.Label }), out Address homeAddressValueObject)
+            .WithCollectionProperty(resource.EmailContacts, x => EmailContact.CreateMandatory(nameof(EmailContact), new EmailContactData { Type = x.Type.ToString(), Address = x.Address, IsPrimary = x.IsPrimary, Label = x.Label }), out List<EmailContact> emailAddressValueObjects)
+            .WithCollectionProperty(resource.TelephoneContacts, x => TelephoneContact.CreateMandatory(nameof(TelephoneContact), new TelephoneContactData { Type = x.Type.ToString(), Number = x.Number, IsPrimary = x.IsPrimary, Label = x.Label }), out List<TelephoneContact> telephoneNumberValueObjects)
             .Build()
             .BiBind(() =>
             {
@@ -145,9 +145,9 @@ public class Employee : AggregateRoot<Employee>
             .WithOptionalScalarProperty(resource.KnownAs, x => Moniker.CreateOptional(nameof(KnownAs), x), out Moniker? knownAsValueObject)
             .WithOptionalScalarProperty(resource.WorkPermitValidUntil, x => EffectiveDate.CreateOptional(nameof(WorkPermitValidUntil), x), out EffectiveDate? workPermitValidUntilValueObject)
             .WithOptionalScalarProperty(resource.Notes, x => Notes.CreateOptional(nameof(Notes), x), out Notes? notesValueObject)
-            .WithMandatoryScalarProperty(resource.HomeAddress, x => Address.CreateMandatory(nameof(HomeAddress), x.Type.ToString(), x.Line1, x.Line2, x.Line3, x.Line4, x.Postcode, x.Label), out Address homeAddressValueObject)
-            .WithCollectionProperty(resource.EmailContacts, x => EmailContact.CreateMandatory(nameof(EmailContact), x.Type.ToString(), x.Address, x.IsPrimary, x.Label), out List<EmailContact> emailAddressValueObjects)
-            .WithCollectionProperty(resource.TelephoneContacts, x => TelephoneContact.CreateMandatory(nameof(TelephoneContact), x.Type.ToString(), x.Number, x.IsPrimary, x.Label), out List<TelephoneContact> telephoneNumberValueObjects);
+            .WithMandatoryScalarProperty(resource.HomeAddress, x => Address.CreateMandatory(nameof(HomeAddress), new AddressData { Type = x.Type.ToString(), Line1 = x.Line1, Line2 = x.Line2, Line3 = x.Line3, Line4 = x.Line4, Postcode = x.Postcode, Label = x.Label }), out Address homeAddressValueObject)
+            .WithCollectionProperty(resource.EmailContacts, x => EmailContact.CreateMandatory(nameof(EmailContact), new EmailContactData { Type = x.Type.ToString(), Address = x.Address, IsPrimary = x.IsPrimary, Label = x.Label }), out List<EmailContact> emailAddressValueObjects)
+            .WithCollectionProperty(resource.TelephoneContacts, x => TelephoneContact.CreateMandatory(nameof(TelephoneContact), new TelephoneContactData { Type = x.Type.ToString(), Number = x.Number, IsPrimary = x.IsPrimary, Label = x.Label }), out List<TelephoneContact> telephoneNumberValueObjects);
 
         EmployeeEqualOpportunities? equalOpportunities = null;
 

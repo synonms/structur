@@ -8,6 +8,13 @@ namespace Synonms.Structur.Domain.System;
 
 public static class TypeExtensions
 {
+    public static Type? GetComplexValueObjectContract(this Type type) =>
+        type.GetInterfaces().FirstOrDefault(contract => contract.IsGenericType
+            && contract.GetGenericTypeDefinition() == typeof(IComplexValueObject<,>)
+            && contract.GetGenericArguments()[0] == type);
+
+    public static bool IsComplexValueObject(this Type type) => type.GetComplexValueObjectContract() is not null;
+
     public static Type? GetValueObjectValueType(this Type type)
     {
         if (!type.IsValueObject())
@@ -15,7 +22,7 @@ public static class TypeExtensions
             return null;
         }
 
-        Type? valueObjectInterface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IValueObject<,>));
+        Type? valueObjectInterface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IScalarValueObject<,>));
         
         if (valueObjectInterface?.GenericTypeArguments.Length == 2)
         {
@@ -56,7 +63,7 @@ public static class TypeExtensions
 
     public static bool IsValueObject(this Type type) =>
         type.GetInterfaces()
-            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IValueObject<,>));
+            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IScalarValueObject<,>));
 
     public static bool IsProjection(this Type type) =>
         type is

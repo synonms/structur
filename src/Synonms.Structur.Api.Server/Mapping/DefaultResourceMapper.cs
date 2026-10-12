@@ -53,7 +53,9 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
             object? sourceValue = aggregateRootPropertyInfo?.GetValue(aggregateRoot);
             Type destinationPropertyType = resourcePropertyInfo.PropertyType;
 
-            object? resourcePropertyValue = resourcePropertyType switch
+            object? resourcePropertyValue = sourcePropertyType is not null && ComplexValueObjectResourceMapping.SupportsSource(sourcePropertyType)
+                ? ComplexValueObjectResourceMapping.Map(sourcePropertyType, destinationPropertyType, sourceValue)
+                : resourcePropertyType switch
             {
                 ResourcePropertyType.EmbeddedResource => MappingHelper.MapEmbeddedResource(_resourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),
                 ResourcePropertyType.EmbeddedResourceCollection => MappingHelper.MapEmbeddedResourceCollection(_resourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),

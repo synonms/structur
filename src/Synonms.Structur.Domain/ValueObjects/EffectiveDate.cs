@@ -5,7 +5,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class EffectiveDate : ValueObject<EffectiveDate, DateOnly>, IValueObject<EffectiveDate, DateOnly>
+public class EffectiveDate : ScalarValueObject<EffectiveDate, DateOnly>, IScalarValueObject<EffectiveDate, DateOnly>
 {
     private static readonly DateOnly DefaultMinimum = DateOnly.MinValue;
     private static readonly DateOnly DefaultMaximum = DateOnly.MaxValue;

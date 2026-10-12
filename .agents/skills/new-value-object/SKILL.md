@@ -14,47 +14,44 @@ To add new value objects to a consuming project, follow this process:
      - Determine the Collection Name (pluralised aggregate name) for the parent aggregate. For example, if you are adding a value object to a "Employee" aggregate, the Collection Name would be "Employees".
      - Use the "Features/{CollectionName}/ValueObjects" folder of the consuming API project for the new Value Object class. For example, `Synonms.Structur.Sample.Api/Features/Employees/ValueObjects`.  Create this folder if it does not exist.
      - If it is a Complex Value Object, use the "Features/{CollectionName}/ValueObjects" folder of the consuming Client API project for the new Value Object Resource class. For example, `Synonms.Structur.Sample.ClientApi/Features/Employees/ValueObjects`.  Create this folder if it does not exist.
-3. If the new value object is s Simple Value Object then the following steps are required:
+3. If the new value object is a scalar Value Object then the following steps are required:
    - Create the Simple Value Object class in the value objects folder.
      - The class should be named using the singular name of the value object in Pascal case, for example `EmploymentContractStatus`.
-     - It should inherit from a derivative of `SimpleValueObject<T>`, for example `StringValueObject` if the underlying type is a string.
+     - Implement `IValueObject<TSelf, TValue>` and inherit from `ValueObject<TSelf, TValue>`, for example `ValueObject<EmploymentContractStatus, string>`.
      - It should present a private constructor taking the underlying value as a parameter.
      - It should present a static factory method that performs validation against mandatory raw values which returns `OneOf<TValueObject, IEnumerable<DomainRuleFault>>` to ensure that only valid instances can be created, for example `public static OneOf<EmploymentContractStatus, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value)`.
-     - Shared scalar value objects should implement `IScalarValueObject<TValueObject, TRawValue>`. Its `CreateMandatory` member is the validated path for untrusted input; its `Rehydrate` member is a trusted persistence path and must not call current creation validation.
-     - Define `Rehydrate` policy explicitly per type. Preserve representable persisted values that may fail current rules unless a separately reviewed compatibility policy says otherwise. Do not invent sentinel IDs, tenant/security values, or other domain data. Keep it distinct from `Convert`, whose existing behavior and signature must remain unchanged.
-     - The Domain scalar bases are `SimpleValueObject<TValue>`, `StringValueObject`, `DateOnlyValueObject`, `DateTimeValueObject`, `DecimalValueObject`, `DoubleValueObject`, `IntValueObject`, and `LongValueObject`. Keep existing outward implicit conversions provided by those bases or concrete types; do not add implicit conversions from raw scalars into value objects.
-     - Expose `Value` read-only to ordinary callers. `SimpleValueObject<TValue>.Value` currently retains a protected setter for source compatibility, so do not change its accessibility as part of an additive contract rollout. Preserve exact-concrete-type equality.
+     - `CreateMandatory` is the validated path for untrusted input; `Rehydrate` is the trusted persistence entry point. Do not introduce new scalar policies as part of complex-value-object work.
+     - Define `Rehydrate` policy explicitly per type and preserve existing policies for existing types, including any validation-backed fallback. Do not invent sentinel IDs, tenant/security values, or other domain data.
+     - Expose `public override TValue Value { get; }` and an outward implicit conversion to the raw value. Do not add implicit conversions from raw scalars into value objects. Preserve exact-concrete-type equality.
      - It should present a static factory method that performs validation against optional raw values which returns `OneOf<Maybe<TValueObject>, IEnumerable<DomainRuleFault>>` to ensure that only valid instances can be created or null values converted to `Maybe<T>`, for example `public static OneOf<Maybe<EmploymentContractStatus>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value)`.
-     - It should provide a static `Convert` method which handles validation faults and provides a default value (e.g. `Moniker.Convert("value")`).  This is used by value converters or serializers required by some persistence providers (e.g. `EmploymentContractStatusBsonSerialiser` used by MongoDb).
-   - If the value object is being created directly in the Structur Domain project then create a corresponding BSON serialiser for MongoDb in `Synonms.Structur.Infrastructure.MongoDb/Serialisation` (e.g. `MonikerBsonSerialiser`).
-     - It should implement `IBsonSerializer<TValueObject?>` (e.g. `IBsonSerializer<Moniker?>`) and implements the required methods to convert to/from the underlying raw value for MongoDb storage.
+   - The generic MongoDB provider discovers scalar contracts and delegates to the registered raw-value serializer. A per-type BSON serializer is only needed for an exceptional storage shape; register it before the first serializer lookup.
 4. If the new value object is a Complex Value Object then the following steps are required:
    - Create the related Complex Value Object Resource class. This class will define the API contract for the value object. Use the following guidelines:
      - The class should be named using the Value Object name in Pascal case followed by "Resource", for example `EmploymentContractTermsResource`.
      - It should inherit from `ComplexValueObjectResource`.
-     - It should define public mutable properties for the resource as specified in the requirements, for example `public string Name { get; set; }` and `public decimal Price { get; set; }`. The name must match the corresponding property on the Value Object for mapping to work.
+     - It should define public mutable properties for the resource as specified in the requirements, for example `public string Name { get; set; }` and `public decimal Price { get; set; }`. Names must match the raw DTO properties for conventional output mapping.
      - Scalar properties should be plain C# types (string, int, decimal, etc.) or collections of plain C# types (e.g. `List<string>`).
    - Create the Complex Value Object class in the value objects folder of the API project.  For example `Synonms.Structur.Sample.Api/Features/Employees/ValueObjects`.
      - The class should be named using the singular name of the value object in Pascal case, for example `EmploymentContractTerms`.
-     - It should inherit from `ComplexValueObject`.
-     - It should define public properties with private setters as specified in the requirements, for example `public EffectiveDate EffectiveFrom { get; private set; }`. These properties will represent the state of the value object and should generally be SimpleValueObject derived types.
+     - It should implement `IComplexValueObject<TSelf, TData>`; there is no required domain base class.
+     - Define immutable domain state, for example `public EffectiveDate EffectiveFrom { get; private set; }`, using scalar contracts or nested complex values where appropriate.
      - It should present a private constructor taking all underlying values as parameters.
-     - It should present a static factory method that performs validation against mandatory raw values which returns `OneOf<TValueObject, IEnumerable<DomainRuleFault>>` to ensure that only valid instances can be created, for example `public static OneOf<EmploymentContractTerms, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value)`.
-     - It should present a static factory method that performs validation against optional raw values which returns `OneOf<Maybe<TValueObject>, IEnumerable<DomainRuleFault>>` to ensure that only valid instances can be created or null values converted to `Maybe<T>`, for example `public static OneOf<Maybe<EmploymentContractTerms>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, string? value)`.
-     - It should implement the `GetAtomicValues` method to return the underlying value components for equality comparison, for example:
-       ```csharp
-       protected override IEnumerable<object?> GetAtomicValues()
-       {
-           yield return (nameof(EffectiveFrom), EffectiveFrom);
-           yield return (nameof(EffectiveTo), EffectiveTo);
-       }
-       ```
+     - Provide validated `CreateMandatory(string propertyName, EmploymentContractTermsData data)` returning `OneOf<EmploymentContractTerms, IEnumerable<DomainRuleFault>>`.
+     - Provide `CreateOptional(string propertyName, EmploymentContractTermsData? data)` returning `OneOf<Maybe<EmploymentContractTerms>, IEnumerable<DomainRuleFault>>`. Define when absent/partial input is None versus when complete-invalid input produces faults.
+     - Add a domain-owned raw DTO (for example `EmploymentContractTermsData`) containing raw scalar values, nested raw DTOs, and owned collections. Use nullable members where missing input must be distinguished from a valid value such as `0` or `false`.
+     - Implement DTO factory overloads, `ToData()` and static `Rehydrate(TData)`. Keep existing raw-parameter factory signatures when extending existing types. Validate commands in factories; trusted reconstruction uses explicit required missing/null policies and existing nested scalar `Rehydrate` policies.
+     - Own mutable input collections and return fresh DTO collections from `ToData`. Optionally inherit `ComplexValueObject<TSelf>` and override protected `object?[] EqualityMembers` with raw scalar values and ordered collections to share exact-concrete-type member equality and hashing. The base is independent of `TData`; types with another base can implement equality using `ComplexValueObjectEquality`.
+     - Conventional output mapping projects through `ToData`. For exceptional nested shapes, register `ComplexValueObjectResourceMapping.Register<NestedData, NestedResource>(...)`; a `NestedValueObject` adapter is not applied to an already projected `NestedData`. Collection mappings require a unique `IEnumerable<T>` element type and support lists, compatible interfaces and vector arrays; other destinations require adapters.
+     - Generic complex BSON serialization delegates to the raw DTO serializer. Register custom serializers before first lookup and verify custom member/scalar shapes against DTO storage and query metadata; parity is not automatic.
 
 **Example:**
 ```csharp
-public class Moniker : StringValueObject
+public class Moniker : ValueObject<Moniker, string>, IValueObject<Moniker, string>
 {
-    private Moniker(string value) : base(value) { }
+    public const int DefaultMaxLength = 250;
+    private Moniker(string value) { Value = value; }
+    public override string Value { get; }
+    public static implicit operator string(Moniker valueObject) => valueObject.Value;
     
     public static OneOf<Moniker, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         CreateMandatory(propertyName, value, DefaultMaxLength);
@@ -78,7 +75,8 @@ public class Moniker : StringValueObject
         return CreateMandatory(propertyName, value, maxLength).ToMaybe();
     }
     
-    public static Moniker Convert(string value) =>
+    // Mirrors this built-in's existing fallback policy, not a new policy for every scalar.
+    public static Moniker Rehydrate(string value) =>
         CreateMandatory(nameof(Moniker), value, value.Length)
             .Match(
                 valueObject => valueObject,

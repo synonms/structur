@@ -3,6 +3,10 @@
 **Status:** Draft implementation plan  
 **Scope:** Replace per-type scalar BSON serializers with a generic MongoDB adapter for Structur scalar value objects while preserving BSON shapes, query translation and permissive legacy loading. Depends on scalar contracts in [plan 01](simplified-value-objects-01-contracts.md), with complex/missing-field policies coordinated with [plan 03](simplified-value-objects-03-complex-value-objects.md) and [plan 04](simplified-value-objects-04-mapping.md).
 
+**Current implementation:** The scalar provider uses `IValueObject<TSelf,TValue>` and the raw type's registered MongoDB serializer. Plan 03 additionally implements `IComplexValueObject<TSelf,TData>` BSON DTO delegation, explicit required-member missing/null rejection, nested scalar `Rehydrate` policies, and document member metadata. All five built-ins have legacy class-map shape parity coverage in the framework integration project. Explicit serializers retain precedence and `MongoDbRecordMapper` remains unchanged. The broader codec, migration and repository diagnostic work described below is not claimed complete by this complex rollout.
+
+**Custom shape limits:** Built-in parity does not imply parity for every custom scalar or member serializer. Complex storage uses the raw DTO's serializer/class map, not the domain property's serializer or domain class-map attributes. Query member metadata uses the domain property's registered serializer with the DTO's element name. If a custom domain scalar serializer encodes a different shape from its raw DTO member, or domain member attributes/conventions differ from the DTO map, stored documents and rendered query values may diverge. Align and test the DTO storage/member serializer and domain query serializer, or register an explicit complex serializer with matching storage and query metadata before first lookup. The generic adapter does not translate arbitrary custom shapes.
+
 ## Goal and context
 
 Consumers currently need many `IBsonSerializer<T>` implementations and registrations. Replace scalar-specific boilerplate with one generic serializer/provider without changing stored BSON representation or making persistence stricter. MongoDB is the actual repository scope; EF Core is not present and must not be added as part of this work.
@@ -19,10 +23,10 @@ Out of scope: EF Core or new database dependencies, `EntityId`/`EntityTag` repla
 
 ## Existing implementation
 
-- [`StructurBsonSerialisation`](../../src/Synonms.Structur.Infrastructure.MongoDb/Serialisation/StructurBsonSerialisation.cs) registers `EntityId<>`, discovers concrete serializers in Infrastructure and consumer assemblies, and currently catches all serializer registration exceptions.
-- [`EmailAddressBsonSerialiser`](../../src/Synonms.Structur.Infrastructure.MongoDb/Serialisation/EmailAddressBsonSerialiser.cs) stores a string and reads through `EmailAddress.Convert`.
-- [`EffectiveDateBsonSerialiser`](../../src/Synonms.Structur.Infrastructure.MongoDb/Serialisation/EffectiveDateBsonSerialiser.cs) stores BSON datetime milliseconds; [`UnitsBsonSerialiser`](../../src/Synonms.Structur.Infrastructure.MongoDb/Serialisation/UnitsBsonSerialiser.cs) stores an Int32.
-- Many per-type serializers are in [`Serialisation`](../../src/Synonms.Structur.Infrastructure.MongoDb/Serialisation/). `EntityId` and `EntityTag` have dedicated serializers and are not scalar value-object migration targets.
+- [`StructurBsonSerialisation`](../../src/Synonms.Structur.Infrastructure.MongoDb/Serialisation/StructurBsonSerialisation.cs) registers `EntityId<>`, discovers explicit serializers in Infrastructure and consumer assemblies, then registers scalar/complex providers once. It preserves existing registrations with a narrow duplicate-registration exception filter.
+- [`ValueObjectBsonSerialiser`](../../src/Synonms.Structur.Infrastructure.MongoDb/Serialisation/ValueObjectBsonSerialiser.cs) now stores the registered raw scalar shape and reads through the concrete scalar's `Rehydrate`. Earlier per-type serializers and `Convert` methods have been removed.
+- Scalar `Rehydrate` implementations still own their existing validation/fallback policies; this complex rollout does not replace those policies with raw-preserving construction.
+- [`ComplexValueObjectBsonSerialiser`](../../src/Synonms.Structur.Infrastructure.MongoDb/Serialisation/ComplexValueObjectBsonSerialiser.cs) delegates storage to the domain DTO serializer and reconstructs through the complex `Rehydrate`, never complex validated creation. `EntityId` and `EntityTag` retain dedicated serializers.
 - [`MongoDbRecordMapper`](../../src/Synonms.Structur.Infrastructure.MongoDb/Aggregates/MongoDbRecordMapper.cs) performs BSON round-trip mapping. [`EmployeeRecord`](../../src/sample/Synonms.Structur.Sample.Api/Features/Employees/Persistence/EmployeeRecord.cs) uses nullable domain VOs, nested objects and initialized collections.
 - The record model rationale is in [`persistence-records.md`](persistence-records.md).
 
@@ -60,11 +64,11 @@ For record/domain aggregate loading, reuse nullable record defaults and add expl
 
 - One generic adapter handles supported scalar value objects; BSON primitive type, width, precision, null handling and date representation match existing fixtures.
 - Scalar LINQ/filter translation continues to target stored primitive fields and arrays; targeted date filters/legacy formats remain correct.
-- Existing valid and invalid-representable records load under their per-type current behavior, including `EmailAddress`'s current fallback. Business validation is not run on read.
+- Existing valid and invalid-representable records load under their per-type current behavior, including `EmailAddress`'s current fallback. Persistence enters through `Rehydrate`, not command factories; nested scalar implementations retain their existing internal validation/fallback policies.
 - End-to-end fixtures cover an old record missing a newly required value; an old value now outside today's rules; successful permissive read; invalid update rejected with domain faults; corrective update succeeds; read causes no write/audit/event/tag change.
 - Missing optional/null fields remain absent as specified; missing required values receive explicit deterministic per-property behavior; malformed BSON shapes fail diagnostically rather than being swallowed.
 - Writes of unchanged rehydrated values preserve BSON shape and precision. Registration is idempotent and does not override explicit serializers or affect `EntityId`/`EntityTag`.
-- Add tests to the actual available test projects (Domain, Core, API Server or sample integration as appropriate); there is no dedicated MongoDB test project currently. Use sample integration/persistence tests or an appropriate existing unit project, and build Infrastructure.MongoDb.
+- The framework-only `tests/Synonms.Structur.Tests.Integration` project now covers complex BSON parity, record round trips, fallback/missing/malformed policies, explicit serializer precedence and nested filter rendering without a database. Existing scalar BSON coverage remains in Domain unit tests. Live database/repository migration coverage remains separate.
 
 ## Compatibility, rollout and pitfalls
 

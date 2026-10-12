@@ -16,7 +16,7 @@ public enum GenderIdentityEnumeration
     Unspecified
 }
 
-public class GenderIdentity : ValueObject<GenderIdentity, string>, IValueObject<GenderIdentity, string>
+public class GenderIdentity : ScalarValueObject<GenderIdentity, string>, IScalarValueObject<GenderIdentity, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<GenderIdentityEnumeration>().ToList();
 

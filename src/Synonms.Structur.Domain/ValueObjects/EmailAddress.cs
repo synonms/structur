@@ -6,7 +6,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class EmailAddress : ValueObject<EmailAddress, string>, IValueObject<EmailAddress, string>
+public class EmailAddress : ScalarValueObject<EmailAddress, string>, IScalarValueObject<EmailAddress, string>
 {
     private EmailAddress(string value)
     {

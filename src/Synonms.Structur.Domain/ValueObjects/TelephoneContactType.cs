@@ -15,7 +15,7 @@ public enum TelephoneContactTypeEnumeration
     Other
 }
 
-public class TelephoneContactType : ValueObject<TelephoneContactType, string>, IValueObject<TelephoneContactType, string>
+public class TelephoneContactType : ScalarValueObject<TelephoneContactType, string>, IScalarValueObject<TelephoneContactType, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<TelephoneContactTypeEnumeration>().ToList();
 

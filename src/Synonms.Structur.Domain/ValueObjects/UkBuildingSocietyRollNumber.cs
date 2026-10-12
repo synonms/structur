@@ -5,7 +5,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class UkBuildingSocietyRollNumber : ValueObject<UkBuildingSocietyRollNumber, string>, IValueObject<UkBuildingSocietyRollNumber, string>
+public class UkBuildingSocietyRollNumber : ScalarValueObject<UkBuildingSocietyRollNumber, string>, IScalarValueObject<UkBuildingSocietyRollNumber, string>
 {
     private UkBuildingSocietyRollNumber(string value)
     {

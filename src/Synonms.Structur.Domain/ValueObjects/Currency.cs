@@ -11,7 +11,7 @@ public enum CurrencyEnumeration
     GBP
 }
 
-public class Currency : ValueObject<Currency, string>, IValueObject<Currency, string>
+public class Currency : ScalarValueObject<Currency, string>, IScalarValueObject<Currency, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<CurrencyEnumeration>().ToList();
     

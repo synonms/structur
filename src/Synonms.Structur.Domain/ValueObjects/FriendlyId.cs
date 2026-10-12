@@ -5,7 +5,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class FriendlyId : ValueObject<FriendlyId, string>, IValueObject<FriendlyId, string>
+public class FriendlyId : ScalarValueObject<FriendlyId, string>, IScalarValueObject<FriendlyId, string>
 {
     public const int DefaultMaxLength = 250;
 

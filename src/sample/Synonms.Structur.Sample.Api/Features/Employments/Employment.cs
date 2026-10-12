@@ -50,7 +50,7 @@ public class Employment : AggregateRoot<Employment>
         Validator.CreateBuilder<Employment>()
             .WithMandatoryScalarProperty(updatedActionDto, x => UserAction.CreateMandatory(nameof(UpdatedAction), x), out UserAction updatedActionValueObject)
             .WithMandatoryScalarProperty(resource.ContinuousStartDate, x => EffectiveDate.CreateMandatory(nameof(ContinuousStartDate), x, DateOnly.Parse("1970-01-01"), DateOnly.MaxValue), out EffectiveDate continuousStartDateValueObject)
-            .WithMandatoryScalarProperty(resource.BankDetails, x => UkBankDetails.CreateMandatory(nameof(BankDetails), x.BankName, x.SortCode, x.AccountNumber, x.AccountName, x.BuildingSocietyRollNumber), out UkBankDetails bankDetailsValueObject)
+            .WithMandatoryScalarProperty(resource.BankDetails, x => UkBankDetails.CreateMandatory(nameof(BankDetails), new UkBankDetailsData { BankName = x.BankName, SortCode = x.SortCode, AccountNumber = x.AccountNumber, AccountName = x.AccountName, BuildingSocietyRollNumber = x.BuildingSocietyRollNumber }), out UkBankDetails bankDetailsValueObject)
             .Build()
             .BiBind(() => 
                 Contracts.MergeChanges(resource.Contracts, r => EmploymentContract.Create(nameof(Contracts), r), (am, r) => am.Update(r, () => MarkAsUpdated(updatedActionValueObject)))
@@ -68,7 +68,7 @@ public class Employment : AggregateRoot<Employment>
             .WithMandatoryScalarProperty(resource.EmploymentReference, x => UniqueReference.CreateMandatory(nameof(EmploymentReference), x), out UniqueReference employmentReferenceValueObject)
             .WithMandatoryScalarProperty(resource.ContinuousStartDate, x => EffectiveDate.CreateMandatory(nameof(ContinuousStartDate), x, DateOnly.Parse("1970-01-01"), DateOnly.MaxValue), out EffectiveDate continuousStartDateValueObject)
             .WithCollectionProperty(resource.Contracts, x => EmploymentContract.Create(nameof(Contracts), x), out List<EmploymentContract> contractValueObjects)
-            .WithMandatoryScalarProperty(resource.BankDetails, x => UkBankDetails.CreateMandatory(nameof(BankDetails), x.BankName, x.SortCode, x.AccountNumber, x.AccountName, x.BuildingSocietyRollNumber), out UkBankDetails bankDetailsValueObject)
+            .WithMandatoryScalarProperty(resource.BankDetails, x => UkBankDetails.CreateMandatory(nameof(BankDetails), new UkBankDetailsData { BankName = x.BankName, SortCode = x.SortCode, AccountNumber = x.AccountNumber, AccountName = x.AccountName, BuildingSocietyRollNumber = x.BuildingSocietyRollNumber }), out UkBankDetails bankDetailsValueObject)
             .Build()
             .ToResult(() =>
                 new Employment(

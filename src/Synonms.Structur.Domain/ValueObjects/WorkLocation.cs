@@ -15,7 +15,7 @@ public enum WorkLocationEnumeration
     Other
 }
 
-public class WorkLocation : ValueObject<WorkLocation, string>, IValueObject<WorkLocation, string>
+public class WorkLocation : ScalarValueObject<WorkLocation, string>, IScalarValueObject<WorkLocation, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<WorkLocationEnumeration>().Where(x => x != "Unknown").ToList();
 

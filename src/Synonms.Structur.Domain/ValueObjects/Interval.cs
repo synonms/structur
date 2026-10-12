@@ -18,7 +18,7 @@ public enum IntervalEnumeration
     Year
 }
 
-public class Interval : ValueObject<Interval, string>, IValueObject<Interval, string>
+public class Interval : ScalarValueObject<Interval, string>, IScalarValueObject<Interval, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<IntervalEnumeration>().Where(x => x != "Unknown").ToList();
 

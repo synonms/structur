@@ -16,7 +16,7 @@ public enum SexualOrientationEnumeration
     Unspecified
 }
 
-public class SexualOrientation : ValueObject<SexualOrientation, string>, IValueObject<SexualOrientation, string>
+public class SexualOrientation : ScalarValueObject<SexualOrientation, string>, IScalarValueObject<SexualOrientation, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<SexualOrientationEnumeration>().ToList();
 

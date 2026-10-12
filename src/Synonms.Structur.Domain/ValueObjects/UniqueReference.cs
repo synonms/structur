@@ -5,7 +5,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class UniqueReference : ValueObject<UniqueReference, string>, IValueObject<UniqueReference, string>
+public class UniqueReference : ScalarValueObject<UniqueReference, string>, IScalarValueObject<UniqueReference, string>
 {
     public const int DefaultMaxLength = 100;
     

@@ -5,7 +5,7 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class ExternalReference : ValueObject<ExternalReference, string>, IValueObject<ExternalReference, string>
+public class ExternalReference : ScalarValueObject<ExternalReference, string>, IScalarValueObject<ExternalReference, string>
 {
     public const int DefaultMaxLength = 250;
     
