@@ -5,11 +5,16 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class ExternalReference : StringValueObject
+public class ExternalReference : ValueObject<ExternalReference, string>, IValueObject<ExternalReference, string>
 {
-    private ExternalReference(string value) : base(value)
+    public const int DefaultMaxLength = 250;
+    
+    private ExternalReference(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
 
     public static implicit operator string(ExternalReference externalReference) => externalReference.Value;
 
@@ -35,7 +40,7 @@ public class ExternalReference : StringValueObject
         return CreateMandatory(propertyName, value, maxLength).ToMaybe();
     }
 
-    public static ExternalReference Convert(string value) =>
+    public static ExternalReference Rehydrate(string value) =>
         CreateMandatory(nameof(ExternalReference), value, value.Length)
             .Match(
                 valueObject => valueObject,

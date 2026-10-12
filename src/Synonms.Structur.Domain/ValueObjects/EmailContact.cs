@@ -1,11 +1,10 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Validation;
-using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class EmailContact : ComplexValueObject, IComparable, IComparable<EmailContact>
+public class EmailContact : IComparable, IComparable<EmailContact>
 {
     private EmailContact(EmailContactType type, EmailAddress address, bool isPrimary, Label? label)
     {
@@ -57,13 +56,5 @@ public class EmailContact : ComplexValueObject, IComparable, IComparable<EmailCo
         return 0;
     }
 
-    public int CompareTo(EmailContact? other) => Address.CompareTo(other?.Address ?? string.Empty);
-    
-    protected override IEnumerable<object?> GetAtomicValues()
-    {
-        yield return Type;
-        yield return Address;
-        yield return IsPrimary;
-        yield return Label;
-    }
+    public int CompareTo(EmailContact? other) => string.Compare(Address.Value, other?.Address?.Value ?? string.Empty, StringComparison.OrdinalIgnoreCase);
 }

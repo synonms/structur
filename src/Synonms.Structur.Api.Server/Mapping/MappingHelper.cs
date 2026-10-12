@@ -7,7 +7,6 @@ using Synonms.Structur.Api.Server.Routing;
 using Synonms.Structur.Api.Server.Schema.Resources;
 using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.System;
-using Synonms.Structur.Domain.Aggregates;
 using Synonms.Structur.Domain.Lookups;
 using Synonms.Structur.Domain.System;
 
@@ -19,12 +18,12 @@ public static class MappingHelper
     {
         if (fromValue is null) return null;
         
-        if (fromType.IsSimpleValueObject())
+        if (fromType.IsValueObject())
         {
-            object? rawValue = fromType.GetSimpleValueObjectValue(fromValue);
+            object? rawValue = fromType.GetValueObjectValue(fromValue);
             
             // ValueObject<string> to Enum e.g. AddressType -> AddressTypeEnumeration
-            if (fromType.GetSimpleValueObjectValueType() == typeof(string) && toType.IsEnum)
+            if (fromType.GetValueObjectValueType() == typeof(string) && toType.IsEnum)
             {
                 string? valueAsString = rawValue as string;
                 object? convertedEnumValue = string.IsNullOrWhiteSpace(valueAsString) ? null : Enum.Parse(toType, valueAsString);
@@ -35,93 +34,6 @@ public static class MappingHelper
         }
 
         return fromValue;
-    }
-    
-    /// <summary>
-    /// Map TAggregateRoot.TComplexValueObject to TResource.TComplexValueObjectResource : A complex value object where we present an embedded resource.
-    /// </summary>
-    /// <param name="sourceValueObjectType">The type of the property on the source Aggregate</param>
-    /// <param name="destinationValueObjectResourceType">The type of the property on the destination Resource</param>
-    /// <param name="valueObjectValue">The value of the property from the source Aggregate</param>
-    /// <returns>Populated TComplexValueObjectResource, or null if source is null or types are incompatible</returns>
-    public static object? MapComplexValueObject(Type? sourceValueObjectType, Type destinationValueObjectResourceType, object? valueObjectValue)
-    {
-        if (sourceValueObjectType is null) return null;
-        if (valueObjectValue is null) return null;
-
-        if (!destinationValueObjectResourceType.IsComplexValueObjectResource())
-        {
-            return null;
-        }
-
-        object? valueObjectResource = Activator.CreateInstance(destinationValueObjectResourceType);
-        
-        IEnumerable<PropertyInfo> valueObjectResourceProperties = destinationValueObjectResourceType.GetPublicInstanceProperties([]);
-
-        foreach (PropertyInfo valueObjectResourcePropertyInfo in valueObjectResourceProperties)
-        {
-            PropertyInfo? valueObjectPropertyInfo = sourceValueObjectType.GetProperty(valueObjectResourcePropertyInfo.Name, BindingFlags.Instance | BindingFlags.Public);
-            
-            if (valueObjectPropertyInfo is null)
-            {
-                continue;
-            }
-            
-            object? valueObjectPropertyValue = valueObjectPropertyInfo.GetValue(valueObjectValue);
-            object? convertedValue = MappingHelper.ConvertValue(valueObjectPropertyInfo.PropertyType, valueObjectResourcePropertyInfo.PropertyType, valueObjectPropertyValue);
-            
-            valueObjectResourcePropertyInfo.SetValue(valueObjectResource, convertedValue);
-        }
-
-        return valueObjectResource;
-    }
-    
-    /// <summary>
-    /// Map TAggregateRoot.IEnumerable&lt;TComplexValueObject&gt; to TResource.IEnumerable&lt;TComplexValueObjectResource&gt; : A complex value object collection where we present an embedded array of resources.
-    /// </summary>
-    /// <param name="sourceValueObjectCollectionType">The type of the property on the source Aggregate</param>
-    /// <param name="destinationValueObjectResourceCollectionType">The type of the property on the destination Resource</param>
-    /// <param name="valueObjectValue">The value of the property from the source Aggregate</param>
-    /// <returns>IList of populated TComplexValueObjectResource, or empty list if source is null or types are incompatible</returns>
-    public static object? MapComplexValueObjectCollection(Type? sourceValueObjectCollectionType, Type destinationValueObjectResourceCollectionType, object? valueObjectValue)
-    {
-        Type? sourceValueObjectType = sourceValueObjectCollectionType?.GetArrayOrEnumerableElementType();
-
-        if (sourceValueObjectType is null || !sourceValueObjectType.IsComplexValueObject())
-        {
-            return null;
-        }
-
-        Type? destinationValueObjectResourceType = destinationValueObjectResourceCollectionType.GetArrayOrEnumerableElementType();
-
-        if (destinationValueObjectResourceType is null || !destinationValueObjectResourceType.IsComplexValueObjectResource())
-        {
-            return null;
-        }
-
-        Type destinationListType = typeof(List<>).MakeGenericType(destinationValueObjectResourceType);
-
-        IList valueObjectResources = (IList)Activator.CreateInstance(destinationListType)!;
-
-        if (valueObjectValue is null)
-        {
-            return valueObjectResources;
-        }
-
-        if (valueObjectValue is IEnumerable enumerablePropertyValue)
-        {
-            foreach (object item in enumerablePropertyValue)
-            {
-                object? valueObjectResource = MapComplexValueObject(sourceValueObjectType, destinationValueObjectResourceType, item);
-
-                if (valueObjectResource is not null)
-                {
-                    valueObjectResources?.Add(valueObjectResource);
-                }
-            }
-        }
-
-        return valueObjectResources;
     }
     
     public static object? MapEmbeddedResource(IResourceMapperFactory resourceMapperFactory, Type? sourceAggregateRootType, Type destinationResourceType, object? aggregateRootValue)
@@ -313,9 +225,9 @@ public static class MappingHelper
 
         if (sourcePropertyType is null) return null;
         
-        if (sourcePropertyType.IsSimpleValueObject())
+        if (sourcePropertyType.IsValueObject())
         {
-            object? rawValue = sourcePropertyType.GetSimpleValueObjectValue(sourceValue);
+            object? rawValue = sourcePropertyType.GetValueObjectValue(sourceValue);
 
             return rawValue;
         }
@@ -351,7 +263,7 @@ public static class MappingHelper
         {
             foreach (object item in enumerablePropertyValue)
             {
-                if (sourceVanillaType.IsSimpleValueObject())
+                if (sourceVanillaType.IsValueObject())
                 {
                     object? vanillaValue = MapVanillaScalar(sourceVanillaType, item);
 

@@ -17,13 +17,18 @@ public enum TitleEnumeration
     Prof
 }
 
-public class Title : StringValueObject
+public class Title : ValueObject<Title, string>, IValueObject<Title, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<TitleEnumeration>().ToList(); 
     
-    private Title(string value) : base(value)
+    private Title(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(Title title) => title.Value;
 
     public static Title From(TitleEnumeration enumeration) => new(enumeration.ToString());
     
@@ -48,7 +53,7 @@ public class Title : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static Title Convert(string value) =>
+    public static Title Rehydrate(string value) =>
         CreateMandatory(nameof(Title), value)
             .Match(
                 valueObject => valueObject,

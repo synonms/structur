@@ -16,7 +16,7 @@ public class CarRegistrationPlateBsonSerialiser : IBsonSerializer<CarRegistratio
             return null;
         }
         
-        return CarRegistrationPlate.Convert(context.Reader.ReadString());
+        return CarRegistrationPlate.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

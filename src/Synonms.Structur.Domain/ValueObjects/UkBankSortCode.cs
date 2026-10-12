@@ -6,11 +6,16 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class UkBankSortCode : StringValueObject
+public class UkBankSortCode : ValueObject<UkBankSortCode, string>, IValueObject<UkBankSortCode, string>
 {
-    private UkBankSortCode(string value) : base(value)
+    private UkBankSortCode(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(UkBankSortCode ukBankSortCode) => ukBankSortCode.Value;
 
     public static OneOf<UkBankSortCode, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         Validator.CreateBuilder<UkBankSortCode>()
@@ -28,7 +33,7 @@ public class UkBankSortCode : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static UkBankSortCode Convert(string value) =>
+    public static UkBankSortCode Rehydrate(string value) =>
         CreateMandatory(nameof(UkBankSortCode), value)
             .Match(
                 valueObject => valueObject,

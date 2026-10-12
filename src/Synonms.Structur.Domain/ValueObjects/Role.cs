@@ -5,11 +5,16 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Role : StringValueObject
+public class Role : ValueObject<Role, string>, IValueObject<Role, string>
 {
-    private Role(string value) : base(value)
+    private Role(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(Role valueObject) => valueObject.Value;
 
     public static OneOf<Role, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         Validator.CreateBuilder<Role>()
@@ -26,7 +31,7 @@ public class Role : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static Role Convert(string value) =>
+    public static Role Rehydrate(string value) =>
         CreateMandatory(nameof(Role), value)
             .Match(
                 valueObject => valueObject,

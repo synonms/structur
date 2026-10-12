@@ -5,14 +5,19 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Units : IntValueObject
+public class Units : ValueObject<Units, int>, IValueObject<Units, int>
 {
     private const int DefaultMinValue = 0;
     private const int DefaultMaxValue = int.MaxValue;
     
-    private Units(int value) : base(value)
+    private Units(int value)
     {
+        Value = value;
     }
+
+    public override int Value { get; }
+
+    public static implicit operator int(Units valueObject) => valueObject.Value;
 
     public static OneOf<Units, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, int value) =>
         CreateMandatory(propertyName, value, DefaultMinValue, DefaultMaxValue);
@@ -23,7 +28,10 @@ public class Units : IntValueObject
             .WithFaultIfValueLessThan(propertyName, value, minimumValue)
             .Build(() => new Units(value));
 
-    public static OneOf<Maybe<Units>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, int? value)  =>
+    public static OneOf<Maybe<Units>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, int value) =>
+        CreateOptional(propertyName, value, DefaultMinValue, DefaultMaxValue);
+    
+    public static OneOf<Maybe<Units>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, int? value) =>
         CreateOptional(propertyName, value, DefaultMinValue, DefaultMaxValue);
 
     public static OneOf<Maybe<Units>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, int? value, int minimumValue, int maximumValue)
@@ -35,8 +43,8 @@ public class Units : IntValueObject
 
         return CreateMandatory(propertyName, value.Value, minimumValue, maximumValue).ToMaybe();
     }
-
-    public static Units Convert(int value) =>
+    
+    public static Units Rehydrate(int value) =>
         CreateMandatory(nameof(Units), value).Match(
             valueObject => valueObject,
             _ => new Units(DefaultMinValue));

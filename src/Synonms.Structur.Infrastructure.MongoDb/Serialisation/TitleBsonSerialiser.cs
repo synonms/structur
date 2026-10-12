@@ -16,7 +16,7 @@ public class TitleBsonSerialiser : IBsonSerializer<Title?>
             return null;
         }
         
-        return Title.Convert(context.Reader.ReadString());
+        return Title.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

@@ -16,7 +16,7 @@ public class ExternalReferenceBsonSerialiser : IBsonSerializer<ExternalReference
             return null;
         }
         
-        return ExternalReference.Convert(context.Reader.ReadString());
+        return ExternalReference.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

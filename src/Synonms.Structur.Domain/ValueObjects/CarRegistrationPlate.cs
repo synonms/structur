@@ -6,11 +6,16 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class CarRegistrationPlate : StringValueObject
+public class CarRegistrationPlate : ValueObject<CarRegistrationPlate, string>, IValueObject<CarRegistrationPlate, string>
 {
-    private CarRegistrationPlate(string value) : base(value)
+    private CarRegistrationPlate(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(CarRegistrationPlate valueObject) => valueObject.Value;
 
     public static OneOf<CarRegistrationPlate, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         Validator.CreateBuilder<CarRegistrationPlate>()
@@ -28,7 +33,7 @@ public class CarRegistrationPlate : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static CarRegistrationPlate Convert(string value) =>
+    public static CarRegistrationPlate Rehydrate(string value) =>
         CreateMandatory(nameof(CarRegistrationPlate), value)
             .Match(
                 valueObject => valueObject,

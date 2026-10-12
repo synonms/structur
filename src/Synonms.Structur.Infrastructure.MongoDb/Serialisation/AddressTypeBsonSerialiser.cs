@@ -16,7 +16,7 @@ public class AddressTypeBsonSerialiser : IBsonSerializer<AddressType?>
             return null;
         }
         
-        return AddressType.Convert(context.Reader.ReadString());
+        return AddressType.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

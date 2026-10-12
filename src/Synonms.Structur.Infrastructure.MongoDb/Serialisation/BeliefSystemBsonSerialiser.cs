@@ -16,7 +16,7 @@ public class BeliefSystemBsonSerialiser : IBsonSerializer<BeliefSystem?>
             return null;
         }
         
-        return BeliefSystem.Convert(context.Reader.ReadString());
+        return BeliefSystem.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

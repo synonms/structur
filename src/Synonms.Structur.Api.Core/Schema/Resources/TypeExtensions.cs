@@ -87,11 +87,6 @@ public static class TypeExtensions
                 return ResourcePropertyType.EmbeddedChildResourceCollection;
             }
 
-            if (enumerableElementType.IsComplexValueObjectResource())
-            {
-                return ResourcePropertyType.ComplexValueObjectResourceCollection;
-            }
-
             return ResourcePropertyType.VanillaCollection;
         }
         
@@ -108,11 +103,6 @@ public static class TypeExtensions
         if (nonNullableType.IsChildResource())
         {
             return ResourcePropertyType.EmbeddedChildResource;
-        }
-
-        if (nonNullableType.IsComplexValueObjectResource())
-        {
-            return ResourcePropertyType.ComplexValueObjectResource;
         }
 
         if (nonNullableType.IsLookupResource())

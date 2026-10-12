@@ -16,7 +16,7 @@ public class UkBankSortCodeBsonSerialiser : IBsonSerializer<UkBankSortCode?>
             return null;
         }
         
-        return UkBankSortCode.Convert(context.Reader.ReadString());
+        return UkBankSortCode.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

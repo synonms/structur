@@ -5,11 +5,16 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class FriendlyId : StringValueObject
+public class FriendlyId : ValueObject<FriendlyId, string>, IValueObject<FriendlyId, string>
 {
-    private FriendlyId(string value) : base(value)
+    public const int DefaultMaxLength = 250;
+
+    private FriendlyId(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
 
     public static implicit operator string(FriendlyId friendlyId) => friendlyId.Value;
 
@@ -37,7 +42,7 @@ public class FriendlyId : StringValueObject
         return CreateMandatory(propertyName, value, maxLength).ToMaybe();
     }
 
-    public static FriendlyId Convert(string value) =>
+    public static FriendlyId Rehydrate(string value) =>
         CreateMandatory(nameof(FriendlyId), value)
             .Match(
                 valueObject => valueObject,

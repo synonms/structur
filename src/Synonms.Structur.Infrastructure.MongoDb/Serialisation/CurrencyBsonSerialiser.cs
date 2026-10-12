@@ -16,7 +16,7 @@ public class CurrencyBsonSerialiser : IBsonSerializer<Currency?>
             return null;
         }
         
-        return Currency.Convert(context.Reader.ReadString());
+        return Currency.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

@@ -36,12 +36,12 @@ public class TestAggregateRoot : AggregateRoot<TestAggregateRoot>
         new(EntityId<TestAggregateRoot>.New(), TestUser.UserAction)
         {
             SomeRelatedAggregateId = EntityId<TestAggregateRoot>.New(),
-            SomeString = Moniker.Convert("Some string"),
-            SomeInt = Units.Convert(123),
+            SomeString = Moniker.Rehydrate("Some string"),
+            SomeInt = Units.Rehydrate(123),
             SomeBool = true,
-            SomeList = [ Moniker.Convert("Some array item 1"), Moniker.Convert("Some array item 2") ],
-            SomeDate = EventDate.Convert(new DateOnly(2024, 1, 1)),
-            SomeDateTime = EventDateTime.Convert(new DateTime(2024, 1, 1, 12, 0, 0)),
+            SomeList = [ Moniker.Rehydrate("Some array item 1"), Moniker.Rehydrate("Some array item 2") ],
+            SomeDate = EventDate.Rehydrate(new DateOnly(2024, 1, 1)),
+            SomeDateTime = EventDateTime.Rehydrate(new DateTime(2024, 1, 1, 12, 0, 0)),
             ChildResource = TestAggregateMember.Create(),
             ChildResources = [TestAggregateMember.Create(), TestAggregateMember.Create()]
         };
@@ -64,7 +64,7 @@ public class TestAggregateMember : AggregateMember<TestAggregateMember>
     public static TestAggregateMember Create() =>
         new(EntityId<TestAggregateMember>.New())
         {
-            Property1 = Moniker.Convert("Some string"),
-            Property2 = Units.Convert(123)
+            Property1 = Moniker.Rehydrate("Some string"),
+            Property2 = Units.Rehydrate(123)
         };
 }

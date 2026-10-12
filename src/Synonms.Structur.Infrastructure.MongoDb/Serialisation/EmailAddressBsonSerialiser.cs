@@ -16,7 +16,7 @@ public class EmailAddressBsonSerialiser : IBsonSerializer<EmailAddress?>
             return null;
         }
         
-        return EmailAddress.Convert(context.Reader.ReadString());
+        return EmailAddress.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

@@ -5,11 +5,18 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Notes : StringValueObject
+public class Notes : ValueObject<Notes, string>, IValueObject<Notes, string>
 {
-    private Notes(string value) : base(value)
+    public const int DefaultMaxLength = 2000;
+    
+    private Notes(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(Notes valueObject) => valueObject.Value;
 
     public static OneOf<Notes, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         CreateMandatory(propertyName, value, DefaultMaxLength);
@@ -33,7 +40,7 @@ public class Notes : StringValueObject
         return CreateMandatory(propertyName, value, maxLength).ToMaybe();
     }
 
-    public static Notes Convert(string value) =>
+    public static Notes Rehydrate(string value) =>
         CreateMandatory(nameof(Notes), value, value.Length)
             .Match(
                 valueObject => valueObject,

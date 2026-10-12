@@ -1,11 +1,10 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Validation;
-using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Address : ComplexValueObject
+public class Address
 {
     private Address(AddressType type, AddressLine line1, AddressLine? line2, AddressLine? line3, AddressLine? line4, Postcode postcode, Label? label)
     {
@@ -51,16 +50,5 @@ public class Address : ComplexValueObject
         }
 
         return CreateMandatory(propertyName, type, line1, line2, line3, line4, postcode, label).ToMaybe();
-    }
-
-    protected override IEnumerable<object?> GetAtomicValues()
-    {
-        yield return Type;
-        yield return Line1;
-        yield return Line2;
-        yield return Line3;
-        yield return Line4;
-        yield return Postcode;
-        yield return Label;
     }
 }

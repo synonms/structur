@@ -6,13 +6,16 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class NationalInsuranceNumber : StringValueObject
+public class NationalInsuranceNumber : ValueObject<NationalInsuranceNumber, string>, IValueObject<NationalInsuranceNumber, string>
 {
     public const int ValidLength = 9;
 
-    private NationalInsuranceNumber(string value) : base(value)
+    private NationalInsuranceNumber(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
 
     public static implicit operator string(NationalInsuranceNumber friendlyId) => friendlyId.Value;
 
@@ -33,7 +36,7 @@ public class NationalInsuranceNumber : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static NationalInsuranceNumber Convert(string value) =>
+    public static NationalInsuranceNumber Rehydrate(string value) =>
         CreateMandatory(nameof(NationalInsuranceNumber), value)
             .Match(
                 valueObject => valueObject,

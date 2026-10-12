@@ -15,14 +15,19 @@ public enum GenderReassignmentEnumeration
     Unspecified
 }
 
-public class GenderReassignment : StringValueObject
+public class GenderReassignment : ValueObject<GenderReassignment, string>, IValueObject<GenderReassignment, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<GenderReassignmentEnumeration>().ToList();
 
-    private GenderReassignment(string value) : base(value)
+    private GenderReassignment(string value)
     {
+        Value = value;
     }
 
+    public override string Value { get; }
+
+    public static implicit operator string(GenderReassignment valueObject) => valueObject.Value;
+    
     public static GenderReassignment From(GenderReassignmentEnumeration enumeration) => new(enumeration.ToString());
 
     public static OneOf<GenderReassignment, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
@@ -46,7 +51,7 @@ public class GenderReassignment : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static GenderReassignment Convert(string value) =>
+    public static GenderReassignment Rehydrate(string value) =>
         CreateMandatory(nameof(GenderReassignment), value)
             .Match(
                 valueObject => valueObject,

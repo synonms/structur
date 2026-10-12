@@ -16,7 +16,7 @@ public class WorkLocationBsonSerialiser : IBsonSerializer<WorkLocation?>
             return null;
         }
         
-        return WorkLocation.Convert(context.Reader.ReadString());
+        return WorkLocation.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

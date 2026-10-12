@@ -62,14 +62,19 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
                 ResourcePropertyType.EmbeddedLookupResource => MappingHelper.MapOptionalLookup(sourceValue as Lookup),
                 ResourcePropertyType.RelatedResource => MappingHelper.MapRelatedResource<TResource>(_routeGenerator, resource.Links, resourcePropertyInfo, sourcePropertyType, sourceValue),
                 ResourcePropertyType.RelatedResourceCollection => MappingHelper.MapRelatedResourceCollection(_routeGenerator, resource.Links, resourcePropertyInfo, typeof(TAggregateRoot).Name, aggregateRoot.Id.Value, sourceValue),
-                ResourcePropertyType.ComplexValueObjectResource => MappingHelper.MapComplexValueObject(sourcePropertyType, destinationPropertyType, sourceValue),
-                ResourcePropertyType.ComplexValueObjectResourceCollection => MappingHelper.MapComplexValueObjectCollection(sourcePropertyType, destinationPropertyType, sourceValue),
                 ResourcePropertyType.VanillaCollection => MappingHelper.MapVanillaCollection(sourcePropertyType, destinationPropertyType, sourceValue),
                 ResourcePropertyType.VanillaScalar => MappingHelper.MapVanillaScalar(sourcePropertyType, sourceValue),
                 _ => null
             };
-            
-            resourcePropertyInfo.SetValue(resource, resourcePropertyValue);
+
+            try
+            {
+                resourcePropertyInfo.SetValue(resource, resourcePropertyValue);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to set value for property {PropertyName} on resource {ResourceType} with property type {ResourcePropertyType} ", resourcePropertyInfo.Name, typeof(TResource).Name, resourcePropertyType);
+            }
         }
 
         return resource;

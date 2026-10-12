@@ -16,7 +16,7 @@ public class FriendlyIdBsonSerialiser : IBsonSerializer<FriendlyId?>
             return null;
         }
         
-        return FriendlyId.Convert(context.Reader.ReadString());
+        return FriendlyId.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

@@ -16,7 +16,7 @@ public class MaritalStatusBsonSerialiser : IBsonSerializer<MaritalStatus?>
             return null;
         }
         
-        return MaritalStatus.Convert(context.Reader.ReadString());
+        return MaritalStatus.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

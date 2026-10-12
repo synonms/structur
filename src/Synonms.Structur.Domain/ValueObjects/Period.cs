@@ -1,11 +1,10 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Validation;
-using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Period : ComplexValueObject
+public class Period
 {
     private Period(Units units, Interval interval)
     {
@@ -31,12 +30,6 @@ public class Period : ComplexValueObject
         }
 
         return CreateMandatory(propertyName, units.Value, interval).ToMaybe();
-    }
-
-    protected override IEnumerable<object?> GetAtomicValues()
-    {
-        yield return Units;
-        yield return Interval;
     }
 }
 

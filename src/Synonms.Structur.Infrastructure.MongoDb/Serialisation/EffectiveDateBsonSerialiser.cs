@@ -18,7 +18,7 @@ public class EffectiveDateBsonSerialiser : IBsonSerializer<EffectiveDate?>
         
         long millisecondsSinceEpoch = context.Reader.ReadDateTime();
         DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(millisecondsSinceEpoch);
-        return EffectiveDate.Convert(DateOnly.FromDateTime(dateTimeOffset.UtcDateTime));
+        return EffectiveDate.Rehydrate(DateOnly.FromDateTime(dateTimeOffset.UtcDateTime));
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

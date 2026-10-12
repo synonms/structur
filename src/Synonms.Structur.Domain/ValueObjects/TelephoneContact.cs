@@ -1,11 +1,10 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Validation;
-using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class TelephoneContact : ComplexValueObject, IComparable, IComparable<TelephoneContact>
+public class TelephoneContact : IComparable, IComparable<TelephoneContact>
 {
     private TelephoneContact(TelephoneContactType type, TelephoneNumber number, bool isPrimary, Label? label)
     {
@@ -57,13 +56,5 @@ public class TelephoneContact : ComplexValueObject, IComparable, IComparable<Tel
         return 0;
     }
 
-    public int CompareTo(TelephoneContact? other) => Number.CompareTo(other?.Number ?? string.Empty);
-    
-    protected override IEnumerable<object?> GetAtomicValues()
-    {
-        yield return Type;
-        yield return Number;
-        yield return IsPrimary;
-        yield return Label;
-    }
+    public int CompareTo(TelephoneContact? other) => string.Compare(Number.Value, other?.Number?.Value ?? string.Empty, StringComparison.OrdinalIgnoreCase);
 }

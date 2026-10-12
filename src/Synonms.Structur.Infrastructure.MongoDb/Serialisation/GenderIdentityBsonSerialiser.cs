@@ -16,7 +16,7 @@ public class GenderIdentityBsonSerialiser : IBsonSerializer<GenderIdentity?>
             return null;
         }
         
-        return GenderIdentity.Convert(context.Reader.ReadString());
+        return GenderIdentity.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

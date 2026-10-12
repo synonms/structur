@@ -15,13 +15,18 @@ public enum TelephoneContactTypeEnumeration
     Other
 }
 
-public class TelephoneContactType : StringValueObject
+public class TelephoneContactType : ValueObject<TelephoneContactType, string>, IValueObject<TelephoneContactType, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<TelephoneContactTypeEnumeration>().ToList();
 
-    private TelephoneContactType(string value) : base(value)
+    private TelephoneContactType(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(TelephoneContactType telephoneContactType) => telephoneContactType.Value;
 
     public static TelephoneContactType From(TelephoneContactTypeEnumeration enumeration) => new(enumeration.ToString());
 
@@ -46,7 +51,7 @@ public class TelephoneContactType : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static TelephoneContactType Convert(string value) =>
+    public static TelephoneContactType Rehydrate(string value) =>
         CreateMandatory(nameof(TelephoneContactType), value)
             .Match(
                 valueObject => valueObject,

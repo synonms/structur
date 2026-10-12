@@ -5,11 +5,18 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Label : StringValueObject
+public class Label : ValueObject<Label, string>, IValueObject<Label, string>
 {
-    private Label(string value) : base(value)
+    public const int DefaultMaxLength = 250;
+    
+    private Label(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(Label valueObject) => valueObject.Value;
 
     public static OneOf<Label, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         CreateMandatory(propertyName, value, DefaultMaxLength);
@@ -33,7 +40,7 @@ public class Label : StringValueObject
         return CreateMandatory(propertyName, value, maxLength).ToMaybe();
     }
 
-    public static Label Convert(string value) =>
+    public static Label Rehydrate(string value) =>
         CreateMandatory(nameof(Label), value, value.Length)
             .Match(
                 valueObject => valueObject,

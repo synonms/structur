@@ -32,14 +32,6 @@ public enum ResourcePropertyType
     /// </summary>
     RelatedResourceCollection,
     /// <summary>
-    /// ValueObjectResource
-    /// </summary>
-    ComplexValueObjectResource,
-    /// <summary>
-    /// IEnumerable&lt;ValueObjectResource&gt;
-    /// </summary>
-    ComplexValueObjectResourceCollection,
-    /// <summary>
     /// Enum
     /// </summary>
     Enumeration,

@@ -20,7 +20,7 @@ public static class TypeExtensions
         return childResourceType.GetPublicInstanceProperties(propertiesToExclude);
     }
 
-    public static object? GetSimpleValueObjectValue(this Type valueObjectType, object? valueObject)
+    public static object? GetValueObjectValue(this Type valueObjectType, object? valueObject)
     {
         if (valueObject is null) return null;
         

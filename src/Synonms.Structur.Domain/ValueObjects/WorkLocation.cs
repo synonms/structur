@@ -15,13 +15,18 @@ public enum WorkLocationEnumeration
     Other
 }
 
-public class WorkLocation : StringValueObject
+public class WorkLocation : ValueObject<WorkLocation, string>, IValueObject<WorkLocation, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<WorkLocationEnumeration>().Where(x => x != "Unknown").ToList();
 
-    private WorkLocation(string value) : base(value)
+    private WorkLocation(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(WorkLocation valueObject) => valueObject.Value;
 
     public static WorkLocation From(WorkLocationEnumeration enumeration) => new(enumeration.ToString());
 
@@ -46,7 +51,7 @@ public class WorkLocation : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static WorkLocation Convert(string value) =>
+    public static WorkLocation Rehydrate(string value) =>
         CreateMandatory(nameof(WorkLocation), value)
             .Match(
                 valueObject => valueObject,

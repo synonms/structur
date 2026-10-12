@@ -16,7 +16,7 @@ public class TelephoneContactTypeBsonSerialiser : IBsonSerializer<TelephoneConta
             return null;
         }
         
-        return TelephoneContactType.Convert(context.Reader.ReadString());
+        return TelephoneContactType.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

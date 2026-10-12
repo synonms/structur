@@ -5,11 +5,18 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Moniker : StringValueObject
+public class Moniker : ValueObject<Moniker, string>, IValueObject<Moniker, string>
 {
-    private Moniker(string value) : base(value)
+    public const int DefaultMaxLength = 250;
+    
+    private Moniker(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(Moniker valueObject) => valueObject.Value;
 
     public static OneOf<Moniker, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         CreateMandatory(propertyName, value, DefaultMaxLength);
@@ -33,7 +40,7 @@ public class Moniker : StringValueObject
         return CreateMandatory(propertyName, value, maxLength).ToMaybe();
     }
 
-    public static Moniker Convert(string value) =>
+    public static Moniker Rehydrate(string value) =>
         CreateMandatory(nameof(Moniker), value, value.Length)
             .Match(
                 valueObject => valueObject,

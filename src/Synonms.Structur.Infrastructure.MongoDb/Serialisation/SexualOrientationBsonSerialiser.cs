@@ -16,7 +16,7 @@ public class SexualOrientationBsonSerialiser : IBsonSerializer<SexualOrientation
             return null;
         }
         
-        return SexualOrientation.Convert(context.Reader.ReadString());
+        return SexualOrientation.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

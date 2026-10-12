@@ -19,13 +19,18 @@ public enum BeliefSystemEnumeration
     Unspecified
 }
 
-public class BeliefSystem : StringValueObject
+public class BeliefSystem : ValueObject<BeliefSystem, string>, IValueObject<BeliefSystem, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<BeliefSystemEnumeration>().ToList();
 
-    private BeliefSystem(string value) : base(value)
+    private BeliefSystem(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(BeliefSystem valueObject) => valueObject.Value;
 
     public static BeliefSystem From(BeliefSystemEnumeration enumeration) => new(enumeration.ToString());
 
@@ -50,7 +55,7 @@ public class BeliefSystem : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static BeliefSystem Convert(string value) =>
+    public static BeliefSystem Rehydrate(string value) =>
         CreateMandatory(nameof(BeliefSystem), value)
             .Match(
                 valueObject => valueObject,

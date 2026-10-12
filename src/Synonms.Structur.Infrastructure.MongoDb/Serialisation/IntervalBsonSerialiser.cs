@@ -16,7 +16,7 @@ public class IntervalBsonSerialiser : IBsonSerializer<Interval?>
             return null;
         }
         
-        return Interval.Convert(context.Reader.ReadString());
+        return Interval.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

@@ -16,7 +16,7 @@ public class SalutationBsonSerialiser : IBsonSerializer<Salutation?>
             return null;
         }
         
-        return Salutation.Convert(context.Reader.ReadString());
+        return Salutation.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

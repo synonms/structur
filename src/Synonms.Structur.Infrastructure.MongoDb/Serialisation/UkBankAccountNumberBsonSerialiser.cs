@@ -16,7 +16,7 @@ public class UkBankAccountNumberBsonSerialiser : IBsonSerializer<UkBankAccountNu
             return null;
         }
         
-        return UkBankAccountNumber.Convert(context.Reader.ReadString());
+        return UkBankAccountNumber.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

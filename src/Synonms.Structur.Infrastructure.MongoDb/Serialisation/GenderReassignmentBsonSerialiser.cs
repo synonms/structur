@@ -16,7 +16,7 @@ public class GenderReassignmentBsonSerialiser : IBsonSerializer<GenderReassignme
             return null;
         }
         
-        return GenderReassignment.Convert(context.Reader.ReadString());
+        return GenderReassignment.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

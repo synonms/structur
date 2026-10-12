@@ -5,11 +5,16 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class UkBuildingSocietyRollNumber : StringValueObject
+public class UkBuildingSocietyRollNumber : ValueObject<UkBuildingSocietyRollNumber, string>, IValueObject<UkBuildingSocietyRollNumber, string>
 {
-    private UkBuildingSocietyRollNumber(string value) : base(value)
+    private UkBuildingSocietyRollNumber(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(UkBuildingSocietyRollNumber ukBuildingSocietyRollNumber) => ukBuildingSocietyRollNumber.Value;
 
     public static OneOf<UkBuildingSocietyRollNumber, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         Validator.CreateBuilder<UkBuildingSocietyRollNumber>()
@@ -26,7 +31,7 @@ public class UkBuildingSocietyRollNumber : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static UkBuildingSocietyRollNumber Convert(string value) =>
+    public static UkBuildingSocietyRollNumber Rehydrate(string value) =>
         CreateMandatory(nameof(UkBuildingSocietyRollNumber), value)
             .Match(
                 valueObject => valueObject,

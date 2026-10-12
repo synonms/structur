@@ -5,11 +5,16 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Salutation : StringValueObject
+public class Salutation : ValueObject<Salutation, string>, IValueObject<Salutation, string>
 {
-    private Salutation(string value) : base(value)
+    public const int DefaultMaxLength = 10;
+
+    private Salutation(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
 
     public static implicit operator string(Salutation salutation) => salutation.Value;
 
@@ -35,7 +40,7 @@ public class Salutation : StringValueObject
         return CreateMandatory(propertyName, value, maxLength).ToMaybe();
     }
 
-    public static Salutation Convert(string value) =>
+    public static Salutation Rehydrate(string value) =>
         CreateMandatory(nameof(Salutation), value)
             .Match(
                 valueObject => valueObject,

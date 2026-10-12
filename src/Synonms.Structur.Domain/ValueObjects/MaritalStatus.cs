@@ -17,13 +17,18 @@ public enum MaritalStatusEnumeration
     Cohabiting
 }
 
-public class MaritalStatus : StringValueObject
+public class MaritalStatus : ValueObject<MaritalStatus, string>, IValueObject<MaritalStatus, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<MaritalStatusEnumeration>().ToList();
 
-    private MaritalStatus(string value) : base(value)
+    private MaritalStatus(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(MaritalStatus valueObject) => valueObject.Value;
 
     public static MaritalStatus From(MaritalStatusEnumeration enumeration) => new(enumeration.ToString());
 
@@ -48,7 +53,7 @@ public class MaritalStatus : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static MaritalStatus Convert(string value) =>
+    public static MaritalStatus Rehydrate(string value) =>
         CreateMandatory(nameof(MaritalStatus), value)
             .Match(
                 valueObject => valueObject,

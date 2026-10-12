@@ -11,14 +11,19 @@ public enum CurrencyEnumeration
     GBP
 }
 
-public class Currency : StringValueObject
+public class Currency : ValueObject<Currency, string>, IValueObject<Currency, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<CurrencyEnumeration>().ToList();
     
-    private Currency(string value) : base(value)
+    private Currency(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
     
+    public static implicit operator string(Currency valueObject) => valueObject.Value;
+
     public static Currency From(CurrencyEnumeration enumeration) => new(enumeration.ToString());
 
     public static OneOf<Currency, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
@@ -43,7 +48,7 @@ public class Currency : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    internal static Currency Convert(string value) =>
+    public static Currency Rehydrate(string value) =>
         CreateMandatory(nameof(Currency), value).Match(
             valueObject => valueObject,
             _ => From(CurrencyEnumeration.Unknown));

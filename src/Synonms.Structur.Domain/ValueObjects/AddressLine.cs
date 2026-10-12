@@ -6,11 +6,18 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class AddressLine : StringValueObject
+public class AddressLine : ValueObject<AddressLine, string>, IValueObject<AddressLine, string>
 {
-    private AddressLine(string value) : base(value)
+    private const int DefaultMaxLength = 100;
+    
+    private AddressLine(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(AddressLine valueObject) => valueObject.Value;
 
     public static OneOf<AddressLine, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         CreateMandatory(propertyName, value, DefaultMaxLength);
@@ -35,7 +42,7 @@ public class AddressLine : StringValueObject
         return CreateMandatory(propertyName, value, maxLength).ToMaybe();
     }
 
-    public static AddressLine Convert(string value) =>
+    public static AddressLine Rehydrate(string value) =>
         CreateMandatory(nameof(AddressLine), value, value.Length)
             .Match(
                 valueObject => valueObject,

@@ -18,7 +18,7 @@ public class EventDateTimeBsonSerialiser : IBsonSerializer<EventDateTime?>
         
         long millisecondsSinceEpoch = context.Reader.ReadDateTime();
         DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(millisecondsSinceEpoch);
-        return EventDateTime.Convert(dateTimeOffset.UtcDateTime);
+        return EventDateTime.Rehydrate(dateTimeOffset.UtcDateTime);
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

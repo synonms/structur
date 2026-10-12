@@ -16,7 +16,7 @@ public class LabelBsonSerialiser : IBsonSerializer<Label?>
             return null;
         }
         
-        return Label.Convert(context.Reader.ReadString());
+        return Label.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

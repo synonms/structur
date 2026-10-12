@@ -17,7 +17,7 @@ public class UnitsBsonSerialiser : IBsonSerializer<Units?>
         }
         
         int value = context.Reader.ReadInt32();
-        return Units.Convert(value);
+        return Units.Rehydrate(value);
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

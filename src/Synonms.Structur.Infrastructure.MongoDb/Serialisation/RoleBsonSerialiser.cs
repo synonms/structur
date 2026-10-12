@@ -16,7 +16,7 @@ public class RoleBsonSerialiser : IBsonSerializer<Role?>
             return null;
         }
         
-        return Role.Convert(context.Reader.ReadString());
+        return Role.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

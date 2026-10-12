@@ -15,16 +15,21 @@ public enum AddressTyeEnumeration
     Other
 }
 
-public class AddressType : StringValueObject
+public class AddressType : ValueObject<AddressType, string>, IValueObject<AddressType, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<AddressTyeEnumeration>().ToList();
     
-    private AddressType(string value) : base(value)
+    private AddressType(string value)
     {
+        Value = value;
     }
 
-    public static AddressType From(AddressTyeEnumeration enumeration) => new(enumeration.ToString());
+    public override string Value { get; }
     
+    public static implicit operator string(AddressType valueObject) => valueObject.Value;
+
+    public static AddressType From(AddressTyeEnumeration enumeration) => new(enumeration.ToString());
+
     public static OneOf<AddressType, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         Validator.CreateBuilder<AddressType>()
             .WithFaultIfNotOneOf(propertyName, value, AcceptableValues)
@@ -46,7 +51,7 @@ public class AddressType : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static AddressType Convert(string value) =>
+    public static AddressType Rehydrate(string value) =>
         CreateMandatory(nameof(AddressType), value)
             .Match(
                 valueObject => valueObject,

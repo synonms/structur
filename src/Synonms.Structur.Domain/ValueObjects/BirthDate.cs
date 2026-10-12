@@ -5,14 +5,19 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class BirthDate : DateOnlyValueObject
+public class BirthDate : ValueObject<BirthDate, DateOnly>, IValueObject<BirthDate, DateOnly>
 {
     private const int DefaultMinimumAge = 0;
     private const int DefaultMaximumAge = 120;
 
-    private BirthDate(DateOnly value) : base(value)
+    private BirthDate(DateOnly value)
     {
+        Value = value;
     }
+
+    public override DateOnly Value { get; }
+
+    public static implicit operator DateOnly(BirthDate valueObject) => valueObject.Value;
 
     public static OneOf<BirthDate, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, DateOnly value) =>
         CreateMandatory(propertyName, value, DefaultMinimumAge, DefaultMaximumAge);
@@ -24,7 +29,10 @@ public class BirthDate : DateOnlyValueObject
             .WithFaultIfValueMoreThan(propertyName, value, DateOnly.FromDateTime(DateTime.Today).AddYears(-minimumAge))
             .Build(() => new BirthDate(value));
 
-    public static OneOf<Maybe<BirthDate>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, DateOnly? value)  =>
+    public static OneOf<Maybe<BirthDate>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, DateOnly? value) =>
+        CreateOptional(propertyName, value, DefaultMinimumAge, DefaultMaximumAge);
+
+    public static OneOf<Maybe<BirthDate>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, DateOnly value) =>
         CreateOptional(propertyName, value, DefaultMinimumAge, DefaultMaximumAge);
 
     public static OneOf<Maybe<BirthDate>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, DateOnly? value, int minimumAge, int maximumAge)
@@ -37,7 +45,7 @@ public class BirthDate : DateOnlyValueObject
         return CreateMandatory(propertyName, value.Value, minimumAge, maximumAge).ToMaybe();
     }
 
-    internal static BirthDate Convert(DateOnly value) =>
+    public static BirthDate Rehydrate(DateOnly value) =>
         CreateMandatory(nameof(BirthDate), value).Match(
             valueObject => valueObject,
             _ => new BirthDate(DateOnly.MinValue));

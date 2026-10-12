@@ -16,7 +16,7 @@ public class UniqueReferenceBsonSerialiser : IBsonSerializer<UniqueReference?>
             return null;
         }
         
-        return UniqueReference.Convert(context.Reader.ReadString());
+        return UniqueReference.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

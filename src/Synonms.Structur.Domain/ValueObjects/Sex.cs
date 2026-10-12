@@ -12,13 +12,18 @@ public enum SexEnumeration
     Female
 }
 
-public class Sex : StringValueObject
+public class Sex : ValueObject<Sex, string>, IValueObject<Sex, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<SexEnumeration>().ToList();
 
-    private Sex(string value) : base(value)
+    private Sex(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(Sex valueObject) => valueObject.Value;
 
     public static Sex From(SexEnumeration enumeration) => new(enumeration.ToString());
 
@@ -43,7 +48,7 @@ public class Sex : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static Sex Convert(string value) =>
+    public static Sex Rehydrate(string value) =>
         CreateMandatory(nameof(Sex), value)
             .Match(
                 valueObject => valueObject,

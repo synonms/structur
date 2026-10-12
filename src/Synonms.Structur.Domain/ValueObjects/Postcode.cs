@@ -6,11 +6,16 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class Postcode : StringValueObject
+public class Postcode : ValueObject<Postcode, string>, IValueObject<Postcode, string>
 {
-    private Postcode(string value) : base(value)
+    private Postcode(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(Postcode valueObject) => valueObject.Value;
 
     public static OneOf<Postcode, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         Validator.CreateBuilder<Postcode>()
@@ -28,7 +33,7 @@ public class Postcode : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static Postcode Convert(string value) =>
+    public static Postcode Rehydrate(string value) =>
         CreateMandatory(nameof(Postcode), value)
             .Match(
                 valueObject => valueObject,

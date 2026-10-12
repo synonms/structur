@@ -5,12 +5,17 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class EventDateTime : DateTimeValueObject
+public class EventDateTime : ValueObject<EventDateTime, DateTime>, IValueObject<EventDateTime, DateTime>
 {
-    private EventDateTime(DateTime value) : base(value)
+    private EventDateTime(DateTime value)
     {
+        Value = value;
     }
-        
+
+    public override DateTime Value { get; }
+    
+    public static implicit operator DateTime(EventDateTime valueObject) => valueObject.Value;
+
     public static OneOf<EventDateTime, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, DateTime value) =>
         CreateMandatory(propertyName, value, DateTime.MinValue, DateTime.MaxValue);
 
@@ -20,6 +25,9 @@ public class EventDateTime : DateTimeValueObject
             .WithFaultIfValueMoreThan(propertyName, value, maximum)
             .Build(() => new EventDateTime(value));
 
+    public static OneOf<Maybe<EventDateTime>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, DateTime value) =>
+        CreateOptional(propertyName, value, DateTime.MinValue, DateTime.MaxValue);
+    
     public static OneOf<Maybe<EventDateTime>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, DateTime? value) =>
         CreateOptional(propertyName, value, DateTime.MinValue, DateTime.MaxValue);
 
@@ -32,8 +40,8 @@ public class EventDateTime : DateTimeValueObject
 
         return CreateMandatory(propertyName, value.Value, minimum, maximum).ToMaybe();
     }
-        
-    public static EventDateTime Convert(DateTime value) =>
+
+    public static EventDateTime Rehydrate(DateTime value) =>
         CreateMandatory(nameof(EventDateTime), value, value, value).Match(
             valueObject => valueObject,
             _ => new EventDateTime(DateTime.MinValue)

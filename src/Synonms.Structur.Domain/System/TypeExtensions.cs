@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Synonms.Structur.Core.Entities;
+﻿using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Domain.Aggregates;
 using Synonms.Structur.Domain.Lookups;
 using Synonms.Structur.Domain.Projections;
@@ -9,31 +8,19 @@ namespace Synonms.Structur.Domain.System;
 
 public static class TypeExtensions
 {
-    public static Type? GetSimpleValueObjectValueType(this Type type)
+    public static Type? GetValueObjectValueType(this Type type)
     {
-        if (!type.IsSimpleValueObject())
+        if (!type.IsValueObject())
         {
             return null;
         }
 
-        PropertyInfo? valueObjectValuePropertyInfo = type.GetProperty("Value", BindingFlags.Instance | BindingFlags.Public);
-
-        if (valueObjectValuePropertyInfo is not null)
-        {
-            return valueObjectValuePropertyInfo.PropertyType;
-        }
-
-        Type? baseType = type.BaseType?.GetGenericTypeDefinition();
+        Type? valueObjectInterface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IValueObject<,>));
         
-        if (baseType == typeof(DateOnlyValueObject)) return typeof(DateOnly);
-        if (baseType == typeof(DateTimeValueObject)) return typeof(DateTime);
-        if (baseType == typeof(DecimalValueObject)) return typeof(decimal);
-        if (baseType == typeof(DoubleValueObject)) return typeof(double);
-        if (baseType == typeof(IntValueObject)) return typeof(int);
-        if (baseType == typeof(LongValueObject)) return typeof(long);
-        if (baseType == typeof(StringValueObject)) return typeof(string);
-
-        if (baseType == typeof(SimpleValueObject<>)) return baseType.GenericTypeArguments[0];
+        if (valueObjectInterface?.GenericTypeArguments.Length == 2)
+        {
+            return valueObjectInterface.GenericTypeArguments[1];
+        }
 
         return null;
     }
@@ -67,23 +54,10 @@ public static class TypeExtensions
     public static bool IsLookupId(this Type type) =>
         type == typeof(EntityId<Lookup>);
 
-    public static bool IsSimpleValueObject(this Type type) => 
-        type is
-        {
-            BaseType: not null
-        }
-        && (type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == typeof(SimpleValueObject<>)
-            || type.BaseType.IsSimpleValueObject());
-    
-    public static bool IsComplexValueObject(this Type type) => 
-        type is
-        {
-            IsInterface: false, 
-            IsAbstract: false, 
-            BaseType: not null
-        } 
-        && type.BaseType == typeof(ComplexValueObject);
-    
+    public static bool IsValueObject(this Type type) =>
+        type.GetInterfaces()
+            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IValueObject<,>));
+
     public static bool IsProjection(this Type type) =>
         type is
         {

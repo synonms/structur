@@ -1,7 +1,6 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Validation;
-using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
@@ -12,7 +11,7 @@ public class UserActionDto
     public required string ActionByName { get; init; }
 }
 
-public class UserAction : ComplexValueObject, IComparable, IComparable<UserAction>
+public class UserAction : IComparable, IComparable<UserAction>
 {
     private UserAction(DateTime actionAt, Guid actionById, string actionByName)
     {
@@ -60,10 +59,4 @@ public class UserAction : ComplexValueObject, IComparable, IComparable<UserActio
     }
 
     public int CompareTo(UserAction? other) => ActionAt.CompareTo(other?.ActionAt ?? DateTime.MinValue);
-    
-    protected override IEnumerable<object?> GetAtomicValues()
-    {
-        yield return ActionAt;
-        yield return ActionById;
-    }
 }

@@ -12,7 +12,7 @@ public class AggregateRootTests
         UserAction userAction = TestUser.UserAction;
         
         EntityId<TestAggregateRoot> id = EntityId<TestAggregateRoot>.New();
-        TestAggregateRoot aggregateRoot = new(id, userAction, Moniker.Convert("name"), Units.Convert(1));
+        TestAggregateRoot aggregateRoot = new(id, userAction, Moniker.Rehydrate("name"), Units.Rehydrate(1));
         
         Assert.Equal(id, aggregateRoot.Id);
         Assert.Equal(userAction.ActionAt, aggregateRoot.CreatedAction.ActionAt);
@@ -31,7 +31,7 @@ public class AggregateRootTests
         UserAction userAction = TestUser.UserAction;
 
         EntityId<TestAggregateRoot> id = EntityId<TestAggregateRoot>.New();
-        TestAggregateRoot aggregateRoot = new(id, userAction, Moniker.Convert(originalValue), Units.Convert(1));
+        TestAggregateRoot aggregateRoot = new(id, userAction, Moniker.Rehydrate(originalValue), Units.Rehydrate(1));
 
         EntityTag originalEntityTag = aggregateRoot.EntityTag;
         DateTime originalCreatedAt = aggregateRoot.CreatedAction.ActionAt;
@@ -53,7 +53,7 @@ public class AggregateRootTests
         UserAction userAction = TestUser.UserAction;
 
         EntityId<TestAggregateRoot> id = EntityId<TestAggregateRoot>.New();
-        TestAggregateRoot aggregateRoot = new(id, userAction, Moniker.Convert(originalValue), Units.Convert(1));
+        TestAggregateRoot aggregateRoot = new(id, userAction, Moniker.Rehydrate(originalValue), Units.Rehydrate(1));
 
         EntityTag originalEntityTag = aggregateRoot.EntityTag;
         DateTime originalCreatedAt = aggregateRoot.CreatedAction.ActionAt;

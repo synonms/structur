@@ -28,7 +28,7 @@ public static class QueryableExtensions
             // x.{PropertyName}
             MemberExpression columnNameExpression = Expression.Property(xParameter, aggregatePropertyInfo.Name);
             
-            if (aggregatePropertyInfo.PropertyType.IsSimpleValueObject())
+            if (aggregatePropertyInfo.PropertyType.IsValueObject())
             {
                 // x.{PropertyName}.Value
                 columnNameExpression = Expression.Property(columnNameExpression, "Value");

@@ -16,13 +16,18 @@ public enum GenderIdentityEnumeration
     Unspecified
 }
 
-public class GenderIdentity : StringValueObject
+public class GenderIdentity : ValueObject<GenderIdentity, string>, IValueObject<GenderIdentity, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<GenderIdentityEnumeration>().ToList();
 
-    private GenderIdentity(string value) : base(value)
+    private GenderIdentity(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+    
+    public static implicit operator string(GenderIdentity valueObject) => valueObject.Value;
 
     public static GenderIdentity From(GenderIdentityEnumeration enumeration) => new(enumeration.ToString());
 
@@ -47,7 +52,7 @@ public class GenderIdentity : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static GenderIdentity Convert(string value) =>
+    public static GenderIdentity Rehydrate(string value) =>
         CreateMandatory(nameof(GenderIdentity), value)
             .Match(
                 valueObject => valueObject,

@@ -16,7 +16,7 @@ public class NotesBsonSerialiser : IBsonSerializer<Notes?>
             return null;
         }
         
-        return Notes.Convert(context.Reader.ReadString());
+        return Notes.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

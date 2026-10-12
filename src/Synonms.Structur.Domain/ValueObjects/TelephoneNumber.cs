@@ -6,11 +6,16 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class TelephoneNumber : StringValueObject
+public class TelephoneNumber : ValueObject<TelephoneNumber, string>, IValueObject<TelephoneNumber, string>
 {
-    private TelephoneNumber(string value) : base(value)
+    private TelephoneNumber(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(TelephoneNumber valueObject) => valueObject.Value;
 
     public static OneOf<TelephoneNumber, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         Validator.CreateBuilder<TelephoneNumber>()
@@ -28,7 +33,7 @@ public class TelephoneNumber : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static TelephoneNumber Convert(string value) =>
+    public static TelephoneNumber Rehydrate(string value) =>
         CreateMandatory(nameof(TelephoneNumber), value)
             .Match(
                 valueObject => valueObject,

@@ -16,7 +16,7 @@ public class PostcodeBsonSerialiser : IBsonSerializer<Postcode?>
             return null;
         }
         
-        return Postcode.Convert(context.Reader.ReadString());
+        return Postcode.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

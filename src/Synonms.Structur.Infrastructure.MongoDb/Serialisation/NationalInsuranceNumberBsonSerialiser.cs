@@ -16,7 +16,7 @@ public class NationalInsuranceNumberBsonSerialiser : IBsonSerializer<NationalIns
             return null;
         }
         
-        return NationalInsuranceNumber.Convert(context.Reader.ReadString());
+        return NationalInsuranceNumber.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

@@ -13,13 +13,18 @@ public enum EmailContactTypeEnumeration
     Other
 }
 
-public class EmailContactType : StringValueObject
+public class EmailContactType : ValueObject<EmailContactType, string>, IValueObject<EmailContactType, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<EmailContactTypeEnumeration>().ToList();
 
-    private EmailContactType(string value) : base(value)
+    private EmailContactType(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(EmailContactType valueObject) => valueObject.Value;
 
     public static EmailContactType From(EmailContactTypeEnumeration enumeration) => new(enumeration.ToString());
 
@@ -44,7 +49,7 @@ public class EmailContactType : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static EmailContactType Convert(string value) =>
+    public static EmailContactType Rehydrate(string value) =>
         CreateMandatory(nameof(EmailContactType), value)
             .Match(
                 valueObject => valueObject,

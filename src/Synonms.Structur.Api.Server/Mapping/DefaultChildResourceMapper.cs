@@ -59,8 +59,6 @@ public class DefaultChildResourceMapper<TAggregateMember, TChildResource> : IChi
                 ResourcePropertyType.EmbeddedLookupResource => MappingHelper.MapOptionalLookup(sourceValue as Lookup),
                 ResourcePropertyType.RelatedResource => MappingHelper.MapRelatedResource<TChildResource>(_routeGenerator, childResource.Links, childResourcePropertyInfo, sourcePropertyType, sourceValue),
                 ResourcePropertyType.RelatedResourceCollection => MappingHelper.MapRelatedResourceCollection(_routeGenerator, childResource.Links, childResourcePropertyInfo, typeof(TAggregateMember).Name, aggregateMember.Id.Value, sourceValue),
-                ResourcePropertyType.ComplexValueObjectResource => MappingHelper.MapComplexValueObject(sourcePropertyType, destinationPropertyType, sourceValue),
-                ResourcePropertyType.ComplexValueObjectResourceCollection => MappingHelper.MapComplexValueObjectCollection(sourcePropertyType, destinationPropertyType, sourceValue),
                 ResourcePropertyType.VanillaCollection => MappingHelper.MapVanillaCollection(sourcePropertyType, destinationPropertyType, sourceValue),
                 ResourcePropertyType.VanillaScalar => MappingHelper.MapVanillaScalar(sourcePropertyType, sourceValue),
                 _ => null

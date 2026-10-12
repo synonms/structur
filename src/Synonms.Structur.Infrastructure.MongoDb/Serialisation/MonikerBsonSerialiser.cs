@@ -16,7 +16,7 @@ public class MonikerBsonSerialiser : IBsonSerializer<Moniker?>
             return null;
         }
         
-        return Moniker.Convert(context.Reader.ReadString());
+        return Moniker.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

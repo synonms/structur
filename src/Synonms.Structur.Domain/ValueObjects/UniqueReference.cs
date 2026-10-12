@@ -5,11 +5,16 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class UniqueReference : StringValueObject
+public class UniqueReference : ValueObject<UniqueReference, string>, IValueObject<UniqueReference, string>
 {
-    private UniqueReference(string value) : base(value)
+    public const int DefaultMaxLength = 100;
+    
+    private UniqueReference(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
 
     public static implicit operator string(UniqueReference valueObject) => valueObject.Value;
 
@@ -35,7 +40,7 @@ public class UniqueReference : StringValueObject
         return CreateMandatory(propertyName, value, maxLength).ToMaybe();
     }
 
-    public static UniqueReference Convert(string value) =>
+    public static UniqueReference Rehydrate(string value) =>
         CreateMandatory(nameof(UniqueReference), value, value.Length)
             .Match(
                 valueObject => valueObject,

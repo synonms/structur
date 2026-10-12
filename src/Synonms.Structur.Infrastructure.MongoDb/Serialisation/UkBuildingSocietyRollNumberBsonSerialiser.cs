@@ -16,7 +16,7 @@ public class UkBuildingSocietyRollNumberBsonSerialiser : IBsonSerializer<UkBuild
             return null;
         }
         
-        return UkBuildingSocietyRollNumber.Convert(context.Reader.ReadString());
+        return UkBuildingSocietyRollNumber.Rehydrate(context.Reader.ReadString());
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

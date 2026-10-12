@@ -1,11 +1,10 @@
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Validation;
-using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class UkBankDetails : ComplexValueObject
+public class UkBankDetails
 {
     private UkBankDetails(Moniker bankName, UkBankSortCode sortCode, UkBankAccountNumber accountNumber, Moniker accountName, UkBuildingSocietyRollNumber? buildingSocietyRollNumber)
     {
@@ -43,14 +42,5 @@ public class UkBankDetails : ComplexValueObject
         }
 
         return CreateMandatory(propertyName, bankName, sortCode, accountNumber, accountName, buildingSocietyRollNumber).ToMaybe();
-    }
-
-    protected override IEnumerable<object?> GetAtomicValues()
-    {
-        yield return BankName;
-        yield return SortCode;
-        yield return AccountNumber;
-        yield return AccountName;
-        yield return BuildingSocietyRollNumber;
     }
 }

@@ -5,17 +5,27 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class EffectiveDate : DateOnlyValueObject
+public class EffectiveDate : ValueObject<EffectiveDate, DateOnly>, IValueObject<EffectiveDate, DateOnly>
 {
     private static readonly DateOnly DefaultMinimum = DateOnly.MinValue;
     private static readonly DateOnly DefaultMaximum = DateOnly.MaxValue;
 
-    private EffectiveDate(DateOnly value) : base(value)
+    private EffectiveDate(DateOnly value)   
     {
+        Value = value;
     }
+
+    public override DateOnly Value { get; }
+
+    public static implicit operator DateOnly(EffectiveDate valueObject) => valueObject.Value;
 
     public static OneOf<EffectiveDate, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, DateOnly value) =>
         CreateMandatory(propertyName, value, DefaultMinimum, DefaultMaximum);
+
+    public static OneOf<Maybe<EffectiveDate>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, DateOnly value)
+    {
+        throw new NotImplementedException();
+    }
 
     public static OneOf<EffectiveDate, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, DateOnly value, DateOnly minimum, DateOnly maximum) =>
         Validator.CreateBuilder<EffectiveDate>()
@@ -36,7 +46,7 @@ public class EffectiveDate : DateOnlyValueObject
         return CreateMandatory(propertyName, value.Value, minimum, maximum).ToMaybe();
     }
 
-    internal static EffectiveDate Convert(DateOnly value) =>
+    public static EffectiveDate Rehydrate(DateOnly value) =>
         CreateMandatory(nameof(EffectiveDate), value).Match(
             valueObject => valueObject,
             _ => new EffectiveDate(DateOnly.MinValue));

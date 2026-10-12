@@ -6,11 +6,16 @@ using Synonms.Structur.Domain.ValueObjects.Abstractions;
 
 namespace Synonms.Structur.Domain.ValueObjects;
 
-public class EmailAddress : StringValueObject
+public class EmailAddress : ValueObject<EmailAddress, string>, IValueObject<EmailAddress, string>
 {
-    private EmailAddress(string value) : base(value)
+    private EmailAddress(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(EmailAddress valueObject) => valueObject.Value;
 
     public static OneOf<EmailAddress, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, string value) =>
         Validator.CreateBuilder<EmailAddress>()
@@ -28,7 +33,7 @@ public class EmailAddress : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static EmailAddress Convert(string value) =>
+    public static EmailAddress Rehydrate(string value) => 
         CreateMandatory(nameof(EmailAddress), value)
             .Match(
                 valueObject => valueObject,

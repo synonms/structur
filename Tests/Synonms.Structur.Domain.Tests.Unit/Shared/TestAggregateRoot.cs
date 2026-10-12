@@ -22,7 +22,7 @@ internal class TestAggregateRoot : AggregateRoot<TestAggregateRoot>
 
     public void UpdateName(string name, UserAction updatedAction)
     {
-        Moniker nameValueObject = Moniker.Convert(name);
+        Moniker nameValueObject = Moniker.Rehydrate(name);
         
         UpdateMandatoryValue(x => x.Name, nameValueObject, updatedAction);
     }

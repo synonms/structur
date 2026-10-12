@@ -16,13 +16,18 @@ public enum SexualOrientationEnumeration
     Unspecified
 }
 
-public class SexualOrientation : StringValueObject
+public class SexualOrientation : ValueObject<SexualOrientation, string>, IValueObject<SexualOrientation, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<SexualOrientationEnumeration>().ToList();
 
-    private SexualOrientation(string value) : base(value)
+    private SexualOrientation(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(SexualOrientation sexualOrientation) => sexualOrientation.Value;
 
     public static SexualOrientation From(SexualOrientationEnumeration enumeration) => new(enumeration.ToString());
 
@@ -47,7 +52,7 @@ public class SexualOrientation : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static SexualOrientation Convert(string value) =>
+    public static SexualOrientation Rehydrate(string value) =>
         CreateMandatory(nameof(SexualOrientation), value)
             .Match(
                 valueObject => valueObject,

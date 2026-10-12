@@ -18,7 +18,7 @@ public class BirthDateBsonSerialiser : IBsonSerializer<BirthDate?>
         
         long millisecondsSinceEpoch = context.Reader.ReadDateTime();
         DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(millisecondsSinceEpoch);
-        return BirthDate.Convert(DateOnly.FromDateTime(dateTimeOffset.UtcDateTime));
+        return BirthDate.Rehydrate(DateOnly.FromDateTime(dateTimeOffset.UtcDateTime));
     }
     
     object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args) =>

@@ -18,13 +18,18 @@ public enum IntervalEnumeration
     Year
 }
 
-public class Interval : StringValueObject
+public class Interval : ValueObject<Interval, string>, IValueObject<Interval, string>
 {
     public static readonly List<string> AcceptableValues = Enum.GetNames<IntervalEnumeration>().Where(x => x != "Unknown").ToList();
 
-    private Interval(string value) : base(value)
+    private Interval(string value)
     {
+        Value = value;
     }
+
+    public override string Value { get; }
+
+    public static implicit operator string(Interval valueObject) => valueObject.Value;
 
     public static Interval From(IntervalEnumeration enumeration) => new(enumeration.ToString());
 
@@ -49,7 +54,7 @@ public class Interval : StringValueObject
         return CreateMandatory(propertyName, value).ToMaybe();
     }
 
-    public static Interval Convert(string value) =>
+    public static Interval Rehydrate(string value) =>
         CreateMandatory(nameof(Interval), value)
             .Match(
                 valueObject => valueObject,
