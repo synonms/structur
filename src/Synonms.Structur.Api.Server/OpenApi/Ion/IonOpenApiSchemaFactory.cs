@@ -35,9 +35,9 @@ public static class IonOpenApiSchemaFactory
                 { IonPropertyNames.FormFields.Type, new OpenApiSchema() { Type = JsonSchemaType.String } },
                 { IonPropertyNames.FormFields.Value, new OpenApiSchema() },
                 { IonPropertyNames.FormFields.Visible, new OpenApiSchema() { Type = JsonSchemaType.Boolean } }
-            }                          
+            }
         };
-    
+
     public static OpenApiSchema CreateForLink() =>
         new()
         {
@@ -49,7 +49,7 @@ public static class IonOpenApiSchemaFactory
                 { IonPropertyNames.Links.Method, new OpenApiSchema() { Type = JsonSchemaType.String } }
             }
         };
-    
+
     public static OpenApiSchema GetOrCreateSchemaReferenceForResource(ILogger logger, OpenApiDocument openApiDocument, StructurResourceAttribute resourceAttribute)
     {
         Dictionary<string, IOpenApiSchema> additionalProperties = new()
@@ -57,7 +57,7 @@ public static class IonOpenApiSchemaFactory
             { "self", CreateForLink() }
         };
 
-        if (resourceAttribute.IsUpdateDisabled is false)
+        if (resourceAttribute.IsUpdateDisabled is false && resourceAttribute.IsEditFormDisabled is false)
         {
             additionalProperties.Add("edit-form", CreateForLink());
         }
@@ -66,9 +66,9 @@ public static class IonOpenApiSchemaFactory
         {
             additionalProperties.Add("delete", CreateForLink());
         }
-        
+
         OpenApiSchema schema = OpenApiSchemaFactory.GetOrCreateSchemaReferenceForResource(logger, openApiDocument, resourceAttribute, resourceAttribute.ResourceType.Name + "_Ion", additionalProperties);
-        
+
         return schema;
     }
 }

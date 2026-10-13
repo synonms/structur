@@ -9,7 +9,7 @@ namespace Synonms.Structur.Api.Server.Mediation.Queries;
 
 public class FindResourceQueryProcessor<TAggregateRoot, TResource> : IQueryHandler<FindResourceQuery<TAggregateRoot, TResource>, FindResourceQueryResponse<TAggregateRoot, TResource>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
     private readonly IReadAggregateRepository<TAggregateRoot> _readAggregateRepository;
     private readonly IResourceMapper<TAggregateRoot, TResource> _resourceMapper;
@@ -19,16 +19,16 @@ public class FindResourceQueryProcessor<TAggregateRoot, TResource> : IQueryHandl
         _readAggregateRepository = readAggregateRepository;
         _resourceMapper = resourceMapper;
     }
-    
+
     public async Task<Result<FindResourceQueryResponse<TAggregateRoot, TResource>>> HandleAsync(FindResourceQuery<TAggregateRoot, TResource> query, CancellationToken cancellationToken)
     {
         Maybe<TAggregateRoot> findOutcome = await _readAggregateRepository.FindAsync(query.Id, cancellationToken);
-            
+
         Result<FindResourceQueryResponse<TAggregateRoot, TResource>> response = findOutcome.Match(
             aggregateRoot =>
             {
-                TResource resource = _resourceMapper.Map(aggregateRoot);
-                FindResourceQueryResponse<TAggregateRoot, TResource> response = new(resource, aggregateRoot.EntityTag);
+                ResourceEnvelope<TResource> envelope = _resourceMapper.MapEnvelope(aggregateRoot);
+                FindResourceQueryResponse<TAggregateRoot, TResource> response = new(envelope, aggregateRoot.EntityTag);
                 return response;
             },
             () =>

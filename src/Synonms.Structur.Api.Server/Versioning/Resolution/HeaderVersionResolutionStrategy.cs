@@ -7,9 +7,6 @@ namespace Synonms.Structur.Api.Server.Versioning.Resolution;
 
 public class HeaderVersionResolutionStrategy : IVersionResolutionStrategy
 {
-    private static readonly Func<KeyValuePair<string, StringValues>, bool> HeaderPredicate =
-        header => header.Key.Equals(HttpHeaders.Version, StringComparison.OrdinalIgnoreCase);
-
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public HeaderVersionResolutionStrategy(IHttpContextAccessor httpContextAccessor)
@@ -24,20 +21,27 @@ public class HeaderVersionResolutionStrategy : IVersionResolutionStrategy
             return Maybe<Version>.None;
         }
 
-        if (_httpContextAccessor.HttpContext.Request.Headers.Count(HeaderPredicate) != 1)
+        IHeaderDictionary headers = _httpContextAccessor.HttpContext.Request.Headers;
+        if (headers.TryGetValue(HttpHeaders.ApiVersion, out StringValues apiVersionHeader))
+        {
+            return ParseVersion(apiVersionHeader);
+        }
+
+        if (!headers.TryGetValue(HttpHeaders.Version, out StringValues versionHeader))
         {
             return Maybe<Version>.None;
         }
 
-        KeyValuePair<string, StringValues> versionHeader = _httpContextAccessor.HttpContext.Request.Headers.Single(HeaderPredicate);
+        return ParseVersion(versionHeader);
+    }
 
-        if (versionHeader.Value.Count != 1)
+    private static Maybe<Version> ParseVersion(StringValues values)
+    {
+        if (values.Count != 1)
         {
             return Maybe<Version>.None;
         }
 
-        string? versionAsString = versionHeader.Value.SingleOrDefault();
-
-        return Version.TryParse(versionAsString, out Version? version) ? version : Maybe<Version>.None;
+        return Version.TryParse(values[0], out Version? version) ? version : Maybe<Version>.None;
     }
 }

@@ -9,7 +9,7 @@
     }
     else
     {
-        <CarbonBlazorDataTable @ref="@_dataTable" TModel="EmployeeResource" Models="@_employees" TotalSize="@_employees.Count" Offset="0" PageLimit="10" ShouldFillPane="true">
+        <CarbonBlazorDataTable @ref="@_dataTable" TModel="ResourceEnvelope<EmployeeResource>" Models="@_employees" TotalSize="@_employees.Count" Offset="0" PageLimit="10" ShouldFillPane="true">
             <ToolbarButtons>
                 <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="XS" ClickedCallback="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.ExtraSmall))"></CarbonBlazorButton>
                 <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.TextOnly" Text="S" ClickedCallback="@(() => _dataTable.Resize(CarbonBlazorDataTableRowSize.Small))"></CarbonBlazorButton>
@@ -27,11 +27,11 @@
                 <CarbonBlazorDataTableHeaderCell></CarbonBlazorDataTableHeaderCell>
             </HeaderRowTemplate>
             <DataRowTemplate>
-                <CarbonBlazorDataTableDataCell>@context.Id</CarbonBlazorDataTableDataCell>
-                <CarbonBlazorDataTableDataCell>@context.EmployeeReference</CarbonBlazorDataTableDataCell>
-                <CarbonBlazorDataTableDataCell>@context.Forename</CarbonBlazorDataTableDataCell>
-                <CarbonBlazorDataTableDataCell>@context.Surname</CarbonBlazorDataTableDataCell>
-                <CarbonBlazorDataTableDataCell>@context.EmailContacts.FirstOrDefault(x => x.IsPrimary)?.Address</CarbonBlazorDataTableDataCell>
+                <CarbonBlazorDataTableDataCell>@context.Metadata.Id</CarbonBlazorDataTableDataCell>
+                <CarbonBlazorDataTableDataCell>@context.Data.EmployeeReference</CarbonBlazorDataTableDataCell>
+                <CarbonBlazorDataTableDataCell>@context.Data.Forename</CarbonBlazorDataTableDataCell>
+                <CarbonBlazorDataTableDataCell>@context.Data.Surname</CarbonBlazorDataTableDataCell>
+                <CarbonBlazorDataTableDataCell>@context.Data.EmailContacts.FirstOrDefault(x => x.IsPrimary)?.Address</CarbonBlazorDataTableDataCell>
                 <CarbonBlazorDataTableDataCell>
                     <CarbonBlazorButtonSet Style="justify-content: end;">
                         <CarbonBlazorButton Kind="CarbonBlazorButtonKind.Ghost" Display="CarbonBlazorButtonDisplay.IconOnly" IconType="CarbonBlazorIconType.Search" ClickedCallback="@(() => ReadEmployee(context))"></CarbonBlazorButton>
@@ -44,8 +44,8 @@
 </CarbonBlazorPane>
 
 @code {
-    private CarbonBlazorDataTable<EmployeeResource> _dataTable = null!;
-    private List<EmployeeResource>? _employees;
+    private CarbonBlazorDataTable<ResourceEnvelope<EmployeeResource>> _dataTable = null!;
+    private List<ResourceEnvelope<EmployeeResource>>? _employees;
 
     [Inject]
     public required TenantContextAccessor TenantContextAccessor { get; set; }
@@ -80,7 +80,7 @@
             result.Match(
                 document =>
                 {
-                    _employees = document.Resources.ToList();
+                    _employees = document.Envelopes.ToList();
                 },
                 fault =>
                 {
@@ -98,9 +98,9 @@
     private void CreateEmployee() =>
         NavigationManager.NavigateTo("employees/create");
 
-    private void ReadEmployee(EmployeeResource employee) =>
-        NavigationManager.NavigateTo("employees/" + employee.Id);
+    private void ReadEmployee(ResourceEnvelope<EmployeeResource> employee) =>
+        NavigationManager.NavigateTo("employees/" + employee.Metadata.Id);
 
-    private void UpdateEmployee(EmployeeResource employee) =>
-        NavigationManager.NavigateTo("employees/" + employee.Id + "/update");
+    private void UpdateEmployee(ResourceEnvelope<EmployeeResource> employee) =>
+        NavigationManager.NavigateTo("employees/" + employee.Metadata.Id + "/update");
 }

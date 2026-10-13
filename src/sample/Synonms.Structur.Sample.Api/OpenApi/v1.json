@@ -67,6 +67,41 @@
         ],
         "summary": "Get a form describing how to add a new resource to a collection.",
         "operationId": "Employments.CreateForm",
+        "parameters": [
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -78,6 +113,9 @@
                 "schema": { }
               }
             }
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
           }
         }
       }
@@ -89,6 +127,41 @@
         ],
         "summary": "Get a paged collection of resources.",
         "operationId": "Employments.GetAll",
+        "parameters": [
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -100,6 +173,9 @@
                 "schema": { }
               }
             }
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
           }
         }
       },
@@ -109,6 +185,41 @@
         ],
         "summary": "Add a new resource to a collection.",
         "operationId": "Employments.Create",
+        "parameters": [
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -122,6 +233,9 @@
         "responses": {
           "201": {
             "description": "Successfully created"
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
           }
         }
       }
@@ -143,6 +257,39 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -156,6 +303,9 @@
                 "schema": { }
               }
             }
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
           }
         }
       }
@@ -177,6 +327,39 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -190,6 +373,9 @@
                 "schema": { }
               }
             }
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
           }
         }
       },
@@ -209,6 +395,39 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -224,6 +443,9 @@
         "responses": {
           "204": {
             "description": "Successfully updated"
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
           }
         }
       }
@@ -235,6 +457,44 @@
         ],
         "summary": "Get a form describing how to add a new resource to a collection.",
         "operationId": "Employees.CreateForm",
+        "parameters": [
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0, 1.1",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0, 1.1",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -246,6 +506,9 @@
                 "schema": { }
               }
             }
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
           }
         }
       }
@@ -257,6 +520,44 @@
         ],
         "summary": "Get a paged collection of resources.",
         "operationId": "Employees.GetAll",
+        "parameters": [
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0, 1.1",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0, 1.1",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -268,6 +569,9 @@
                 "schema": { }
               }
             }
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
           }
         }
       },
@@ -277,6 +581,44 @@
         ],
         "summary": "Add a new resource to a collection.",
         "operationId": "Employees.Create",
+        "parameters": [
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0, 1.1",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0, 1.1",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -290,6 +632,9 @@
         "responses": {
           "201": {
             "description": "Successfully created"
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
           }
         }
       }
@@ -311,6 +656,42 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0, 1.1",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0, 1.1",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -324,6 +705,9 @@
                 "schema": { }
               }
             }
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
           }
         }
       }
@@ -345,6 +729,42 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0, 1.1",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0, 1.1",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -358,6 +778,9 @@
                 "schema": { }
               }
             }
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
           }
         }
       },
@@ -377,6 +800,42 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0, 1.1",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0, 1.1",
+            "schema": {
+              "enum": [
+                "1.0",
+                "1.1"
+              ],
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -392,6 +851,139 @@
         "responses": {
           "204": {
             "description": "Successfully updated"
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
+          }
+        }
+      }
+    },
+    "/employee-summaries": {
+      "get": {
+        "tags": [
+          "tag-employee-summaries"
+        ],
+        "summary": "Get a paged collection of resources.",
+        "operationId": "EmployeeSummaries.GetAll",
+        "parameters": [
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { }
+              },
+              "application/ion+json": {
+                "schema": { }
+              }
+            }
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
+          }
+        }
+      }
+    },
+    "/employee-summaries/{id}": {
+      "get": {
+        "tags": [
+          "tag-employee-summaries"
+        ],
+        "summary": "Get an individual resource by Id.",
+        "operationId": "EmployeeSummaries.GetById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Unique identifier of the resource.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Structur-ApiVersion",
+            "in": "header",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Structur-Version",
+            "in": "header",
+            "description": "Legacy version header. If supplied, it must match a supported API version.",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "apiVersion",
+            "in": "query",
+            "description": "Requested API version. This representation supports: 1.0",
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { }
+              },
+              "application/ion+json": {
+                "schema": { }
+              }
+            }
+          },
+          "400": {
+            "description": "The requested API version is not supported by this resource representation."
           }
         }
       }
@@ -422,7 +1014,6 @@
       },
       "EmployeeResource_Default": {
         "required": [
-          "supportedVersions",
           "employeeReference",
           "nationalInsuranceNumber",
           "forename",
@@ -437,10 +1028,6 @@
           "id": {
             "type": "string",
             "format": "uuid"
-          },
-          "supportedVersions": {
-            "type": "array",
-            "items": { }
           },
           "employeeReference": {
             "type": "string",
@@ -505,7 +1092,6 @@
       },
       "EmployeeResource_Ion": {
         "required": [
-          "supportedVersions",
           "employeeReference",
           "nationalInsuranceNumber",
           "forename",
@@ -550,10 +1136,6 @@
           "id": {
             "type": "string",
             "format": "uuid"
-          },
-          "supportedVersions": {
-            "type": "array",
-            "items": { }
           },
           "employeeReference": {
             "type": "string",
@@ -938,7 +1520,6 @@
       },
       "EmployeeResourceRequest": {
         "required": [
-          "supportedVersions",
           "employeeReference",
           "nationalInsuranceNumber",
           "forename",
@@ -953,10 +1534,6 @@
           "id": {
             "type": "string",
             "format": "uuid"
-          },
-          "supportedVersions": {
-            "type": "array",
-            "items": { }
           },
           "employeeReference": {
             "type": "string",
@@ -1061,6 +1638,216 @@
           }
         }
       },
+      "EmployeeSummaryResource_Default": {
+        "required": [
+          "forename",
+          "surname"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "forename": {
+            "type": "string",
+            "format": ""
+          },
+          "surname": {
+            "type": "string",
+            "format": ""
+          }
+        }
+      },
+      "EmployeeSummaryResource_Ion": {
+        "required": [
+          "forename",
+          "surname"
+        ],
+        "type": "object",
+        "properties": {
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "forename": {
+            "type": "string",
+            "format": ""
+          },
+          "surname": {
+            "type": "string",
+            "format": ""
+          }
+        }
+      },
+      "EmployeeSummaryResourceCollectionResponse_Default": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": { }
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "integer"
+          }
+        }
+      },
+      "EmployeeSummaryResourceCollectionResponse_Ion": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": { }
+          },
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "first": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "previous": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "next": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "last": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "integer"
+          }
+        }
+      },
+      "EmployeeSummaryResourceResponse_Default": {
+        "type": "object",
+        "properties": {
+          "value": { },
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "EmployeeSummaryResourceResponse_Ion": {
+        "type": "object",
+        "properties": {
+          "value": { },
+          "self": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rel": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "EmploymentContractResource": {
         "required": [
           "startDate",
@@ -1115,7 +1902,6 @@
       },
       "EmploymentResource_Default": {
         "required": [
-          "supportedVersions",
           "employeeId",
           "employmentReference",
           "continuousStartDate",
@@ -1127,10 +1913,6 @@
           "id": {
             "type": "string",
             "format": "uuid"
-          },
-          "supportedVersions": {
-            "type": "array",
-            "items": { }
           },
           "employeeId": { },
           "employmentReference": {
@@ -1150,7 +1932,6 @@
       },
       "EmploymentResource_Ion": {
         "required": [
-          "supportedVersions",
           "employeeId",
           "employmentReference",
           "continuousStartDate",
@@ -1192,10 +1973,6 @@
           "id": {
             "type": "string",
             "format": "uuid"
-          },
-          "supportedVersions": {
-            "type": "array",
-            "items": { }
           },
           "employeeId": { },
           "employmentReference": {
@@ -1535,7 +2312,6 @@
       },
       "EmploymentResourceRequest": {
         "required": [
-          "supportedVersions",
           "employeeId",
           "employmentReference",
           "continuousStartDate",
@@ -1547,10 +2323,6 @@
           "id": {
             "type": "string",
             "format": "uuid"
-          },
-          "supportedVersions": {
-            "type": "array",
-            "items": { }
           },
           "employeeId": { },
           "employmentReference": {
@@ -1658,6 +2430,9 @@
     },
     {
       "name": "Employees"
+    },
+    {
+      "name": "Employee Summaries"
     }
   ]
 }

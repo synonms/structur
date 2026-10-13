@@ -23,20 +23,10 @@ public class IonCustomJsonConverterFactory : JsonConverterFactory
     {
         _version = version;
     }
-    
+
     public override bool CanConvert(Type typeToConvert)
     {
         if (typeToConvert.IsEntityId())
-        {
-            return true;
-        }
-
-        if (typeToConvert.IsResource())
-        {
-            return true;
-        }
-
-        if (typeToConvert.IsChildResource())
         {
             return true;
         }
@@ -63,45 +53,17 @@ public class IonCustomJsonConverterFactory : JsonConverterFactory
             return CreateEntityIdConverter(typeToConvert);
         }
 
-        if (typeToConvert.IsResource())
-        {
-            return CreateResourceConverter(typeToConvert);
-        }
-
-        if (typeToConvert.IsChildResource())
-        {
-            return CreateChildResourceConverter(typeToConvert);
-        }
-
         Type genericType = typeToConvert.GetGenericTypeDefinition();
         Type resourceType = typeToConvert.GetGenericArguments().Last();
 
         if (_supportedGenericConverterTypes.TryGetValue(genericType, out Type? genericConverterType))
         {
             Type serverConverterType = genericConverterType.MakeGenericType(resourceType);
-
-            return (JsonConverter?)Activator.CreateInstance(serverConverterType);
+            ConstructorInfo? versionConstructor = serverConverterType.GetConstructor([typeof(Version)]);
+            return (JsonConverter?)(versionConstructor?.Invoke([_version]) ?? Activator.CreateInstance(serverConverterType));
         }
 
         return null;
-    }
-
-    private JsonConverter? CreateResourceConverter(Type resourceType)
-    {
-        Type converterType = typeof(IonResourceJsonConverter<>).MakeGenericType(resourceType);
-        ConstructorInfo? constructorWithVersion = converterType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, [typeof(Version)]);
-        object? instance = constructorWithVersion?.Invoke([_version]);        
-        
-        return (JsonConverter?)instance;
-    }
-
-    private JsonConverter? CreateChildResourceConverter(Type childResourceType)
-    {
-        Type converterType = typeof(IonChildResourceJsonConverter<>).MakeGenericType(childResourceType);
-        ConstructorInfo? constructorWithVersion = converterType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, [typeof(Version)]);
-        object? instance = constructorWithVersion?.Invoke([_version]);        
-        
-        return (JsonConverter?)instance;
     }
 
     private static JsonConverter? CreateEntityIdConverter(Type entityIdType)
@@ -112,9 +74,9 @@ public class IonCustomJsonConverterFactory : JsonConverterFactory
         {
             throw new InvalidOperationException($"Type '{entityIdType}' is considered an EntityId<> but the TEntity generic type parameter cannot be determined.");
         }
-            
+
         Type converterType = typeof(IonEntityIdJsonConverter<>).MakeGenericType(entityType);
-                
+
         return (JsonConverter?)Activator.CreateInstance(converterType);
     }
 }

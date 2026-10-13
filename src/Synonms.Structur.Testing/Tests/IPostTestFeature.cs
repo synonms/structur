@@ -5,17 +5,17 @@ using Synonms.Structur.Domain.Aggregates;
 
 namespace Synonms.Structur.Testing.Tests;
 
-public interface IPostTestFeature<TAggregateRoot, TResource> where TAggregateRoot : AggregateRoot<TAggregateRoot> where TResource : Resource
+public interface IPostTestFeature<TAggregateRoot, TResource> where TAggregateRoot : AggregateRoot<TAggregateRoot>
 {
     string CollectionPath { get; }
-    
+
     TResource GenerateInvalidResource(EntityId<TAggregateRoot> id);
 
     TResource GenerateValidResource(EntityId<TAggregateRoot> id);
-    
+
     Task PersistPrerequisitesAsync(IServiceScopeFactory serviceScopeFactory, ArrangeEntitiesInfo arrangeEntitiesInfo);
-    
+
     Task<TAggregateRoot?> RetrieveAggregateAsync(IServiceScopeFactory serviceScopeFactory, EntityId<TAggregateRoot> id);
-    
+
     void ValidateCreatedAggregate(TAggregateRoot aggregateRoot, TResource resource);
 }

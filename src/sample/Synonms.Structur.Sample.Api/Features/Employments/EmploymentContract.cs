@@ -90,7 +90,7 @@ public class EmploymentContract : AggregateMember<EmploymentContract>
                 return Maybe<Fault>.None;
             });
 
-    internal static OneOf<EmploymentContract, IEnumerable<DomainRuleFault>> Create(string parentPropertyName, EmploymentContractResource resource) =>
+    internal static OneOf<EmploymentContract, IEnumerable<DomainRuleFault>> Create(string parentPropertyName, EmploymentContractResource resource, Guid id) =>
         Validator.CreateBuilder<EmploymentContract>()
             .WithMandatoryScalarProperty(resource.StartDate, x => EffectiveDate.CreateMandatory($"{parentPropertyName}.{nameof(StartDate)}", x, DateOnly.Parse("1970-01-01"), DateOnly.MaxValue), out EffectiveDate startDateValueObject)
             .WithOptionalScalarProperty(resource.ProbationEndDate, x => EventDate.CreateOptional($"{parentPropertyName}.{nameof(ProbationEndDate)}", x), out EventDate? probationEndDateValueObject)
@@ -104,7 +104,7 @@ public class EmploymentContract : AggregateMember<EmploymentContract>
             .WithOptionalScalarProperty(resource.Notes, x => Notes.CreateOptional($"{parentPropertyName}.{nameof(Notes)}", x), out Notes? notesValueObject)
             .Build()
             .ToOneOf(() => 
-                new EmploymentContract((EntityId<EmploymentContract>)resource.Id, startDateValueObject, employerNoticePeriodValueObject, employeeNoticePeriodValueObject, positionValueObject, locationValueObject, resource.CanClaimTravelExpensesToOffice)
+                new EmploymentContract((EntityId<EmploymentContract>)id, startDateValueObject, employerNoticePeriodValueObject, employeeNoticePeriodValueObject, positionValueObject, locationValueObject, resource.CanClaimTravelExpensesToOffice)
                 {
                     ProbationEndDate = probationEndDateValueObject,
                     EndDate = endDateValueObject,
@@ -114,4 +114,3 @@ public class EmploymentContract : AggregateMember<EmploymentContract>
                     Notes = notesValueObject
                 });
 }
-

@@ -7,15 +7,17 @@ namespace Synonms.Structur.Api.Server.Mediation.Queries;
 
 public class FindResourceQueryResponse<TAggregateRoot, TResource> : QueryResponse
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
-    public FindResourceQueryResponse(TResource resource, EntityTag entityTag)
+    public FindResourceQueryResponse(ResourceEnvelope<TResource> envelope, EntityTag entityTag)
     {
-        Resource = resource;
+        Envelope = envelope;
         EntityTag = entityTag;
     }
 
-    public TResource Resource { get; }
-    
+    public ResourceEnvelope<TResource> Envelope { get; }
+
+    public TResource Resource => Envelope.Data;
+
     public EntityTag EntityTag { get; }
 }

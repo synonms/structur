@@ -10,15 +10,12 @@ public class ChildResourceMapperFactory : IChildResourceMapperFactory
     {
         _serviceProvider = serviceProvider;
     }
-    
+
     public IChildResourceMapper? Create(Type aggregateMemberType, Type childResourceType)
     {
         IEnumerable<IChildResourceMapper> childResourceMappers = _serviceProvider.GetRequiredService<IEnumerable<IChildResourceMapper>>();
-        
-        Type closedGenericMapperType = typeof(IChildResourceMapper<,>).MakeGenericType(aggregateMemberType, childResourceType);
 
-        IChildResourceMapper? mapper = childResourceMappers.FirstOrDefault(x => x.GetType().IsAssignableTo(closedGenericMapperType));
-
-        return mapper;
+        Type contract = typeof(IChildResourceMapper<,>).MakeGenericType(aggregateMemberType, childResourceType);
+        return MapperResolution.Resolve(childResourceMappers, contract, typeof(DefaultChildResourceMapper<,>), aggregateMemberType, childResourceType);
     }
 }

@@ -5,77 +5,103 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Synonms.Structur.Api.Core.Iana;
 using Synonms.Structur.Api.Server.Routing;
 using Synonms.Structur.Core.Attributes;
+using Synonms.Structur.Api.Server.Versioning;
 
 namespace Synonms.Structur.Api.Server.Controllers;
 
 public class ControllerModelConvention : IControllerModelConvention
 {
     private readonly IRouteNameProvider _routeNameProvider;
+    private readonly IResourceDirectory _resourceDirectory;
 
-    public ControllerModelConvention(IRouteNameProvider routeNameProvider)
+    public ControllerModelConvention(IRouteNameProvider routeNameProvider, IResourceDirectory resourceDirectory)
     {
         _routeNameProvider = routeNameProvider;
+        _resourceDirectory = resourceDirectory;
     }
-    
+
     public void Apply(ControllerModel controllerModel)
     {
         if (controllerModel.ControllerType.IsGenericType)
         {
             Type aggregateRootType = controllerModel.ControllerType.GenericTypeArguments[0];
-            StructurResourceAttribute? resourceAttribute = aggregateRootType.GetCustomAttribute<StructurResourceAttribute>();
+            Type resourceType = controllerModel.ControllerType.GenericTypeArguments[1];
+            IResourceDirectory.AggregateRootLayout layout = _resourceDirectory.GetRoot(aggregateRootType, resourceType);
+            StructurResourceAttribute resourceAttribute = layout.Registration;
 
-            if (resourceAttribute is null)
+            AddControllerRoute(controllerModel, layout);
+            AddActionRoutes(controllerModel, layout);
+            if (layout.SupportedApiVersions.Count > 0)
             {
-                return;
+                controllerModel.Filters.Add(new RegistrationVersionFilter(resourceType, layout.SupportedApiVersions));
             }
-            
-            AddControllerRoute(controllerModel, resourceAttribute);
-            AddActionRoutes(controllerModel, aggregateRootType, resourceAttribute);
         }
     }
 
-    private void AddActionRoutes(ControllerModel controllerModel, Type aggregateRootType, StructurResourceAttribute resourceAttribute)
+    private void AddActionRoutes(ControllerModel controllerModel, IResourceDirectory.AggregateRootLayout layout)
     {
+        Type aggregateRootType = layout.AggregateRootType;
+        Type resourceType = layout.ResourceType;
+        StructurResourceAttribute resourceAttribute = layout.Registration;
+
         foreach (ActionModel action in controllerModel.Actions)
         {
             RouteAttribute routeAttribute = action.ActionName switch
             {
                 "GetById" => new RouteAttribute("{id}")
                 {
-                    Name = _routeNameProvider.GetById(aggregateRootType)
+                    Name = _routeNameProvider.GetById(aggregateRootType, resourceType)
                 },
                 "GetAll" => new RouteAttribute("")
                 {
-                    Name = _routeNameProvider.GetAll(aggregateRootType)
+                    Name = _routeNameProvider.GetAll(aggregateRootType, resourceType)
                 },
                 "Post" => new RouteAttribute("")
                 {
-                    Name = _routeNameProvider.Post(aggregateRootType)
+                    Name = _routeNameProvider.Post(aggregateRootType, resourceType)
                 },
                 "Put" => new RouteAttribute("")
                 {
-                    Name = _routeNameProvider.Put(aggregateRootType)
+                    Name = _routeNameProvider.Put(aggregateRootType, resourceType)
                 },
                 "Delete" => new RouteAttribute("")
                 {
-                    Name = _routeNameProvider.Delete(aggregateRootType)
+                    Name = _routeNameProvider.Delete(aggregateRootType, resourceType)
                 },
                 "CreateForm" => new RouteAttribute(IanaLinkRelationConstants.Forms.Create)
                 {
-                    Name = _routeNameProvider.CreateForm(aggregateRootType)
+                    Name = _routeNameProvider.CreateForm(aggregateRootType, resourceType)
                 },
                 "EditForm" => new RouteAttribute("{id}/" + IanaLinkRelationConstants.Forms.Edit)
                 {
-                    Name = _routeNameProvider.EditForm(aggregateRootType)
+                    Name = _routeNameProvider.EditForm(aggregateRootType, resourceType)
                 },
-                "GetProjection" => BuildProjectionRoute(controllerModel, aggregateRootType, resourceAttribute),
+                "GetProjection" => BuildProjectionRoute(controllerModel, layout),
                 _ => throw new InvalidOperationException($"Unexpected controller action '{action.ActionName}'.")
             };
-            
-            action.Selectors.Add(new SelectorModel
+
+            if (action.Selectors.Count == 0)
             {
-                AttributeRouteModel = new AttributeRouteModel(routeAttribute)
-            });
+                action.Selectors.Add(new SelectorModel
+                {
+                    AttributeRouteModel = new AttributeRouteModel(routeAttribute)
+                });
+            }
+            else
+            {
+                foreach (SelectorModel selector in action.Selectors)
+                {
+                    if (selector.AttributeRouteModel is null)
+                    {
+                        selector.AttributeRouteModel = new AttributeRouteModel(routeAttribute);
+                    }
+                    else
+                    {
+                        selector.AttributeRouteModel.Template = routeAttribute.Template;
+                        selector.AttributeRouteModel.Name = routeAttribute.Name;
+                    }
+                }
+            }
 
             if (resourceAttribute.AllowAnonymous)
             {
@@ -84,33 +110,32 @@ public class ControllerModelConvention : IControllerModelConvention
             }
             else
             {
-                string policySuffix = aggregateRootType.Name;
                 AuthorizeFilter authorizeFilter = action.ActionName switch
                 {
-                    "GetById" => new AuthorizeFilter("Read" + policySuffix),
-                    "GetAll" => new AuthorizeFilter("Read" + policySuffix),
-                    "Post" => new AuthorizeFilter("Create" + policySuffix),
-                    "Put" => new AuthorizeFilter("Update" + policySuffix),
-                    "Delete" => new AuthorizeFilter("Delete" + policySuffix),
-                    "CreateForm" => new AuthorizeFilter("Create" + policySuffix),
-                    "EditForm" => new AuthorizeFilter("Update" + policySuffix),
-                    "GetProjection" => new AuthorizeFilter("Read" + policySuffix),
+                    "GetById" => new AuthorizeFilter(resourceAttribute.ReadPolicy ?? "Read" + aggregateRootType.Name),
+                    "GetAll" => new AuthorizeFilter(resourceAttribute.ReadPolicy ?? "Read" + aggregateRootType.Name),
+                    "Post" => new AuthorizeFilter(resourceAttribute.CreatePolicy ?? "Create" + aggregateRootType.Name),
+                    "Put" => new AuthorizeFilter(resourceAttribute.UpdatePolicy ?? "Update" + aggregateRootType.Name),
+                    "Delete" => new AuthorizeFilter(resourceAttribute.DeletePolicy ?? "Delete" + aggregateRootType.Name),
+                    "CreateForm" => new AuthorizeFilter(resourceAttribute.CreatePolicy ?? "Create" + aggregateRootType.Name),
+                    "EditForm" => new AuthorizeFilter(resourceAttribute.UpdatePolicy ?? "Update" + aggregateRootType.Name),
+                    "GetProjection" => new AuthorizeFilter(resourceAttribute.ReadPolicy ?? "Read" + aggregateRootType.Name),
                     _ => throw new InvalidOperationException($"Unexpected controller action '{action.ActionName}'.")
                 };
-                
+
                 action.Filters.Add(authorizeFilter);
             }
         }
     }
 
-    private RouteAttribute BuildProjectionRoute(ControllerModel controllerModel, Type aggregateRootType, StructurResourceAttribute resourceAttribute)
+    private RouteAttribute BuildProjectionRoute(ControllerModel controllerModel, IResourceDirectory.AggregateRootLayout layout)
     {
         if (controllerModel.ControllerType.GenericTypeArguments.Length < 2)
         {
             throw new InvalidOperationException($"Unable to determine projection type for controller '{controllerModel.ControllerName}'.");
         }
-        
-        Type projectionType = controllerModel.ControllerType.GenericTypeArguments[1];
+
+        Type projectionType = controllerModel.ControllerType.GenericTypeArguments[2];
         StructurProjectionAttribute? projectionAttribute = projectionType.GetCustomAttribute<StructurProjectionAttribute>();
 
         if (projectionAttribute is null)
@@ -120,24 +145,21 @@ public class ControllerModelConvention : IControllerModelConvention
 
         return new RouteAttribute("{id}/projections/" + projectionAttribute.ProjectionIdentifier)
         {
-            Name = _routeNameProvider.GetProjection(aggregateRootType, projectionType)
+            Name = _routeNameProvider.GetProjection(layout.AggregateRootType, layout.ResourceType, projectionType)
         };
     }
-    
-    private static void AddControllerRoute(ControllerModel controllerModel, StructurResourceAttribute resourceAttribute)
+
+    private static void AddControllerRoute(ControllerModel controllerModel, IResourceDirectory.AggregateRootLayout layout)
     {
-        if (string.IsNullOrWhiteSpace(resourceAttribute.CollectionPath) is false)
+        StructurResourceAttribute resourceAttribute = layout.Registration;
+        if (string.IsNullOrWhiteSpace(layout.CollectionPath) is false)
         {
             controllerModel.Selectors.Add(new SelectorModel
             {
                 // TODO: Make base path configurable
-                AttributeRouteModel = new AttributeRouteModel(new RouteAttribute(resourceAttribute.CollectionPath)),
+                AttributeRouteModel = new AttributeRouteModel(new RouteAttribute(layout.CollectionPath)),
             });
         }
 
-        if (resourceAttribute.AllowAnonymous is false)
-        {
-            controllerModel.Filters.Add(new AuthorizeFilter());
-        }
     }
 }

@@ -8,27 +8,10 @@ using Synonms.Structur.Core.System.Text;
 
 namespace Synonms.Structur.Sample.ClientApi.Features.Employees;
 
-public class EmployeeResource : Resource
+public class EmployeeResource
 {
     public const string CollectionPath = "employees";
 
-    public EmployeeResource()
-    {
-    }
-
-    public EmployeeResource(Guid id, Link selfLink)
-        : base(id, selfLink)
-    {
-    }
-
-    public override string GetCollectionPath() => CollectionPath;
-    
-    public override SortedSet<Version> SupportedVersions { get; } = 
-    [
-        new Version(1, 0),
-        new Version(1, 1)
-    ];
-    
     [StructurRequired]
     [StructurImmutable]
     public string EmployeeReference { get; set; } = string.Empty;

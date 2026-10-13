@@ -47,7 +47,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddStructur(this IServiceCollection serviceCollection, StructurOptions options) =>
         serviceCollection.AddStructur<NoStructurUser, NoStructurProduct, NoStructurTenant>(options);
-    
+
     public static IServiceCollection AddStructur<TUser, TProduct, TTenant>(this IServiceCollection serviceCollection, StructurOptions options)
         where TUser : StructurUser
         where TProduct : StructurProduct
@@ -60,12 +60,11 @@ public static class ServiceCollectionExtensions
 
         IRouteNameProvider routeNameProvider = new RouteNameProvider();
         serviceCollection.AddSingleton(routeNameProvider);
-        
+
         serviceCollection.RegisterCqrs(options.Assemblies);
-        serviceCollection.RegisterAllImplementationsOf(typeof(IResourceMapper<,>), serviceCollection.AddSingleton, options.Assemblies);
 
         serviceCollection.AddSingleton<IErrorCollectionDocumentFactory, ErrorCollectionDocumentFactory>();
-        
+
         serviceCollection.AddScoped<OptionsMiddleware>();
         serviceCollection.AddScoped<CorrelationMiddleware>();
         serviceCollection.AddScoped<StructurBearerTokenRelayHandler>();
@@ -77,26 +76,30 @@ public static class ServiceCollectionExtensions
 
         serviceCollection.AddScoped<IUserActionProvider, EmptyUserActionProvider>();
 
-        foreach ((string _, IResourceDirectory.AggregateRootLayout aggregateRootLayout) in resourceDirectory.GetAllRoots())
-        { 
+        foreach (IResourceDirectory.AggregateRootLayout aggregateRootLayout in resourceDirectory.GetAllRoots())
+        {
             serviceCollection
                 .RegisterRequestHandlers(aggregateRootLayout)
                 .RegisterResourceMappers(aggregateRootLayout);
         }
 
         foreach (IResourceDirectory.AggregateMemberLayout aggregateMemberLayout in resourceDirectory.GetAllMembers())
-        { 
+        {
             serviceCollection
                 .RegisterChildResourceMappers(aggregateMemberLayout);
         }
-        
-        // Replace default mappers where an explicit one is provided
+
+        // Register custom mappers once; factories prefer these over the generated defaults.
         serviceCollection.RegisterAllImplementationsOf(typeof(IResourceMapper<,>), serviceCollection.AddSingleton, options.Assemblies);
+        serviceCollection.RegisterAllImplementationsOf(typeof(IChildResourceMapper<,>), serviceCollection.AddSingleton, options.Assemblies);
+        ValidateMapperRegistrations(serviceCollection);
+        ValidateDefaultMappingPlans(resourceDirectory, serviceCollection);
 
         serviceCollection.AddScoped<IChildResourceMapperFactory, ChildResourceMapperFactory>();
         serviceCollection.AddScoped<IResourceMapperFactory, ResourceMapperFactory>();
 
         serviceCollection.RegisterDomainDependenciesFrom(options.Assemblies);
+        ValidateWriteEventFactories(resourceDirectory, options.Assemblies);
 
         if (options.CorsConfiguration is not null)
         {
@@ -114,12 +117,12 @@ public static class ServiceCollectionExtensions
         serviceCollection.WithTenants<TUser, TTenant>();
         serviceCollection.WithProducts<TUser, TProduct>();
         serviceCollection.AddScoped<PermissionsMiddleware<TUser, TProduct, TTenant>>();
-        
+
         serviceCollection.WithOpenApi(options.OpenApiConfigurationAction);
-        
+
         AuthenticationBuilder authenticationBuilder = serviceCollection.AddAuthentication(options.DefaultAuthenticationScheme);
         options.AuthenticationConfigurationAction?.Invoke(authenticationBuilder);
-        
+
         serviceCollection.AddAuthorization(authorizationOptions =>
         {
             authorizationOptions.AddStructurAuthorisationPolicies(options.Assemblies);
@@ -127,32 +130,118 @@ public static class ServiceCollectionExtensions
         });
 
         serviceCollection.WithControllers(options, routeNameProvider, resourceDirectory);
-        
+
         return serviceCollection;
     }
-    
+
+    private static void ValidateMapperRegistrations(IServiceCollection services)
+    {
+        ValidateMapperRegistrations<IResourceMapper>(services, typeof(IResourceMapper<,>), typeof(DefaultResourceMapper<,>));
+        ValidateMapperRegistrations<IChildResourceMapper>(services, typeof(IChildResourceMapper<,>), typeof(DefaultChildResourceMapper<,>));
+    }
+
+    private static void ValidateMapperRegistrations<TMapper>(IServiceCollection services, Type contractDefinition, Type defaultMapperDefinition)
+    {
+        IEnumerable<Type> implementationTypes = services
+            .Where(descriptor => descriptor.ServiceType == typeof(TMapper) && descriptor.ImplementationType is not null)
+            .Select(descriptor => descriptor.ImplementationType!)
+            .Distinct();
+
+        foreach (IGrouping<Type, Type> group in implementationTypes
+                     .SelectMany(implementation => implementation.GetInterfaces()
+                         .Where(contract => contract.IsGenericType && contract.GetGenericTypeDefinition() == contractDefinition)
+                         .Select(contract => (Contract: contract, Implementation: implementation)))
+                     .Where(item => !item.Implementation.IsGenericType || item.Implementation.GetGenericTypeDefinition() != defaultMapperDefinition)
+                     .GroupBy(item => item.Contract, item => item.Implementation))
+        {
+            Type[] customImplementations = group.Distinct().ToArray();
+            if (customImplementations.Length > 1)
+            {
+                Type[] arguments = group.Key.GetGenericArguments();
+                throw new InvalidOperationException(
+                    $"Multiple custom mappers are registered for {arguments[0].FullName} -> {arguments[1].FullName}: {string.Join(", ", customImplementations.Select(type => type.FullName))}.");
+            }
+        }
+    }
+
+    private static void ValidateDefaultMappingPlans(IResourceDirectory resourceDirectory, IServiceCollection services)
+    {
+        foreach (IResourceDirectory.AggregateRootLayout layout in resourceDirectory.GetAllRoots())
+        {
+            Type contract = typeof(IResourceMapper<,>).MakeGenericType(layout.AggregateRootType, layout.ResourceType);
+            if (!HasCustomMapper(services, typeof(IResourceMapper), contract, typeof(DefaultResourceMapper<,>)))
+            {
+                ResourceMappingPlan.Get(layout.AggregateRootType, layout.ResourceType);
+            }
+        }
+
+        foreach (IResourceDirectory.AggregateMemberLayout layout in resourceDirectory.GetAllMembers())
+        {
+            Type contract = typeof(IChildResourceMapper<,>).MakeGenericType(layout.AggregateMemberType, layout.ChildResourceType);
+            if (!HasCustomMapper(services, typeof(IChildResourceMapper), contract, typeof(DefaultChildResourceMapper<,>)))
+            {
+                ResourceMappingPlan.Get(layout.AggregateMemberType, layout.ChildResourceType);
+            }
+        }
+    }
+
+    private static void ValidateWriteEventFactories(IResourceDirectory resourceDirectory, IEnumerable<Assembly> assemblies)
+    {
+        Type[] eventFactoryContracts = assemblies
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => !type.IsAbstract && !type.IsInterface)
+            .SelectMany(type => type.GetInterfaces())
+            .Where(contract => contract.IsGenericType && contract.GetGenericTypeDefinition() == typeof(IDomainEventFactory<,>))
+            .Distinct()
+            .ToArray();
+
+        foreach (IResourceDirectory.AggregateRootLayout layout in resourceDirectory.GetAllRoots())
+        {
+            StructurResourceAttribute registration = layout.Registration;
+            bool acceptsCommands = !registration.IsCreateDisabled || !registration.IsUpdateDisabled || !registration.IsDeleteDisabled;
+            if (!acceptsCommands)
+            {
+                continue;
+            }
+
+            Type expectedFactory = typeof(IDomainEventFactory<,>).MakeGenericType(layout.AggregateRootType, layout.ResourceType);
+            if (!eventFactoryContracts.Contains(expectedFactory))
+            {
+                throw new InvalidOperationException(
+                    $"Writable resource registration {layout.AggregateRootType.FullName} -> {layout.ResourceType.FullName} requires an {expectedFactory.Name} implementation. Read-only registrations should disable create, update, and delete.");
+            }
+        }
+    }
+
+    private static bool HasCustomMapper(IServiceCollection services, Type mapperServiceType, Type contract, Type defaultMapperDefinition) =>
+        services
+            .Where(descriptor => descriptor.ServiceType == mapperServiceType && descriptor.ImplementationType is not null)
+            .Select(descriptor => descriptor.ImplementationType!)
+            .Distinct()
+            .Any(implementation =>
+                implementation.GetInterfaces().Contains(contract)
+                && (!implementation.IsGenericType || implementation.GetGenericTypeDefinition() != defaultMapperDefinition));
+
     private static IServiceCollection RegisterRequestHandlers(this IServiceCollection serviceCollection, IResourceDirectory.AggregateRootLayout aggregateRootLayout)
     {
-        StructurResourceAttribute? resourceAttribute = aggregateRootLayout.AggregateRootType.GetCustomAttribute<StructurResourceAttribute>();
+        StructurResourceAttribute resourceAttribute = aggregateRootLayout.Registration;
 
-        if (resourceAttribute is null)
+        if (!resourceAttribute.IsReadDisabled)
         {
-            return serviceCollection;
+            Type findResourceRequestType = typeof(FindResourceQuery<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+            Type findResourceResponseType = typeof(FindResourceQueryResponse<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+            Type findResourceRequestHandlerInterfaceType = typeof(IQueryHandler<,>).MakeGenericType(findResourceRequestType, findResourceResponseType);
+            Type findResourceRequestHandlerImplementationType = typeof(FindResourceQueryProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+
+            serviceCollection.AddTransient(findResourceRequestHandlerInterfaceType, findResourceRequestHandlerImplementationType);
+
+            Type readResourceCollectionRequestType = typeof(ReadResourceCollectionQuery<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+            Type readResourceCollectionResponseType = typeof(ReadResourceCollectionQueryResponse<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+            Type readResourceCollectionRequestHandlerInterfaceType = typeof(IQueryHandler<,>).MakeGenericType(readResourceCollectionRequestType, readResourceCollectionResponseType);
+            Type readResourceCollectionRequestHandlerImplementationType = typeof(ReadResourceCollectionQueryProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+
+            serviceCollection.AddTransient(readResourceCollectionRequestHandlerInterfaceType, readResourceCollectionRequestHandlerImplementationType);
         }
-        
-        Type findResourceRequestType = typeof(FindResourceQuery<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-        Type findResourceResponseType = typeof(FindResourceQueryResponse<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-        Type findResourceRequestHandlerInterfaceType = typeof(IQueryHandler<,>).MakeGenericType(findResourceRequestType, findResourceResponseType);
-        Type findResourceRequestHandlerImplementationType = typeof(FindResourceQueryProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-
-        serviceCollection.AddTransient(findResourceRequestHandlerInterfaceType, findResourceRequestHandlerImplementationType);
-        
-        Type readResourceCollectionRequestType = typeof(ReadResourceCollectionQuery<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-        Type readResourceCollectionResponseType = typeof(ReadResourceCollectionQueryResponse<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-        Type readResourceCollectionRequestHandlerInterfaceType = typeof(IQueryHandler<,>).MakeGenericType(readResourceCollectionRequestType, readResourceCollectionResponseType);
-        Type readResourceCollectionRequestHandlerImplementationType = typeof(ReadResourceCollectionQueryProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-
-        serviceCollection.AddTransient(readResourceCollectionRequestHandlerInterfaceType, readResourceCollectionRequestHandlerImplementationType);
 
         if (resourceAttribute.IsCreateDisabled is false)
         {
@@ -176,7 +265,7 @@ public static class ServiceCollectionExtensions
 
         if (resourceAttribute.IsDeleteDisabled is false)
         {
-            Type deleteResourceRequestType = typeof(DeleteResourceCommand<>).MakeGenericType(aggregateRootLayout.AggregateRootType);
+            Type deleteResourceRequestType = typeof(DeleteResourceCommand<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
             Type deleteResourceResponseType = typeof(DeleteResourceCommandResponse<>).MakeGenericType(aggregateRootLayout.AggregateRootType);
             Type deleteResourceRequestHandlerInterfaceType = typeof(ICommandHandler<,>).MakeGenericType(deleteResourceRequestType, deleteResourceResponseType);
             Type deleteResourceRequestHandlerImplementationType = typeof(DeleteResourceCommandProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
@@ -184,17 +273,12 @@ public static class ServiceCollectionExtensions
             serviceCollection.AddTransient(deleteResourceRequestHandlerInterfaceType, deleteResourceRequestHandlerImplementationType);
         }
 
-        Console.WriteLine($"Processing {aggregateRootLayout.ProjectionTypes.Count} projection types for {aggregateRootLayout.AggregateRootType.Name}");
-        
-        foreach (Type projectionType in aggregateRootLayout.ProjectionTypes)
+        foreach (Type projectionType in resourceAttribute.IsReadDisabled ? [] : aggregateRootLayout.ProjectionTypes)
         {
-            Console.WriteLine($"Processing {projectionType.Name}...");
-            
             StructurProjectionAttribute? projectionAttribute = projectionType.GetCustomAttribute<StructurProjectionAttribute>();
 
             if (projectionAttribute is null)
             {
-                Console.WriteLine("No ProjectionAttribute found!");
                 return serviceCollection;
             }
 
@@ -203,11 +287,12 @@ public static class ServiceCollectionExtensions
             Type getProjectionRequestHandlerInterfaceType = typeof(IQueryHandler<,>).MakeGenericType(getProjectionRequestType, getProjectionResponseType);
             Type getProjectionRequestHandlerImplementationType = typeof(GetProjectionQueryProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, projectionType);
 
-            Console.WriteLine($"Registering {getProjectionRequestHandlerInterfaceType.Name} -> {getProjectionRequestHandlerImplementationType.Name}");
-
-            serviceCollection.AddTransient(getProjectionRequestHandlerInterfaceType, getProjectionRequestHandlerImplementationType);
+            if (!serviceCollection.Any(descriptor => descriptor.ServiceType == getProjectionRequestHandlerInterfaceType))
+            {
+                serviceCollection.AddTransient(getProjectionRequestHandlerInterfaceType, getProjectionRequestHandlerImplementationType);
+            }
         }
-        
+
         return serviceCollection;
     }
 
@@ -218,10 +303,10 @@ public static class ServiceCollectionExtensions
 
         serviceCollection.AddScoped(resourceMapperInterfaceType, resourceMapperImplementationType);
         serviceCollection.AddScoped(typeof(IResourceMapper), resourceMapperImplementationType);
-        
+
         return serviceCollection;
     }
-    
+
     private static IServiceCollection RegisterChildResourceMappers(this IServiceCollection serviceCollection, IResourceDirectory.AggregateMemberLayout aggregateMemberLayout)
     {
         Type childResourceMapperInterfaceType = typeof(IChildResourceMapper<,>).MakeGenericType(aggregateMemberLayout.AggregateMemberType, aggregateMemberLayout.ChildResourceType);
@@ -263,7 +348,7 @@ public static class ServiceCollectionExtensions
 
         serviceCollection.AddScoped<IVersionResolutionStrategy, HeaderVersionResolutionStrategy>();
         serviceCollection.AddScoped<IVersionResolutionStrategy, QueryStringVersionResolutionStrategy>();
-        
+
         return serviceCollection;
     }
 
@@ -282,7 +367,7 @@ public static class ServiceCollectionExtensions
         {
             serviceCollection.AddScoped<IUserRepository<NoStructurUser>, NoStructurUserRepository>();
         }
-        
+
         return serviceCollection;
     }
 
@@ -325,35 +410,35 @@ public static class ServiceCollectionExtensions
 
         return serviceCollection;
     }
-    
+
     private static IServiceCollection WithControllers(this IServiceCollection serviceCollection, StructurOptions structurOptions, IRouteNameProvider routeNameProvider, IResourceDirectory resourceDirectory)
     {
         IMvcBuilder mvcBuilder = serviceCollection.AddControllers(mvcOptions =>
             {
-                mvcOptions.Conventions.Add(new ControllerModelConvention(routeNameProvider));
+                mvcOptions.Conventions.Add(new ControllerModelConvention(routeNameProvider, resourceDirectory));
 
                 mvcOptions.ConfigureForStructur();
-                
+
                 structurOptions.MvcOptionsConfigurationAction?.Invoke(mvcOptions);
             })
             .ConfigureApplicationPartManager(applicationPartManager =>
             {
                 applicationPartManager.FeatureProviders.Add(new ControllerFeatureProvider(resourceDirectory));
-                
+
                 structurOptions.ApplicationPartManagerConfigurationAction?.Invoke(applicationPartManager);
             })
             .AddJsonOptions(jsonOptions =>
             {
                 jsonOptions.JsonSerializerOptions.ConfigureForStructurFramework();
-                
+
                 structurOptions.JsonOptionsConfigurationAction?.Invoke(jsonOptions);
             });
 
         structurOptions.MvcBuilderConfigurationAction?.Invoke(mvcBuilder);
-        
+
         return serviceCollection;
     }
-    
+
     private static IServiceCollection WithOpenApi(this IServiceCollection serviceCollection, Action<OpenApiOptions>? configurationAction = null)
     {
         serviceCollection.AddOpenApi(options =>

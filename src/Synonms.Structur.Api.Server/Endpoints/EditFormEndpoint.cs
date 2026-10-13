@@ -20,7 +20,6 @@ namespace Synonms.Structur.Api.Server.Endpoints;
 [EnableCors(CorsConstants.PolicyName)]
 public class EditFormEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource, new()
 {
     private readonly IQueryHandler<FindResourceQuery<TAggregateRoot, TResource>, FindResourceQueryResponse<TAggregateRoot, TResource>> _queryHandler;
     private readonly IRouteGenerator _routeGenerator;
@@ -32,7 +31,7 @@ public class EditFormEndpoint<TAggregateRoot, TResource> : ControllerBase
         _routeGenerator = routeGenerator;
         _documentFactory = documentFactory;
     }
-    
+
     [HttpGet]
     [Route("{id}/" + IanaLinkRelationConstants.Forms.Edit)]
     public async Task<IActionResult> EditFormAsync([FromRoute] EntityId<TAggregateRoot> id)
@@ -43,8 +42,8 @@ public class EditFormEndpoint<TAggregateRoot, TResource> : ControllerBase
         return queryResult.Match<IActionResult>(
             queryResponse =>
             {
-                Uri editFormUri = _routeGenerator.EditForm<TAggregateRoot>(id);
-                Uri targetUri = _routeGenerator.Item<TAggregateRoot>(id);
+                Uri editFormUri = _routeGenerator.EditForm(typeof(TAggregateRoot), typeof(TResource), id.Value);
+                Uri targetUri = _routeGenerator.Item(typeof(TAggregateRoot), typeof(TResource), id.Value);
                 FormDocument document = _documentFactory.Create(editFormUri, targetUri, queryResponse.Resource);
 
                 return Ok(document);

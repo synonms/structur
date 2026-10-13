@@ -13,14 +13,14 @@ public static class TypeExtensions
         [typeof(bool?)] = DataTypeConstants.Boolean,
         [typeof(DateOnly)] = DataTypeConstants.DateOnly,
         [typeof(DateOnly?)] = DataTypeConstants.DateOnly,
-        [typeof(TimeOnly)] = DataTypeConstants.TimeOnly, 
+        [typeof(TimeOnly)] = DataTypeConstants.TimeOnly,
         [typeof(TimeOnly?)] = DataTypeConstants.TimeOnly,
         [typeof(DateTime)] = DataTypeConstants.DateTime,
         [typeof(DateTime?)] = DataTypeConstants.DateTime,
-        [typeof(TimeSpan)] = DataTypeConstants.Duration, 
+        [typeof(TimeSpan)] = DataTypeConstants.Duration,
         [typeof(TimeSpan?)] = DataTypeConstants.Duration,
         [typeof(decimal)] = DataTypeConstants.Decimal,
-        [typeof(decimal?)] = DataTypeConstants.Decimal, 
+        [typeof(decimal?)] = DataTypeConstants.Decimal,
         [typeof(double)] = DataTypeConstants.Number,
         [typeof(double?)] = DataTypeConstants.Number,
         [typeof(float)] = DataTypeConstants.Number,
@@ -55,10 +55,10 @@ public static class TypeExtensions
         {
             return DataTypeConstants.String;
         }
-        
+
         return DataTypeConstants.Object;
     }
-    
+
     public static ResourcePropertyType GetResourcePropertyType(this Type propertyType)
     {
         Type nonNullableType = propertyType.StripNullable();
@@ -82,14 +82,9 @@ public static class TypeExtensions
                 return ResourcePropertyType.EmbeddedResourceCollection;
             }
 
-            if (enumerableElementType.IsChildResource())
-            {
-                return ResourcePropertyType.EmbeddedChildResourceCollection;
-            }
-
             return ResourcePropertyType.VanillaCollection;
         }
-        
+
         if (nonNullableType.IsEntityId() || nonNullableType ==  typeof(Guid))
         {
             return ResourcePropertyType.RelatedResource;
@@ -98,11 +93,6 @@ public static class TypeExtensions
         if (nonNullableType.IsResource())
         {
             return ResourcePropertyType.EmbeddedResource;
-        }
-
-        if (nonNullableType.IsChildResource())
-        {
-            return ResourcePropertyType.EmbeddedChildResource;
         }
 
         if (nonNullableType.IsLookupResource())
@@ -114,25 +104,22 @@ public static class TypeExtensions
         {
             return ResourcePropertyType.Enumeration;
         }
-        
+
         return ResourcePropertyType.VanillaScalar;
     }
-        
-    public static bool IsResource(this Type type) =>
-        !type.IsInterface
-        && !type.IsAbstract
-        && type.BaseType == typeof(Resource);
 
-    public static bool IsChildResource(this Type type) =>
-        !type.IsInterface
+    public static bool IsResource(this Type type) =>
+        type.IsClass
         && !type.IsAbstract
-        && type.BaseType == typeof(ChildResource);
+        && type != typeof(string)
+        && type != typeof(LookupResource)
+        && !type.IsComplexValueObjectResource();
 
     public static bool IsComplexValueObjectResource(this Type type) =>
         !type.IsInterface
         && !type.IsAbstract
         && type.BaseType == typeof(ComplexValueObjectResource);
-    
+
     public static bool IsLookupResource(this Type type) =>
         type == typeof(LookupResource);
 

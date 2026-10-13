@@ -78,9 +78,8 @@ public sealed class ComplexAggregate : AggregateRoot<ComplexAggregate>
     public UkBankDetails? Bank { get; set; }
 }
 
-public sealed class ComplexResource : Resource
+public sealed class ComplexResource
 {
-    public override string GetCollectionPath() => "/complex";
 
     public AddressResource? Address { get; set; }
     public AddressBookResource? Book { get; set; }
@@ -124,13 +123,18 @@ public sealed class FixtureRouteGenerator : IRouteGenerator
     private static Uri Route => new("/complex/123", UriKind.Relative);
     public Uri Item<T>(EntityId<T> id, QueryParameters? queryParameters = null) where T : AggregateRoot<T> => Route;
     public Uri Item(Type aggregateRootType, Guid id, QueryParameters? queryParameters = null) => Route;
+    public Uri Item(Type aggregateRootType, Type resourceType, Guid id, QueryParameters? queryParameters = null) => Route;
     public Uri Collection<T>(QueryParameters? queryParameters = null) where T : AggregateRoot<T> => Route;
     public Uri Collection(Type aggregateRootType, QueryParameters? queryParameters = null) => Route;
+    public Uri Collection(Type aggregateRootType, Type resourceType, QueryParameters? queryParameters = null) => Route;
     public Uri CreateForm<T>(QueryParameters? queryParameters = null) where T : AggregateRoot<T> => Route;
     public Uri CreateForm(Type aggregateRootType, QueryParameters? queryParameters = null) => Route;
+    public Uri CreateForm(Type aggregateRootType, Type resourceType, QueryParameters? queryParameters = null) => Route;
     public Uri EditForm<T>(EntityId<T> id, QueryParameters? queryParameters = null) where T : AggregateRoot<T> => Route;
     public Uri EditForm(Type aggregateRootType, Guid id, QueryParameters? queryParameters = null) => Route;
+    public Uri EditForm(Type aggregateRootType, Type resourceType, Guid id, QueryParameters? queryParameters = null) => Route;
     public Uri Projection<T, TProjection>(EntityId<T> id, QueryParameters? queryParameters = null)
         where T : AggregateRoot<T> where TProjection : Projection<T> => Route;
     public Uri Projection(Type aggregateRootType, Type projectionType, Guid id, QueryParameters? queryParameters = null) => Route;
+    public Uri Projection(Type aggregateRootType, Type resourceType, Type projectionType, Guid id, QueryParameters? queryParameters = null) => Route;
 }

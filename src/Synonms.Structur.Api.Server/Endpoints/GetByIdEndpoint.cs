@@ -17,7 +17,7 @@ namespace Synonms.Structur.Api.Server.Endpoints;
 [EnableCors(CorsConstants.PolicyName)]
 public class GetByIdEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
     private readonly IQueryHandler<FindResourceQuery<TAggregateRoot, TResource>, FindResourceQueryResponse<TAggregateRoot, TResource>> _queryHandler;
 
@@ -31,20 +31,20 @@ public class GetByIdEndpoint<TAggregateRoot, TResource> : ControllerBase
     public async Task<IActionResult> GetByIdAsync([FromRoute] EntityId<TAggregateRoot> id)
     {
         EntityTag? ifNoneMatch = HttpContext.Request.Headers.ExtractIfNoneMatch();
-        
+
         FindResourceQuery<TAggregateRoot, TResource> request = new(id)
         {
             IfNoneMatch = ifNoneMatch
         };
-        
+
         Result<FindResourceQueryResponse<TAggregateRoot, TResource>> queryResult = await _queryHandler.HandleAsync(request);
-    
+
         return queryResult.Match<IActionResult>(
             queryResponse =>
             {
-                ResourceDocument<TResource> document = new(queryResponse.Resource.SelfLink, queryResponse.Resource);
+                ResourceDocument<TResource> document = new(queryResponse.Envelope);
 
-                HttpContext.Response.Headers[HeaderNames.ETag] = queryResponse.EntityTag.ToString();     
+                HttpContext.Response.Headers[HeaderNames.ETag] = queryResponse.EntityTag.ToString();
 
                 return Ok(document);
             },

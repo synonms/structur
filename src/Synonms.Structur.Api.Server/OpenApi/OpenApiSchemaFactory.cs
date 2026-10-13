@@ -45,10 +45,10 @@ public static class OpenApiSchemaFactory
             properties.Add("id", new OpenApiSchema { Type = JsonSchemaType.String, Format = "uuid" });
                 /*            { "createdAt", new OpenApiSchema { Type = "string", Format = "date-time" } },
                             { "updatedAt", new OpenApiSchema { Type = "string", Format = "date-time" } }*/
-                
+
             List<string> requiredProperties = [];
 
-            string[] propertiesToExclude = [nameof(Resource.Id), /*nameof(Resource.CreatedAt), nameof(Resource.UpdatedAt),*/ nameof(Resource.SelfLink), nameof(Resource.Links)];
+            string[] propertiesToExclude = ["Id", "SelfLink", "Links", "SupportedVersions"];
 
             foreach (PropertyInfo resourcePropertyInfo in resourceAttribute.ResourceType.GetPublicInstanceProperties(propertiesToExclude))
             {
@@ -72,7 +72,7 @@ public static class OpenApiSchemaFactory
 
             return componentSchema;
         });
-    
+
     private static OpenApiSchema GetOrCreateSchemaReferenceForResource(ILogger logger, OpenApiDocument openApiDocument, string componentSchemaName, Type objectType) =>
         openApiDocument.GetOrCreateSchemaReference(componentSchemaName, () =>
         {
@@ -80,7 +80,7 @@ public static class OpenApiSchemaFactory
             List<string> requiredProperties = [];
 
             string[] propertiesToExclude =
-                [nameof(Resource.Id), /*nameof(Resource.IsDeleted), nameof(Resource.CreatedAt), nameof(Resource.UpdatedAt),*/ nameof(Resource.SelfLink), nameof(Resource.Links)];
+                ["Id", "SelfLink", "Links", "SupportedVersions"];
 
             foreach (PropertyInfo propertyInfo in objectType.GetPublicInstanceProperties(propertiesToExclude))
             {
@@ -101,14 +101,12 @@ public static class OpenApiSchemaFactory
                 Properties = properties
             };
         });
-    
+
     private static OpenApiSchema GenerateSchemaForProperty(ILogger logger, OpenApiDocument openApiDocument, string propertyName, Type propertyType) =>
         propertyType.GetResourcePropertyType() switch
         {
             ResourcePropertyType.EmbeddedResource => GetOrCreateSchemaReferenceForResource(logger, openApiDocument, propertyType.Name, propertyType),
-            ResourcePropertyType.EmbeddedChildResource => GetOrCreateSchemaReferenceForResource(logger, openApiDocument, propertyType.Name, propertyType),
             ResourcePropertyType.EmbeddedResourceCollection => CreateSchemaForArray(logger, openApiDocument, propertyName, propertyType),
-            ResourcePropertyType.EmbeddedChildResourceCollection => CreateSchemaForArray(logger, openApiDocument, propertyName, propertyType),
             ResourcePropertyType.EmbeddedLookupResource => GetOrCreateSchemaReferenceForResource(logger, openApiDocument, propertyType.Name, propertyType),
             ResourcePropertyType.RelatedResource => GetOrCreateSchemaReferenceForResource(logger, openApiDocument, propertyType.Name, propertyType),
             ResourcePropertyType.RelatedResourceCollection => CreateSchemaForArray(logger, openApiDocument, propertyName, propertyType),
@@ -117,7 +115,7 @@ public static class OpenApiSchemaFactory
             ResourcePropertyType.VanillaScalar => CreateSchemaForScalar(logger, propertyName, propertyType),
             _ => new OpenApiSchema()
         };
-    
+
     private static OpenApiSchema CreateSchemaForArray(ILogger logger, OpenApiDocument openApiDocument, string propertyName, Type arrayType)
     {
         Type? elementType = arrayType.GetArrayOrEnumerableElementType();
@@ -125,45 +123,45 @@ public static class OpenApiSchemaFactory
         if (elementType is null)
         {
             logger.LogWarning("Unable to determine element type for array type '{ArrayType}'.", arrayType.Name);
-            
+
             return new OpenApiSchema();
         }
 
         return new OpenApiSchema
         {
-            Type = JsonSchemaType.Array, 
+            Type = JsonSchemaType.Array,
             Items = GenerateSchemaForProperty(logger, openApiDocument, propertyName, elementType)
         };
     }
-    
+
     private static OpenApiSchema CreateSchemaForEnum(Type enumPropertyType)
     {
         bool isNullable = enumPropertyType.IsNullable();
         Type nonNullableType = isNullable ? (enumPropertyType.GetNullableType() ?? enumPropertyType) : enumPropertyType;
-        
+
         List<JsonNode> enumNames = Enum.GetNames(nonNullableType).Select(JsonNode (x) => JsonValue.Create(x)).ToList();
-        
+
         return new OpenApiSchema
         {
-            Type = JsonSchemaType.String, 
+            Type = JsonSchemaType.String,
             Enum = enumNames
         };
     }
-    
+
     private static OpenApiSchema CreateSchemaForScalar(ILogger logger, string propertyName, Type scalarPropertyType)
     {
         bool isNullable = scalarPropertyType.IsNullable();
         Type nonNullableType = isNullable ? (scalarPropertyType.GetNullableType() ?? scalarPropertyType) : scalarPropertyType;
-        
+
         if (PrimitiveTypesAndFormats.TryGetValue(nonNullableType, out PropertyDataType? propertyDataType))
         {
             return new OpenApiSchema
             {
-                Type = propertyDataType.Type, 
+                Type = propertyDataType.Type,
                 Format = propertyDataType.Format
             };
         }
-        
+
         logger.LogWarning("Unable to map scalar property '{PropertyName}' of type '{PropertyType}'.", propertyName, nonNullableType.Name);
 
         return new OpenApiSchema();

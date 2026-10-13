@@ -6,12 +6,13 @@ namespace Synonms.Structur.Api.Server.Mediation.Commands;
 
 public class CreateResourceCommand<TAggregateRoot, TResource> : Command
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
-    public CreateResourceCommand(TResource resource)
+    public CreateResourceCommand(ResourceEnvelope<TResource> envelope)
     {
-        Resource = resource;
+        Envelope = envelope;
     }
 
-    public TResource Resource { get; }
+    public ResourceEnvelope<TResource> Envelope { get; }
+
 }

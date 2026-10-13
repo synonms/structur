@@ -3,11 +3,12 @@
 <PageTitle>Update Employment</PageTitle>
 
 <CarbonBlazorPane Title="Update Employment">
-    <EmploymentForm Model="_model" OperationType="OperationType.Update" ValidSubmitCallback="OnValidSubmitAsync"></EmploymentForm>
+    <EmploymentForm Model="_model" Id="Id" Metadata="_metadata" OperationType="OperationType.Update" ValidSubmitCallback="OnValidSubmitAsync"></EmploymentForm>
 </CarbonBlazorPane>
 
 @code {
     private EmploymentResource? _model;
+    private ResourceMetadata? _metadata;
     
     [Inject]
     public required TenantContextAccessor TenantContextAccessor { get; set; }
@@ -57,6 +58,7 @@
                 document =>
                 {
                     _model = document.Resource;
+                    _metadata = document.Metadata;
                 },
                 fault =>
                 {
@@ -84,7 +86,8 @@
             {
                 TenantId = TenantContextAccessor.SelectedTenantId,
                 Id = Id,
-                Resource = _model
+                Resource = _model,
+                Metadata = _metadata
             };
             
             Result<PutResponse> result = await EmploymentsHttpClient.PutAsync(request);

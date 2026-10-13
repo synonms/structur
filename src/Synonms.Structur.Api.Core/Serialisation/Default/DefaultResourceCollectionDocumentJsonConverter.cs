@@ -4,12 +4,15 @@ using Synonms.Structur.Api.Core.Iana;
 using Synonms.Structur.Api.Core.Schema;
 using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Core.Serialisation.Ion;
+using Synonms.Structur.Api.Core.Serialisation;
 
 namespace Synonms.Structur.Api.Core.Serialisation.Default;
 
 public class DefaultResourceCollectionDocumentJsonConverter<TResource> : JsonConverter<ResourceCollectionDocument<TResource>>
-    where TResource : Resource
 {
+    private readonly Version _version;
+
+    public DefaultResourceCollectionDocumentJsonConverter(Version version) => _version = version;
     public override ResourceCollectionDocument<TResource> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (!JsonDocument.TryParseValue(ref reader, out JsonDocument? doc))
@@ -26,22 +29,26 @@ public class DefaultResourceCollectionDocumentJsonConverter<TResource> : JsonCon
             throw new JsonException($"Expected '{IonPropertyNames.Value}' property to be an array.");
         }
 
-        List<TResource> clientResources = new();
+        List<ResourceEnvelope<TResource>> clientResources = new();
 
         foreach (JsonElement valueElement in valueArray.EnumerateArray())
         {
-            TResource? clientResource = JsonSerializer.Deserialize<TResource>(valueElement.ToString(), options);
+            TResource? clientResource = (TResource?)ResourceJsonDataReader.Deserialize(
+                valueElement.GetRawText(),
+                typeof(TResource),
+                options,
+                out ResourceMetadata metadata);
 
             if (clientResource is null)
             {
                 throw new JsonException($"Unable to deserialise client resource type {nameof(TResource)}.");
             }
 
-            clientResources.Add(clientResource);
+            clientResources.Add(new ResourceEnvelope<TResource>(clientResource, metadata));
         }
 
         string selfLinkJson = jsonDocument.RootElement.TryGetProperty(IanaLinkRelationConstants.Self, out JsonElement selfElement) ? selfElement.ToString() : string.Empty;
-            
+
         Link selfLink = JsonSerializer.Deserialize<Link>(selfLinkJson, options) ?? Link.EmptyLink();
 
         Pagination? pagination = JsonSerializer.Deserialize<Pagination>(jsonDocument.RootElement.ToString(), options);
@@ -63,7 +70,12 @@ public class DefaultResourceCollectionDocumentJsonConverter<TResource> : JsonCon
         writer.WriteStartObject();
 
         writer.WritePropertyName(IonPropertyNames.Value);
-        JsonSerializer.Serialize(writer, value.Resources, options);
+        writer.WriteStartArray();
+        foreach (ResourceEnvelope<TResource> envelope in value.Envelopes)
+        {
+            ResourceJsonWriter.Write(writer, envelope, options, _version, false);
+        }
+        writer.WriteEndArray();
 
         if (value.Links.TryGetValue(IanaLinkRelationConstants.Self, out Link? selfLink))
         {

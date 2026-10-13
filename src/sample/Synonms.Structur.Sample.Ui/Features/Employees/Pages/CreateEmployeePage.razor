@@ -7,10 +7,7 @@
 </CarbonBlazorPane>
 
 @code {
-    private readonly EmployeeResource _model = new()
-    {
-        Id = Guid.NewGuid()
-    };
+    private readonly EmployeeResource _model = new();
 
     [Inject]
     public required TenantContextAccessor TenantContextAccessor { get; set; }

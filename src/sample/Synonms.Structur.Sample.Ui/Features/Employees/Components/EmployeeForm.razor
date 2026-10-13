@@ -91,6 +91,9 @@
     [Parameter, EditorRequired]
     public EmployeeResource Model { get; set; }
 
+    [Parameter]
+    public Guid Id { get; set; }
+
     [Parameter, EditorRequired]
     public EventCallback ValidSubmitCallback { get; set; }
     
@@ -195,7 +198,7 @@
             return;
         }
         
-        NavigationManager.NavigateTo("employees/" + Model.Id + "/update");
+        NavigationManager.NavigateTo("employees/" + Id + "/update");
     }
 
     private async Task OnValidSubmit()

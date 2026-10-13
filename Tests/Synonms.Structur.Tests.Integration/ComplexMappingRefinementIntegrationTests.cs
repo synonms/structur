@@ -139,12 +139,14 @@ public class ComplexMappingRefinementIntegrationTests
         DefaultChildResourceMapper<ComplexMember, ComplexChildResource> mapper = new(
             NullLogger<DefaultChildResourceMapper<ComplexMember, ComplexChildResource>>.Instance,
             new EmptyResourceMapperFactory(), new EmptyChildResourceMapperFactory(), new FixtureRouteGenerator());
-        ComplexChildResource resource = mapper.Map(member)!;
-        Assert.Equal(member.Id.Value, resource.Id);
+        ResourceEnvelope<ComplexChildResource> envelope = mapper.MapEnvelope(member)!;
+        ComplexChildResource resource = envelope.Data;
+        Assert.Equal(member.Id.Value, envelope.Metadata.Id);
         Assert.Equal("child", resource.Address!.Line1);
         Assert.Equal(new[] { null, "last" }, resource.Addresses!.Select(address => address?.Line1));
         Assert.Equal("nested", resource.Book!.Addresses![0].Line1);
-        ComplexChildResource empty = mapper.Map(new ComplexMember(EntityId<ComplexMember>.New()))!;
+        ResourceEnvelope<ComplexChildResource> emptyEnvelope = mapper.MapEnvelope(new ComplexMember(EntityId<ComplexMember>.New()))!;
+        ComplexChildResource empty = emptyEnvelope.Data;
         Assert.Null(empty.Address);
         Assert.Null(empty.Addresses);
         Assert.Null(empty.Book);
@@ -257,7 +259,7 @@ public class ComplexMappingRefinementIntegrationTests
         public AddressCollection? Addresses { get; set; }
         public AddressBook? Book { get; set; }
     }
-    public sealed class ComplexChildResource : ChildResource
+    public sealed class ComplexChildResource
     {
         public AddressResource? Address { get; set; }
         public List<AddressResource?>? Addresses { get; set; }

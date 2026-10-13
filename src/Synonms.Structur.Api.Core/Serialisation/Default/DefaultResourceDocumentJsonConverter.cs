@@ -3,11 +3,16 @@ using System.Text.Json.Serialization;
 using Synonms.Structur.Api.Core.Iana;
 using Synonms.Structur.Api.Core.Schema;
 using Synonms.Structur.Api.Core.Schema.Resources;
+using Synonms.Structur.Api.Core.Serialisation;
 
 namespace Synonms.Structur.Api.Core.Serialisation.Default;
 
 public class DefaultResourceDocumentJsonConverter<TResource> : JsonConverter<ResourceDocument<TResource>>
 {
+    private readonly Version _version;
+
+    public DefaultResourceDocumentJsonConverter(Version version) => _version = version;
+
     public override ResourceDocument<TResource> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (!JsonDocument.TryParseValue(ref reader, out JsonDocument? doc))
@@ -19,7 +24,11 @@ public class DefaultResourceDocumentJsonConverter<TResource> : JsonConverter<Res
 
         JsonElement valueElement = jsonDocument.RootElement.GetProperty(DefaultPropertyNames.Value);
 
-        TResource? clientResource = JsonSerializer.Deserialize<TResource>(valueElement.ToString(), options);
+        TResource? clientResource = (TResource?)ResourceJsonDataReader.Deserialize(
+            valueElement.GetRawText(),
+            typeof(TResource),
+            options,
+            out ResourceMetadata metadata);
 
         if (clientResource is null)
         {
@@ -27,10 +36,11 @@ public class DefaultResourceDocumentJsonConverter<TResource> : JsonConverter<Res
         }
 
         string selfLinkJson = jsonDocument.RootElement.TryGetProperty(IanaLinkRelationConstants.Self, out JsonElement selfElement) ? selfElement.ToString() : string.Empty;
-            
+
         Link selfLink = JsonSerializer.Deserialize<Link>(selfLinkJson, options) ?? Link.EmptyLink();
 
-        ResourceDocument<TResource> resourceDocument = new(selfLink, clientResource);
+        metadata.SelfLink = selfLink;
+        ResourceDocument<TResource> resourceDocument = new(new ResourceEnvelope<TResource>(clientResource, metadata));
 
         return resourceDocument;
     }
@@ -40,7 +50,7 @@ public class DefaultResourceDocumentJsonConverter<TResource> : JsonConverter<Res
         writer.WriteStartObject();
 
         writer.WritePropertyName(DefaultPropertyNames.Value);
-        JsonSerializer.Serialize(writer, value.Resource, options);
+        ResourceJsonWriter.Write(writer, new ResourceEnvelope<TResource>(value.Resource, value.Metadata), options, _version, false);
 
         if (value.Links.TryGetValue(IanaLinkRelationConstants.Self, out Link? selfLink))
         {

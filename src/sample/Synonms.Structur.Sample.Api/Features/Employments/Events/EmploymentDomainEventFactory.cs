@@ -1,4 +1,5 @@
 using Synonms.Structur.Api.Server.Events;
+using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Server.Tenants.Context;
 using Synonms.Structur.Api.Server.Users;
 using Synonms.Structur.Api.Server.Versioning.Context;
@@ -25,15 +26,14 @@ public class EmploymentDomainEventFactory : IDomainEventFactory<Employment, Empl
         _userActionProvider = userActionProvider;
     }
 
-    public Task<Result<DomainEvent<Employment>>> GenerateCreatedEvent(EmploymentResource resource, CancellationToken cancellationToken) =>
-        Task.FromResult(_tenantContext.GetTenant().Bind(tenant => Result<DomainEvent<Employment>>.Success(new EmploymentCreatedEvent(_userActionProvider, _versionContext, (EntityId<Employment>)resource.Id, resource, tenant.Id))));
+    public Task<Result<DomainEvent<Employment>>> GenerateCreatedEvent(ResourceEnvelope<EmploymentResource> envelope, CancellationToken cancellationToken) =>
+        Task.FromResult(_tenantContext.GetTenant().Bind(tenant => Result<DomainEvent<Employment>>.Success(new EmploymentCreatedEvent(_userActionProvider, _versionContext, envelope, tenant.Id))));
 
     public Task<Result<DomainEvent<Employment>>> GenerateDeletedEvent(EntityId<Employment> aggregateId, CancellationToken cancellationToken) =>
         Task.FromResult(Result<DomainEvent<Employment>>.Failure(new DomainRuleFault("Employment deletion is not supported.")));
 
-    public Task<Result<DomainEvent<Employment>>> GenerateUpdatedEvent(EmploymentResource resource, CancellationToken cancellationToken) =>
-        Task.FromResult(_tenantContext.GetTenant().Bind(tenant => Result<DomainEvent<Employment>>.Success(new EmploymentUpdatedEvent(_userActionProvider, _versionContext, (EntityId<Employment>)resource.Id, resource, tenant.Id))));
+    public Task<Result<DomainEvent<Employment>>> GenerateUpdatedEvent(ResourceEnvelope<EmploymentResource> envelope, CancellationToken cancellationToken) =>
+        Task.FromResult(_tenantContext.GetTenant().Bind(tenant => Result<DomainEvent<Employment>>.Success(new EmploymentUpdatedEvent(_userActionProvider, _versionContext, (EntityId<Employment>)envelope.Metadata.Id, envelope, tenant.Id))));
 }
-
 
 

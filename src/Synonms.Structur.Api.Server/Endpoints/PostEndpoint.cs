@@ -9,6 +9,7 @@ using Synonms.Structur.Api.Core.Schema.Errors;
 using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Server.Cors;
 using Synonms.Structur.Api.Server.Http;
+using Synonms.Structur.Api.Server.Hypermedia;
 using Synonms.Structur.Api.Server.Mediation.Commands;
 using Synonms.Structur.Api.Server.Routing;
 using Synonms.Structur.Api.Server.Schema.Errors;
@@ -23,7 +24,7 @@ namespace Synonms.Structur.Api.Server.Endpoints;
 [EnableCors(CorsConstants.PolicyName)]
 public class PostEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
     private readonly ICommandHandler<CreateResourceCommand<TAggregateRoot, TResource>, CreateResourceCommandResponse<TAggregateRoot>> _commandHandler;
     private readonly IRouteGenerator _routeGenerator;
@@ -35,30 +36,31 @@ public class PostEndpoint<TAggregateRoot, TResource> : ControllerBase
         _routeGenerator = routeGenerator;
         _errorCollectionDocumentFactory = errorCollectionDocumentFactory;
     }
-    
+
     [HttpPost]
     [Route("")]
     public async Task<IActionResult> PostAsync([FromBody] TResource? resource)
     {
-        Uri collectionUri = _routeGenerator.Collection<TAggregateRoot>();
+        Uri collectionUri = _routeGenerator.Collection(typeof(TAggregateRoot), typeof(TResource));
         Link requestedDocumentLink = new(collectionUri, IanaLinkRelationConstants.Collection, IanaHttpMethodConstants.Post);
 
         if (resource is null)
         {
-            ClientFault fault = new("Unable to parse resource from request.");  
+            ClientFault fault = new("Unable to parse resource from request.");
             ErrorCollectionDocument errorCollectionDocument = _errorCollectionDocumentFactory.Create(fault, requestedDocumentLink);
 
             return BadRequest(errorCollectionDocument);
         }
-        
-        CreateResourceCommand<TAggregateRoot, TResource> request = new(resource);
+
+        ResourceMetadata metadata = ResourceContractInputReader.GetMetadata(HttpContext);
+        CreateResourceCommand<TAggregateRoot, TResource> request = new(new ResourceEnvelope<TResource>(resource, metadata));
         Result<CreateResourceCommandResponse<TAggregateRoot>> commandResult = await _commandHandler.HandleAsync(request);
 
         return commandResult.Match(
             commandResponse =>
             {
-                Response.Headers[HeaderNames.Location] = _routeGenerator.Item(commandResponse.AggregateRoot.Id).OriginalString;
-                Response.Headers[HeaderNames.ETag] = commandResponse.AggregateRoot.EntityTag.ToString();    
+                Response.Headers[HeaderNames.Location] = _routeGenerator.Item(typeof(TAggregateRoot), typeof(TResource), commandResponse.AggregateRoot.Id.Value).OriginalString;
+                Response.Headers[HeaderNames.ETag] = commandResponse.AggregateRoot.EntityTag.ToString();
 
                 return StatusCode(StatusCodes.Status201Created);
             },

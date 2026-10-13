@@ -3,22 +3,8 @@ namespace Synonms.Structur.Api.Core.Schema.Resources;
 public enum ResourcePropertyType
 {
     Unknown = 0,
-    /// <summary>
-    /// TResource
-    /// </summary>
     EmbeddedResource,
-    /// <summary>
-    /// TChildResource
-    /// </summary>
-    EmbeddedChildResource,
-    /// <summary>
-    /// IEnumerable&lt;Resource&gt;
-    /// </summary>
     EmbeddedResourceCollection,
-    /// <summary>
-    /// IEnumerable&lt;TChildResource&gt;
-    /// </summary>
-    EmbeddedChildResourceCollection,
     /// <summary>
     /// LookupResource
     /// </summary>

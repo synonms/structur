@@ -10,7 +10,7 @@ namespace Synonms.Structur.Api.Server.Schema.Forms;
 
 public static class PropertyInfoExtensions
 {
-    public static FormField CreateFormField(this PropertyInfo propertyInfo, object instance, ILookupOptionsProvider lookupOptionsProvider) 
+    public static FormField CreateFormField(this PropertyInfo propertyInfo, object instance, ILookupOptionsProvider lookupOptionsProvider)
     {
         string name = propertyInfo.GetFormFieldName();
 
@@ -22,7 +22,7 @@ public static class PropertyInfoExtensions
             {
                 throw new Exception($"Unable to determine element type for property '{propertyInfo.Name}' of type [{propertyInfo.PropertyType}].");
             }
-            
+
             return new FormField(name, propertyInfo.PropertyType, elementType)
             {
                 Description = propertyInfo.GetFormFieldDescription(),
@@ -39,7 +39,7 @@ public static class PropertyInfoExtensions
                 Value = propertyInfo.GetFormFieldValue(instance)
             };
         }
-        
+
         return new FormField(name, propertyInfo.PropertyType)
         {
             Description = propertyInfo.GetFormFieldDescription(),
@@ -71,11 +71,11 @@ public static class PropertyInfoExtensions
             maximum = default!;
             return false;
         }
-        
+
         maximum = maxAsT;
         return true;
     }
-    
+
     public static bool HasMaxLength(this PropertyInfo propertyInfo, out int maxLength)
     {
         StructurMaxLengthAttribute? maxLengthAttribute = propertyInfo.GetCustomAttribute<StructurMaxLengthAttribute>();
@@ -85,11 +85,11 @@ public static class PropertyInfoExtensions
             maxLength = default;
             return false;
         }
-        
+
         maxLength = maxLengthAttribute.MaxLength;
         return true;
     }
-    
+
     public static bool HasMaxSize(this PropertyInfo propertyInfo, out int maxSize)
     {
         StructurMaxSizeAttribute? maxSizeAttribute = propertyInfo.GetCustomAttribute<StructurMaxSizeAttribute>();
@@ -99,11 +99,11 @@ public static class PropertyInfoExtensions
             maxSize = default;
             return false;
         }
-        
+
         maxSize = maxSizeAttribute.MaxSize;
         return true;
     }
-    
+
     public static bool HasMin<T>(this PropertyInfo propertyInfo, out T minimum)
     {
         StructurMinValueAttribute? minValueAttribute = propertyInfo.GetCustomAttribute<StructurMinValueAttribute>();
@@ -113,11 +113,11 @@ public static class PropertyInfoExtensions
             minimum = default!;
             return false;
         }
-        
+
         minimum = minAsT;
         return true;
     }
-    
+
     public static bool HasMinLength(this PropertyInfo propertyInfo, out int minLength)
     {
         StructurMinLengthAttribute? minLengthAttribute = propertyInfo.GetCustomAttribute<StructurMinLengthAttribute>();
@@ -127,11 +127,11 @@ public static class PropertyInfoExtensions
             minLength = default;
             return false;
         }
-        
+
         minLength = minLengthAttribute.MinLength;
         return true;
     }
-    
+
     public static bool HasMinSize(this PropertyInfo propertyInfo, out int minSize)
     {
         StructurMinSizeAttribute? minSizeAttribute = propertyInfo.GetCustomAttribute<StructurMinSizeAttribute>();
@@ -141,11 +141,11 @@ public static class PropertyInfoExtensions
             minSize = default;
             return false;
         }
-        
+
         minSize = minSizeAttribute.MinSize;
         return true;
     }
-    
+
     public static bool HasPattern(this PropertyInfo propertyInfo, out string pattern)
     {
         StructurPatternAttribute? patternAttribute = propertyInfo.GetCustomAttribute<StructurPatternAttribute>();
@@ -155,7 +155,7 @@ public static class PropertyInfoExtensions
             pattern = string.Empty;
             return false;
         }
-        
+
         pattern = patternAttribute.Pattern;
         return true;
     }
@@ -179,19 +179,19 @@ public static class PropertyInfoExtensions
         if (propertyInfo.PropertyType.IsArrayOrEnumerable())
         {
             Type? elementType = propertyInfo.PropertyType.GetArrayOrEnumerableElementType();
-    
+
             if (elementType is null)
             {
                 return null;
             }
-    
-            if (elementType.IsResource() || elementType.IsChildResource() || elementType.IsComplexValueObjectResource())
+
+            if (elementType.IsResource() || elementType.IsComplexValueObjectResource())
             {
-                object? resource = Activator.CreateInstance(elementType);
-    
+                object? resource = ResourceContractActivator.Create(elementType);
+
                 return resource?.GetFormFields(lookupOptionsProvider);
             }
-            
+
             return new []
             {
                 new FormField(propertyInfo.Name.ToPascalCase(), elementType)
@@ -207,22 +207,22 @@ public static class PropertyInfoExtensions
                 }
             };
         }
-    
+
         return null;
     }
 
     private static IEnumerable<FormField>? GetFormFieldForm(this PropertyInfo propertyInfo, object instance, ILookupOptionsProvider lookupOptionsProvider)
     {
-        if (propertyInfo.PropertyType.IsResource() || propertyInfo.PropertyType.IsChildResource() || propertyInfo.PropertyType.IsComplexValueObjectResource())
+        if (propertyInfo.PropertyType.IsResource() || propertyInfo.PropertyType.IsComplexValueObjectResource())
         {
             object? value = propertyInfo.GetValue(instance);
-            
+
             return value?.GetFormFields(lookupOptionsProvider);
         }
-    
+
         return null;
     }
-    
+
     private static bool? GetFormFieldIsEnabled(this PropertyInfo propertyInfo)
     {
         StructurDisabledAttribute? disabledAttribute = propertyInfo.GetCustomAttribute<StructurDisabledAttribute>();
@@ -232,14 +232,14 @@ public static class PropertyInfoExtensions
 
     private static bool? GetFormFieldIsMutable(this PropertyInfo propertyInfo, object instance)
     {
-        if (propertyInfo.Name == nameof(Resource.Id))
+        if (propertyInfo.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
         {
             if (propertyInfo.GetValue(instance) is Guid guid)
             {
                 return guid == Guid.Empty;
             }
         }
-        
+
         StructurImmutableAttribute? immutableAttribute = propertyInfo.GetCustomAttribute<StructurImmutableAttribute>();
 
         return immutableAttribute is not null ? false : null;
@@ -265,7 +265,7 @@ public static class PropertyInfoExtensions
 
         return descriptorAttribute?.Label;
     }
-    
+
     private static string GetFormFieldName(this PropertyInfo propertyInfo)
     {
         StructurDescriptorAttribute? descriptorAttribute = propertyInfo.GetCustomAttribute<StructurDescriptorAttribute>();
@@ -278,12 +278,12 @@ public static class PropertyInfoExtensions
     private static IEnumerable<FormFieldOption>? GetFormFieldOptions(this PropertyInfo propertyInfo, ILookupOptionsProvider lookupOptionsProvider)
     {
         StructurLookupAttribute? lookupAttribute = propertyInfo.GetCustomAttribute<StructurLookupAttribute>();
-        
+
         if (lookupAttribute is not null)
         {
             return lookupOptionsProvider.Get(lookupAttribute.Discriminator);
         }
-        
+
         List<StructurOptionAttribute> optionAttributes = propertyInfo.GetCustomAttributes<StructurOptionAttribute>().ToList();
 
         if (optionAttributes.Any() is false)
@@ -295,7 +295,7 @@ public static class PropertyInfoExtensions
 
         return formFieldOptions;
     }
-    
+
     private static string? GetFormFieldPlaceholder(this PropertyInfo propertyInfo)
     {
         StructurDescriptorAttribute? descriptorAttribute = propertyInfo.GetCustomAttribute<StructurDescriptorAttribute>();
@@ -306,7 +306,7 @@ public static class PropertyInfoExtensions
     private static string? GetFormFieldElementType(this PropertyInfo propertyInfo)
     {
         Type? elementType = propertyInfo.PropertyType.GetArrayOrEnumerableElementType();
-    
+
         return elementType?.GetResourceDataType();
     }
 

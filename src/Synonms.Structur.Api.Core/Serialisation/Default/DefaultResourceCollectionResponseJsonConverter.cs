@@ -7,7 +7,7 @@ using Synonms.Structur.Api.Core.Schema.Resources;
 namespace Synonms.Structur.Api.Core.Serialisation.Default;
 
 public class DefaultResourceCollectionResponseJsonConverter<TResource> : JsonConverter<ResourceCollectionResponse<TResource>>
-    where TResource : Resource
+
 {
     public override ResourceCollectionResponse<TResource> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -26,7 +26,7 @@ public class DefaultResourceCollectionResponseJsonConverter<TResource> : JsonCon
             {
                 throw new JsonException($"Failed to deserialise {nameof(errorCollectionDocument)}.");
             }
-            
+
             return new ResourceCollectionResponse<TResource>(errorCollectionDocument);
         }
 
@@ -36,7 +36,7 @@ public class DefaultResourceCollectionResponseJsonConverter<TResource> : JsonCon
         {
             throw new JsonException($"Failed to deserialise {nameof(ResourceCollectionDocument<TResource>)}.");
         }
-            
+
         return new ResourceCollectionResponse<TResource>(resourceCollectionDocument);
     }
 

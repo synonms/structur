@@ -15,30 +15,35 @@ public class ControllerFeatureProvider : IApplicationFeatureProvider<ControllerF
     {
         _resourceDirectory = resourceDirectory;
     }
-    
+
     public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature)
     {
-        foreach ((string _, IResourceDirectory.AggregateRootLayout aggregateLayout) in _resourceDirectory.GetAllRoots())
+        foreach (IResourceDirectory.AggregateRootLayout aggregateLayout in _resourceDirectory.GetAllRoots())
         {
-            StructurResourceAttribute? resourceAttribute = aggregateLayout.AggregateRootType.GetCustomAttribute<StructurResourceAttribute>();
+            StructurResourceAttribute resourceAttribute = aggregateLayout.Registration;
 
-            if (resourceAttribute is null)
+            if (!resourceAttribute.IsReadDisabled)
             {
-                continue;
+                AddGetById(feature, aggregateLayout);
+                AddGetAll(feature, aggregateLayout);
+                AddGetProjections(feature, aggregateLayout);
             }
-            
-            AddGetById(feature, aggregateLayout);
-            AddGetAll(feature, aggregateLayout);
 
             if (resourceAttribute.IsCreateDisabled is false)
             {
-                AddCreateForm(feature, aggregateLayout);
+                if (!resourceAttribute.IsCreateFormDisabled)
+                {
+                    AddCreateForm(feature, aggregateLayout);
+                }
                 AddPost(feature, aggregateLayout);
             }
 
             if (resourceAttribute.IsUpdateDisabled is false)
             {
-                AddEditForm(feature, aggregateLayout);
+                if (!resourceAttribute.IsEditFormDisabled)
+                {
+                    AddEditForm(feature, aggregateLayout);
+                }
                 AddPut(feature, aggregateLayout);
             }
 
@@ -46,65 +51,63 @@ public class ControllerFeatureProvider : IApplicationFeatureProvider<ControllerF
             {
                 AddDelete(feature, aggregateLayout);
             }
-            
-            AddGetProjections(feature, aggregateLayout);
         }
     }
 
     private static void AddDelete(ControllerFeature feature, IResourceDirectory.AggregateRootLayout aggregateRootLayout)
     {
-        Type deleteEndpointType = typeof(DeleteEndpoint<>).MakeGenericType(aggregateRootLayout.AggregateRootType);
-                
+        Type deleteEndpointType = typeof(DeleteEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+
         feature.Controllers.Add(deleteEndpointType.GetTypeInfo());
     }
 
     private static void AddGetById(ControllerFeature feature, IResourceDirectory.AggregateRootLayout aggregateRootLayout)
     {
         Type getByIdEndpointType = typeof(GetByIdEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-                
+
         feature.Controllers.Add(getByIdEndpointType.GetTypeInfo());
     }
-    
+
     private static void AddGetAll(ControllerFeature feature, IResourceDirectory.AggregateRootLayout aggregateRootLayout)
     {
         Type getAllEndpointType = typeof(GetAllEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-                
+
         feature.Controllers.Add(getAllEndpointType.GetTypeInfo());
     }
 
     private static void AddPost(ControllerFeature feature, IResourceDirectory.AggregateRootLayout aggregateRootLayout)
     {
         Type postEndpointType = typeof(PostEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-                
+
         feature.Controllers.Add(postEndpointType.GetTypeInfo());
     }
-    
+
     private static void AddPut(ControllerFeature feature, IResourceDirectory.AggregateRootLayout aggregateRootLayout)
     {
         Type putEndpointType = typeof(PutEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-                
+
         feature.Controllers.Add(putEndpointType.GetTypeInfo());
     }
-    
+
     private static void AddCreateForm(ControllerFeature feature, IResourceDirectory.AggregateRootLayout aggregateRootLayout)
     {
         Type createFormEndpointType = typeof(CreateFormEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-                
+
         feature.Controllers.Add(createFormEndpointType.GetTypeInfo());
     }
-    
+
     private static void AddEditForm(ControllerFeature feature, IResourceDirectory.AggregateRootLayout aggregateRootLayout)
     {
         Type editFormEndpointType = typeof(EditFormEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-                
+
         feature.Controllers.Add(editFormEndpointType.GetTypeInfo());
     }
-    
+
     private static void AddGetProjections(ControllerFeature feature, IResourceDirectory.AggregateRootLayout aggregateRootLayout)
     {
         foreach (Type projectionType in aggregateRootLayout.ProjectionTypes)
         {
-            Type getProjectionEndpointType = typeof(GetProjectionEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, projectionType);
+            Type getProjectionEndpointType = typeof(GetProjectionEndpoint<,,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType, projectionType);
 
             feature.Controllers.Add(getProjectionEndpointType.GetTypeInfo());
         }

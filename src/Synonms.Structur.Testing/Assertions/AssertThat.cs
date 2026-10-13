@@ -7,14 +7,14 @@ namespace Synonms.Structur.Testing.Assertions;
 
 public static class AssertThat
 {
-    public static TResource Resource<TResource>(TResource resource) 
-        where TResource : Resource => 
+    public static TResource Resource<TResource>(TResource resource)
+         =>
         resource;
-        
-    public static Dictionary<string, Link> Links(Dictionary<string, Link> links) => 
+
+    public static Dictionary<string, Link> Links(Dictionary<string, Link> links) =>
         links;
 
-    public static IReadOnlyDictionary<string, Link> Links(IReadOnlyDictionary<string, Link> links) => 
+    public static IReadOnlyDictionary<string, Link> Links(IReadOnlyDictionary<string, Link> links) =>
         links;
 
     public static Dictionary<string, Link> LinksFromPagination(Pagination pagination)
@@ -29,7 +29,7 @@ public static class AssertThat
         {
             actualLinks[IanaLinkRelationConstants.Pagination.Previous] = pagination.Previous;
         }
-        
+
         if (pagination.Next is not null)
         {
             actualLinks[IanaLinkRelationConstants.Pagination.Next] = pagination.Next;

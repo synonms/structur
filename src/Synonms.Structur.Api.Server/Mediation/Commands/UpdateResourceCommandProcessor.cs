@@ -10,7 +10,7 @@ namespace Synonms.Structur.Api.Server.Mediation.Commands;
 
 public class UpdateResourceCommandProcessor<TAggregateRoot, TResource> : ICommandHandler<UpdateResourceCommand<TAggregateRoot, TResource>, UpdateResourceCommandResponse<TAggregateRoot>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
     private readonly IDomainEventFactory<TAggregateRoot, TResource> _domainEventFactory;
     private readonly IDomainEventRepository<TAggregateRoot> _domainEventRepository;
@@ -37,7 +37,7 @@ public class UpdateResourceCommandProcessor<TAggregateRoot, TResource> : IComman
                 });
 
         Result<TAggregateRoot> editOutcome = await findOutcome
-            .BindAsync(async aggregateRoot => await _domainEventFactory.GenerateUpdatedEvent(command.Resource)
+            .BindAsync(async aggregateRoot => await _domainEventFactory.GenerateUpdatedEvent(command.Envelope)
                 .BindAsync(async updatedEvent => await updatedEvent.ApplyAsync(aggregateRoot)
                     .BindAsync(async updatedAggregateRoot => await _domainEventRepository.CreateAsync(updatedEvent, cancellationToken)
                         .ToResultAsync(async () =>

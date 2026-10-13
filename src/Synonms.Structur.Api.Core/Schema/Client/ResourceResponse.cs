@@ -5,7 +5,7 @@ using Synonms.Structur.Core.Functional;
 namespace Synonms.Structur.Api.Core.Schema.Client;
 
 public class ResourceResponse<TResource> : OneOf<ErrorCollectionDocument, ResourceDocument<TResource>>
-    where TResource : Resource
+
 {
     public ResourceResponse(ErrorCollectionDocument leftValue) : base(leftValue)
     {

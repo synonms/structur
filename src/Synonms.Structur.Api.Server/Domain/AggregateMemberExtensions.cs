@@ -7,15 +7,29 @@ namespace Synonms.Structur.Api.Server.Domain;
 
 public static class AggregateMemberExtensions
 {
-    public static Maybe<Fault> MergeChanges<TAggregateMember, TChildResource>(this ICollection<TAggregateMember> aggregateMemberCollection, 
-        IEnumerable<TChildResource> updatedResources, 
-        Func<TChildResource, OneOf<TAggregateMember, IEnumerable<DomainRuleFault>>> createFunc,
+    public static Maybe<Fault> MergeChanges<TAggregateMember, TChildResource>(
+        this ICollection<TAggregateMember> aggregateMemberCollection,
+        IEnumerable<TChildResource> updatedResources,
+        ResourceMetadata metadata,
+        string propertyName,
+        Func<TChildResource, Guid, OneOf<TAggregateMember, IEnumerable<DomainRuleFault>>> createFunc,
+        Func<TAggregateMember, TChildResource, Maybe<Fault>> updateFunc)
+        where TAggregateMember : AggregateMember<TAggregateMember> =>
+        MergeChanges(
+            aggregateMemberCollection,
+            updatedResources.Select((resource, index) => (Resource: resource, Id: metadata.GetOrAddEmbeddedMetadata(resource!, $"{propertyName}[{index}]").Id)),
+            createFunc,
+            updateFunc);
+
+    private static Maybe<Fault> MergeChanges<TAggregateMember, TChildResource>(
+        ICollection<TAggregateMember> aggregateMemberCollection,
+        IEnumerable<(TChildResource Resource, Guid Id)> updatedResources,
+        Func<TChildResource, Guid, OneOf<TAggregateMember, IEnumerable<DomainRuleFault>>> createFunc,
         Func<TAggregateMember, TChildResource, Maybe<Fault>> updateFunc)
         where TAggregateMember : AggregateMember<TAggregateMember>
-        where TChildResource : ChildResource
     {
-        List<TChildResource> updatedResourcesList = updatedResources.ToList();
-        
+        List<(TChildResource Resource, Guid Id)> updatedResourcesList = updatedResources.ToList();
+
         List<TAggregateMember> aggregateMembersToDelete = aggregateMemberCollection
             .Where(aggregateMember => updatedResourcesList.All(updatedResource => updatedResource.Id != aggregateMember.Id.Value))
             .ToList();
@@ -30,7 +44,10 @@ public static class AggregateMemberExtensions
 
         foreach (TAggregateMember aggregateMember in aggregateMemberCollection)
         {
-            TChildResource? matchingResource = updatedResourcesList.SingleOrDefault(x => x.Id == aggregateMember.Id.Value);
+            TChildResource? matchingResource = updatedResourcesList
+                .Where(updatedResource => updatedResource.Id == aggregateMember.Id.Value)
+                .Select(updatedResource => updatedResource.Resource)
+                .SingleOrDefault();
 
             if (matchingResource is not null)
             {
@@ -43,12 +60,12 @@ public static class AggregateMemberExtensions
             }
         }
 
-        List<TChildResource> resourcesToAdd = updatedResourcesList
+        List<(TChildResource Resource, Guid Id)> resourcesToAdd = updatedResourcesList
             .Where(updatedResource => aggregateMemberCollection.All(aggregateMember => aggregateMember.Id.Value != updatedResource.Id))
             .ToList();
 
         return resourcesToAdd
-            .Select(createFunc)
+            .Select(updatedResource => createFunc(updatedResource.Resource, updatedResource.Id))
             .Reduce(aggregateMembersToAdd => aggregateMembersToAdd)
             .Match(
                 aggregateMembersToAdd =>

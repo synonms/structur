@@ -30,7 +30,11 @@ public static class ComplexValueObjectResourceMapping
         where TDestination : class
     {
         ArgumentNullException.ThrowIfNull(adapter);
-        Adapters[(typeof(TSource), typeof(TDestination))] = source => adapter((TSource)source);
+        if (!Adapters.TryAdd((typeof(TSource), typeof(TDestination)), source => adapter((TSource)source)))
+        {
+            throw new InvalidOperationException(
+                $"A complex value-object adapter is already registered for {typeof(TSource).FullName} -> {typeof(TDestination).FullName}.");
+        }
     }
 
     public static object? Map(Type sourceType, Type destinationType, object? value)

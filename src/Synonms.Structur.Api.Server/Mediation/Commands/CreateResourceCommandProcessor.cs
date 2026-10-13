@@ -11,7 +11,7 @@ namespace Synonms.Structur.Api.Server.Mediation.Commands;
 
 public class CreateResourceCommandProcessor<TAggregateRoot, TResource> : ICommandHandler<CreateResourceCommand<TAggregateRoot, TResource>, CreateResourceCommandResponse<TAggregateRoot>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
     private readonly IDomainEventFactory<TAggregateRoot, TResource> _domainEventFactory;
     private readonly IDomainEventRepository<TAggregateRoot> _domainEventRepository;
@@ -28,15 +28,18 @@ public class CreateResourceCommandProcessor<TAggregateRoot, TResource> : IComman
 
     public async Task<Result<CreateResourceCommandResponse<TAggregateRoot>>> HandleAsync(CreateResourceCommand<TAggregateRoot, TResource> command, CancellationToken cancellationToken)
     {
-        Maybe<TAggregateRoot> existingOutcome = await _readAggregateRepository.FindAsync((EntityId<TAggregateRoot>)command.Resource.Id, cancellationToken);
+        Maybe<TAggregateRoot> existingOutcome = command.Envelope.Metadata.Id == Guid.Empty
+            ? Maybe<TAggregateRoot>.None
+            : await _readAggregateRepository.FindAsync((EntityId<TAggregateRoot>)command.Envelope.Metadata.Id, cancellationToken);
 
         Result<DomainEvent<TAggregateRoot>> generateEventOutcome = await existingOutcome
             .MatchAsync(
-                existingAggregate => Result<DomainEvent<TAggregateRoot>>.FailureAsync(new DomainRuleFault("{entityType} Id '{id}' already exists.", nameof(TAggregateRoot), command.Resource.Id)), 
-                async () => await _domainEventFactory.GenerateCreatedEvent(command.Resource, cancellationToken));
-        
+                existingAggregate => Result<DomainEvent<TAggregateRoot>>.FailureAsync(
+                    new DomainRuleFault("{entityType} Id '{id}' already exists.", nameof(TAggregateRoot), command.Envelope.Metadata.Id)),
+                async () => await _domainEventFactory.GenerateCreatedEvent(command.Envelope, cancellationToken));
+
         Result<TAggregateRoot> createOutcome = await generateEventOutcome
-            .BindAsync(async createdEvent => 
+            .BindAsync(async createdEvent =>
                 await createdEvent.ApplyAsync(null)
                     .BindAsync(async aggregateRoot => await _domainEventRepository.CreateAsync(createdEvent, cancellationToken)
                         .ToResultAsync(async () =>
@@ -45,7 +48,7 @@ public class CreateResourceCommandProcessor<TAggregateRoot, TResource> : IComman
 
                             return Result<TAggregateRoot>.Success(aggregateRoot);
                         })));
-        
+
         return createOutcome.Bind(aggregateRoot =>
         {
             CreateResourceCommandResponse<TAggregateRoot> response = new(aggregateRoot);

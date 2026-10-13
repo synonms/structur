@@ -4,16 +4,8 @@ using Synonms.Structur.Core.Attributes;
 
 namespace Synonms.Structur.Sample.ClientApi.Features.Employees;
 
-public class EmployeeEqualOpportunitiesResource : ChildResource
+public class EmployeeEqualOpportunitiesResource
 {
-    public EmployeeEqualOpportunitiesResource()
-    {
-    }
-
-    public EmployeeEqualOpportunitiesResource(Guid id) : base(id)
-    {
-    }
-
     [StructurRequired]
     [StructurImmutable]
     public DateOnly BirthDate { get; set; }

@@ -3,11 +3,16 @@ using System.Text.Json.Serialization;
 using Synonms.Structur.Api.Core.Iana;
 using Synonms.Structur.Api.Core.Schema;
 using Synonms.Structur.Api.Core.Schema.Resources;
+using Synonms.Structur.Api.Core.Serialisation;
 
 namespace Synonms.Structur.Api.Core.Serialisation.Ion;
 
 public class IonResourceDocumentJsonConverter<TResource> : JsonConverter<ResourceDocument<TResource>>
 {
+    private readonly Version _version;
+
+    public IonResourceDocumentJsonConverter(Version version) => _version = version;
+
     public override ResourceDocument<TResource> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (!JsonDocument.TryParseValue(ref reader, out JsonDocument? doc))
@@ -19,7 +24,11 @@ public class IonResourceDocumentJsonConverter<TResource> : JsonConverter<Resourc
 
         JsonElement valueElement = jsonDocument.RootElement.GetProperty(IonPropertyNames.Value);
 
-        TResource? clientResource = JsonSerializer.Deserialize<TResource>(valueElement.ToString(), options);
+        TResource? clientResource = (TResource?)ResourceJsonDataReader.Deserialize(
+            valueElement.GetRawText(),
+            typeof(TResource),
+            options,
+            out ResourceMetadata metadata);
 
         if (clientResource is null)
         {
@@ -35,7 +44,11 @@ public class IonResourceDocumentJsonConverter<TResource> : JsonConverter<Resourc
             throw new JsonException($"Unable to extract [{IanaLinkRelationConstants.Self}] link from document.");
         }
 
-        ResourceDocument<TResource> resourceDocument = new(selfLink, clientResource);
+        metadata.SelfLink = valueElement.TryGetProperty(IanaLinkRelationConstants.Self, out JsonElement itemSelfElement)
+            ? JsonSerializer.Deserialize<Link>(itemSelfElement.GetRawText(), options) ?? selfLink
+            : selfLink;
+        valueElement.ForEachIonLinkProperty((linkName, link) => metadata.Links.Add(linkName, link), options);
+        ResourceDocument<TResource> resourceDocument = new(new ResourceEnvelope<TResource>(clientResource, metadata));
 
         jsonDocument.RootElement.ForEachIonLinkProperty((linkName, link) => resourceDocument.WithLink(linkName, link), options);
 
@@ -47,9 +60,9 @@ public class IonResourceDocumentJsonConverter<TResource> : JsonConverter<Resourc
         writer.WriteStartObject();
 
         writer.WritePropertyName(IonPropertyNames.Value);
-        JsonSerializer.Serialize(writer, value.Resource, options);
+        ResourceJsonWriter.Write(writer, new ResourceEnvelope<TResource>(value.Resource, value.Metadata), options, _version, true);
 
-        foreach ((string key, Link link) in value.Links)
+        foreach ((string key, Link link) in value.Links.Where(pair => pair.Key != IanaLinkRelationConstants.Self))
         {
             writer.WritePropertyName(key);
             JsonSerializer.Serialize(writer, (object)link, options);

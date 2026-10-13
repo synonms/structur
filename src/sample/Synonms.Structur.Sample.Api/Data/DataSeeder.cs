@@ -1,5 +1,6 @@
 using MongoDB.Driver;
 using Synonms.Structur.Api.Core.Schema;
+using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Core.ValueObjects;
 using Synonms.Structur.Api.Core.ValueObjects.Enumerations;
 using Synonms.Structur.Api.Server.Users;
@@ -173,7 +174,7 @@ public class DataSeeder
     
     private async Task SeedEmployeesAsync(IUserActionProvider userActionProvider, IVersionContext versionContext)
     {
-        EmployeeResource lebronResource = new(Guid.Parse("a9617306-ffa6-4355-9461-9dfcd6b702d4"), Link.EmptyLink())
+        EmployeeResource lebronResource = new()
         {
             EmployeeReference = "REF0001",
             NationalInsuranceNumber = "AA000001A",
@@ -203,12 +204,11 @@ public class DataSeeder
             TelephoneContacts = [],
             EqualOpportunities = new EmployeeEqualOpportunitiesResource
             {
-                Id = Guid.NewGuid(),
                 BirthDate = new DateOnly(1986, 01, 01),
                 Sex = SexEnumeration.Male
             }
         };
-        EmployeeResource lukaResource = new(Guid.Parse("294af0a0-0050-4562-8301-8a059bffefba"), Link.EmptyLink())
+        EmployeeResource lukaResource = new()
         {
             EmployeeReference = "REF0002",
             NationalInsuranceNumber = "AA000002A",
@@ -237,19 +237,22 @@ public class DataSeeder
             TelephoneContacts = [],
             EqualOpportunities = new EmployeeEqualOpportunitiesResource
             {
-                Id = Guid.NewGuid(),
                 BirthDate = new DateOnly(1996, 01, 01),
                 Sex = SexEnumeration.Male
             }
         };
         
-        EmployeeCreatedEvent lebronCreatedEvent = new(userActionProvider, versionContext, (EntityId<Employee>)lebronResource.Id, lebronResource, _lakersTenantId);
-        EmployeeCreatedEvent lukaCreatedEvent = new(userActionProvider, versionContext, (EntityId<Employee>)lukaResource.Id, lukaResource, _lakersTenantId);
+        EmployeeCreatedEvent lebronCreatedEvent = new(userActionProvider, versionContext,
+            CreateEnvelope(Guid.Parse("a9617306-ffa6-4355-9461-9dfcd6b702d4"), lebronResource,
+                (nameof(EmployeeResource.EqualOpportunities), lebronResource.EqualOpportunities)), _lakersTenantId);
+        EmployeeCreatedEvent lukaCreatedEvent = new(userActionProvider, versionContext,
+            CreateEnvelope(Guid.Parse("294af0a0-0050-4562-8301-8a059bffefba"), lukaResource,
+                (nameof(EmployeeResource.EqualOpportunities), lukaResource.EqualOpportunities)), _lakersTenantId);
         
         await CreateEmployeeAsync(lebronCreatedEvent);
         await CreateEmployeeAsync(lukaCreatedEvent);
         
-        EmployeeResource glennResource = new(Guid.Parse("02f4ee29-fc72-42bc-9700-f1981e355e9d"), Link.EmptyLink())
+        EmployeeResource glennResource = new()
         {
             EmployeeReference = "THFC0001",
             NationalInsuranceNumber = "AA000003A",
@@ -279,12 +282,11 @@ public class DataSeeder
             TelephoneContacts = [],
             EqualOpportunities = new EmployeeEqualOpportunitiesResource
             {
-                Id = Guid.NewGuid(),
                 BirthDate = new DateOnly(1966, 01, 01),
                 Sex = SexEnumeration.Male
             }
         };
-        EmployeeResource davidResource = new(Guid.Parse("c169cb00-c392-45df-a4a6-9caf25d9a9df"), Link.EmptyLink())
+        EmployeeResource davidResource = new()
         {
             EmployeeReference = "THFC0002",
             NationalInsuranceNumber = "AA000004A",
@@ -313,14 +315,17 @@ public class DataSeeder
             TelephoneContacts = [],
             EqualOpportunities = new EmployeeEqualOpportunitiesResource
             {
-                Id = Guid.NewGuid(),
                 BirthDate = new DateOnly(1986, 01, 01),
                 Sex = SexEnumeration.Male
             }
         };
         
-        EmployeeCreatedEvent glennCreatedEvent = new(userActionProvider, versionContext, (EntityId<Employee>)glennResource.Id, glennResource, _spursTenantId);
-        EmployeeCreatedEvent davidCreatedEvent = new(userActionProvider, versionContext, (EntityId<Employee>)davidResource.Id, davidResource, _spursTenantId);
+        EmployeeCreatedEvent glennCreatedEvent = new(userActionProvider, versionContext,
+            CreateEnvelope(Guid.Parse("02f4ee29-fc72-42bc-9700-f1981e355e9d"), glennResource,
+                (nameof(EmployeeResource.EqualOpportunities), glennResource.EqualOpportunities)), _spursTenantId);
+        EmployeeCreatedEvent davidCreatedEvent = new(userActionProvider, versionContext,
+            CreateEnvelope(Guid.Parse("c169cb00-c392-45df-a4a6-9caf25d9a9df"), davidResource,
+                (nameof(EmployeeResource.EqualOpportunities), davidResource.EqualOpportunities)), _spursTenantId);
         
         await CreateEmployeeAsync(glennCreatedEvent);
         await CreateEmployeeAsync(davidCreatedEvent);
@@ -348,7 +353,7 @@ public class DataSeeder
     
     private async Task SeedEmploymentsAsync(IUserActionProvider userActionProvider, IVersionContext versionContext)
     {
-        EmploymentResource lebronResource = new(Guid.Parse("517625f8-eaae-4095-b9ce-41194341acf8"), Link.EmptyLink())
+        EmploymentResource lebronResource = new()
         {
             EmployeeId = Guid.Parse("a9617306-ffa6-4355-9461-9dfcd6b702d4"),
             EmploymentReference = "LAL0001",
@@ -411,7 +416,7 @@ public class DataSeeder
                 BuildingSocietyRollNumber = null
             }
         };
-        EmploymentResource lukaResource = new(Guid.Parse("21346a61-67d4-410e-bf83-ae96a107fef1"), Link.EmptyLink())
+        EmploymentResource lukaResource = new()
         {
             EmployeeId = Guid.Parse("294af0a0-0050-4562-8301-8a059bffefba"),
             EmploymentReference = "LAL0002",
@@ -452,13 +457,17 @@ public class DataSeeder
             }
         };
         
-        EmploymentCreatedEvent lebronCreatedEvent = new(userActionProvider, versionContext, (EntityId<Employment>)lebronResource.Id, lebronResource, _lakersTenantId);
-        EmploymentCreatedEvent lukaCreatedEvent = new(userActionProvider, versionContext, (EntityId<Employment>)lukaResource.Id, lukaResource, _lakersTenantId);
+        EmploymentCreatedEvent lebronCreatedEvent = new(userActionProvider, versionContext,
+            CreateEnvelope(Guid.Parse("517625f8-eaae-4095-b9ce-41194341acf8"), lebronResource,
+                lebronResource.Contracts.Select((contract, index) => ($"{nameof(EmploymentResource.Contracts)}[{index}]", (object?)contract))), _lakersTenantId);
+        EmploymentCreatedEvent lukaCreatedEvent = new(userActionProvider, versionContext,
+            CreateEnvelope(Guid.Parse("21346a61-67d4-410e-bf83-ae96a107fef1"), lukaResource,
+                lukaResource.Contracts.Select((contract, index) => ($"{nameof(EmploymentResource.Contracts)}[{index}]", (object?)contract))), _lakersTenantId);
         
         await CreateEmploymentAsync(lebronCreatedEvent);
         await CreateEmploymentAsync(lukaCreatedEvent);
         
-        EmploymentResource glennResource = new(Guid.Parse("fac6ca58-ea30-4f25-a105-46b89ca6499e"), Link.EmptyLink())
+        EmploymentResource glennResource = new()
         {            
             EmployeeId = Guid.Parse("02f4ee29-fc72-42bc-9700-f1981e355e9d"),
             EmploymentReference = "THFC0001",
@@ -498,7 +507,7 @@ public class DataSeeder
                 BuildingSocietyRollNumber = null
             }
         };
-        EmploymentResource davidResource = new(Guid.Parse("fe48ce79-84f2-49f9-9de8-db6f958ad7a5"), Link.EmptyLink())
+        EmploymentResource davidResource = new()
         {
             EmployeeId = Guid.Parse("c169cb00-c392-45df-a4a6-9caf25d9a9df"),
             EmploymentReference = "THFC0002",
@@ -539,8 +548,12 @@ public class DataSeeder
             }
         };
         
-        EmploymentCreatedEvent glennCreatedEvent = new(userActionProvider, versionContext, (EntityId<Employment>)glennResource.Id, glennResource, _spursTenantId);
-        EmploymentCreatedEvent davidCreatedEvent = new(userActionProvider, versionContext, (EntityId<Employment>)davidResource.Id, davidResource, _spursTenantId);
+        EmploymentCreatedEvent glennCreatedEvent = new(userActionProvider, versionContext,
+            CreateEnvelope(Guid.Parse("fac6ca58-ea30-4f25-a105-46b89ca6499e"), glennResource,
+                glennResource.Contracts.Select((contract, index) => ($"{nameof(EmploymentResource.Contracts)}[{index}]", (object?)contract))), _spursTenantId);
+        EmploymentCreatedEvent davidCreatedEvent = new(userActionProvider, versionContext,
+            CreateEnvelope(Guid.Parse("fe48ce79-84f2-49f9-9de8-db6f958ad7a5"), davidResource,
+                davidResource.Contracts.Select((contract, index) => ($"{nameof(EmploymentResource.Contracts)}[{index}]", (object?)contract))), _spursTenantId);
         
         await CreateEmploymentAsync(glennCreatedEvent);
         await CreateEmploymentAsync(davidCreatedEvent);
@@ -564,5 +577,28 @@ public class DataSeeder
                 }
             },
             errors => throw new ApplicationException($"Unable to create Employment Id '{createdEvent.AggregateId}': {errors}"));
+    }
+
+    private static ResourceEnvelope<TResource> CreateEnvelope<TResource>(
+        Guid id,
+        TResource data,
+        params (string Path, object? Child)[] embedded) =>
+        CreateEnvelope(id, data, (IEnumerable<(string Path, object? Child)>)embedded);
+
+    private static ResourceEnvelope<TResource> CreateEnvelope<TResource>(
+        Guid id,
+        TResource data,
+        IEnumerable<(string Path, object? Child)> embedded)
+    {
+        ResourceMetadata metadata = new(id, Link.EmptyLink());
+        foreach ((string path, object? child) in embedded)
+        {
+            if (child is not null)
+            {
+                metadata.GetOrAddEmbeddedMetadata(child, path);
+            }
+        }
+
+        return new ResourceEnvelope<TResource>(data, metadata);
     }
 }

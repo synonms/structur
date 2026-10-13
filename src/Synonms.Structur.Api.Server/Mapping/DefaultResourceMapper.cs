@@ -12,7 +12,6 @@ namespace Synonms.Structur.Api.Server.Mapping;
 
 public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource, new() 
 {
     private readonly ILogger<DefaultResourceMapper<TAggregateRoot, TResource>> _logger;
     private readonly IResourceMapperFactory _resourceMapperFactory;
@@ -26,7 +25,7 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
         _childResourceMapperFactory = childResourceMapperFactory;
         _routeGenerator = routeGenerator;
     }
-    
+
     public object? Map(object value)
     {
         if (value is TAggregateRoot aggregateRoot)
@@ -36,84 +35,71 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
 
         return null;
     }
-    
+
     public TResource Map(TAggregateRoot aggregateRoot)
+        => MapEnvelope(aggregateRoot).Data;
+
+    public ResourceEnvelope<TResource> MapEnvelope(TAggregateRoot aggregateRoot)
     {
-        TResource resource = CreateEmptyResourceForAggregate(_routeGenerator, aggregateRoot);
-        IEnumerable<PropertyInfo> resourcePropertyInfos = typeof(TResource).GetResourceProperties();
-        
-        foreach (PropertyInfo resourcePropertyInfo in resourcePropertyInfos)
+        ResourceMetadata metadata = CreateMetadataForAggregate(aggregateRoot);
+        TResource resource = ResourceContractActivator.Create<TResource>();
+        ResourceMappingPlan plan = ResourceMappingPlan.Get(typeof(TAggregateRoot), typeof(TResource));
+        foreach (ResourceMappingBinding binding in plan.Bindings)
         {
-            ResourcePropertyType resourcePropertyType = resourcePropertyInfo.PropertyType.GetResourcePropertyType();
-            
-            _logger.LogDebug("Mapping property {PropertyName} of type {PropertyType} on resource {ResourceType} and determined resource property type {ResourcePropertyType}", resourcePropertyInfo.Name, resourcePropertyInfo.PropertyType.Name, typeof(TResource).Name, resourcePropertyType);
-            
-            PropertyInfo? aggregateRootPropertyInfo = resourcePropertyInfo.GetMatchingPropertyFrom<TAggregateRoot>();
-            Type? sourcePropertyType = aggregateRootPropertyInfo?.PropertyType;
-            object? sourceValue = aggregateRootPropertyInfo?.GetValue(aggregateRoot);
-            Type destinationPropertyType = resourcePropertyInfo.PropertyType;
-
-            object? resourcePropertyValue = sourcePropertyType is not null && ComplexValueObjectResourceMapping.SupportsSource(sourcePropertyType)
-                ? ComplexValueObjectResourceMapping.Map(sourcePropertyType, destinationPropertyType, sourceValue)
-                : resourcePropertyType switch
-            {
-                ResourcePropertyType.EmbeddedResource => MappingHelper.MapEmbeddedResource(_resourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),
-                ResourcePropertyType.EmbeddedResourceCollection => MappingHelper.MapEmbeddedResourceCollection(_resourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),
-                ResourcePropertyType.EmbeddedChildResource => MappingHelper.MapEmbeddedChildResource(_childResourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),
-                ResourcePropertyType.EmbeddedChildResourceCollection => MappingHelper.MapEmbeddedChildResourceCollection(_childResourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),
-                ResourcePropertyType.EmbeddedLookupResource => MappingHelper.MapOptionalLookup(sourceValue as Lookup),
-                ResourcePropertyType.RelatedResource => MappingHelper.MapRelatedResource<TResource>(_routeGenerator, resource.Links, resourcePropertyInfo, sourcePropertyType, sourceValue),
-                ResourcePropertyType.RelatedResourceCollection => MappingHelper.MapRelatedResourceCollection(_routeGenerator, resource.Links, resourcePropertyInfo, typeof(TAggregateRoot).Name, aggregateRoot.Id.Value, sourceValue),
-                ResourcePropertyType.VanillaCollection => MappingHelper.MapVanillaCollection(sourcePropertyType, destinationPropertyType, sourceValue),
-                ResourcePropertyType.VanillaScalar => MappingHelper.MapVanillaScalar(sourcePropertyType, sourceValue),
-                _ => null
-            };
-
+            _logger.LogDebug("Mapping property {PropertyName} on resource {ResourceType}", binding.Destination.Name, typeof(TResource).Name);
             try
             {
-                resourcePropertyInfo.SetValue(resource, resourcePropertyValue);
+                object? sourceValue = binding.ReadSource?.Invoke(aggregateRoot);
+                object? mappedValue = MappingHelper.MapProperty<TResource>(binding, sourceValue, metadata,
+                    _resourceMapperFactory, _childResourceMapperFactory, _routeGenerator,
+                    typeof(TAggregateRoot).Name, aggregateRoot.Id.Value);
+                binding.WriteDestination(resource!, mappedValue);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError(ex, "Failed to set value for property {PropertyName} on resource {ResourceType} with property type {ResourcePropertyType} ", resourcePropertyInfo.Name, typeof(TResource).Name, resourcePropertyType);
+                throw new InvalidOperationException(
+                    $"Failed to map {typeof(TAggregateRoot).FullName} -> {typeof(TResource).FullName}, property '{binding.Destination.Name}'.",
+                    exception);
             }
         }
 
-        return resource;
+        return new ResourceEnvelope<TResource>(resource, metadata);
     }
 
-    private TResource CreateEmptyResourceForAggregate(IRouteGenerator routeGenerator, TAggregateRoot aggregateRoot)
+    private ResourceMetadata CreateMetadataForAggregate(TAggregateRoot aggregateRoot)
     {
-        Uri selfUri = routeGenerator.Item(aggregateRoot.Id);
+        Uri selfUri = _routeGenerator.Item(typeof(TAggregateRoot), typeof(TResource), aggregateRoot.Id.Value);
         Link selfLink = Link.SelfLink(selfUri);
 
-        TResource resource = new()
-        {
-            Id = aggregateRoot.Id.Value,
-            SelfLink = selfLink
-        };
-        
-        string relativeResourcePath = selfLink.Uri.IsAbsoluteUri ? selfLink.Uri.AbsolutePath : selfLink.Uri.OriginalString;
-        resource.Links.Add("projections", Link.ProjectionsLink(new Uri(relativeResourcePath + "/projections", UriKind.Relative)));
+        ResourceLinks links = new();
 
-        StructurResourceAttribute? resourceAttribute = typeof(TAggregateRoot).GetCustomAttribute<StructurResourceAttribute>();
+        string relativeResourcePath = selfLink.Uri.IsAbsoluteUri ? selfLink.Uri.AbsolutePath : selfLink.Uri.OriginalString;
+
+        StructurResourceAttribute? resourceAttribute = typeof(TAggregateRoot)
+            .GetCustomAttributes<StructurResourceAttribute>()
+            .SingleOrDefault(attribute => attribute.ResourceType == typeof(TResource));
 
         if (resourceAttribute is not null)
         {
-            if (resourceAttribute.IsUpdateDisabled is false)
+            if (resourceAttribute.IsUpdateDisabled is false && resourceAttribute.IsEditFormDisabled is false)
             {
-                Uri editFormUri = routeGenerator.EditForm(aggregateRoot.Id);
+                Uri editFormUri = _routeGenerator.EditForm(typeof(TAggregateRoot), typeof(TResource), aggregateRoot.Id.Value);
                 Link editFormLink = Link.EditFormLink(editFormUri);
-                resource.Links.Add(IanaLinkRelationConstants.Forms.Edit, editFormLink);
+                links.Add(IanaLinkRelationConstants.Forms.Edit, editFormLink);
             }
 
             if (resourceAttribute.IsDeleteDisabled is false)
             {
                 Link deleteSelfLink = Link.DeleteSelfLink(selfUri);
-                resource.Links.Add(IanaHttpMethodConstants.Delete.ToLowerInvariant(), deleteSelfLink);
+                links.Add(IanaHttpMethodConstants.Delete.ToLowerInvariant(), deleteSelfLink);
             }
         }
 
-        return resource;
+        if (resourceAttribute?.IsReadDisabled is not true)
+        {
+            links.Add("projections", Link.ProjectionsLink(new Uri(relativeResourcePath + "/projections", UriKind.Relative)));
+        }
+
+        return new ResourceMetadata(aggregateRoot.Id.Value, selfLink, links);
     }
 }

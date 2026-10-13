@@ -13,7 +13,7 @@ namespace Synonms.Structur.Api.Server.Mediation.Queries;
 
 public class ReadResourceCollectionQueryProcessor<TAggregateRoot, TResource> : IQueryHandler<ReadResourceCollectionQuery<TAggregateRoot, TResource>, ReadResourceCollectionQueryResponse<TAggregateRoot, TResource>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
     private readonly IReadAggregateRepository<TAggregateRoot> _readAggregateRepository;
     private readonly IResourceMapper<TAggregateRoot, TResource> _resourceMapper;
@@ -27,19 +27,20 @@ public class ReadResourceCollectionQueryProcessor<TAggregateRoot, TResource> : I
     public async Task<Result<ReadResourceCollectionQueryResponse<TAggregateRoot, TResource>>> HandleAsync(ReadResourceCollectionQuery<TAggregateRoot, TResource> query, CancellationToken cancellationToken)
     {
         IReadOnlyDictionary<string, object> filterParameters = query.QueryParameters.GetFiltersOnly();
-        
+
         PaginatedList<TAggregateRoot> paginatedAggregateRoots = filterParameters.Any()
             ? PaginatedList<TAggregateRoot>.Create(_readAggregateRepository.Query(ParametersPredicate(filterParameters)).ApplySort(query.SortItems), query.Offset, query.Limit)
             : await _readAggregateRepository.ReadAllAsync(query.Offset, query.Limit, q => q.ApplySort(query.SortItems), cancellationToken);
-        
-        List<TResource> resources = paginatedAggregateRoots.Select(x => _resourceMapper.Map(x)).ToList();
+
+        List<ResourceEnvelope<TResource>> envelopes = paginatedAggregateRoots.Select(x => _resourceMapper.MapEnvelope(x)).ToList();
+        List<TResource> resources = envelopes.Select(envelope => envelope.Data).ToList();
         PaginatedList<TResource> paginatedResources = PaginatedList<TResource>.Create(resources, query.Offset, query.Limit, paginatedAggregateRoots.Size);
 
-        ReadResourceCollectionQueryResponse<TAggregateRoot, TResource> response = new(paginatedResources);
+        ReadResourceCollectionQueryResponse<TAggregateRoot, TResource> response = new(paginatedResources, envelopes);
 
         return response;
     }
-    
+
     private static Expression<Func<TAggregateRoot, bool>> ParametersPredicate(IReadOnlyDictionary<string, object>? parameters)
     {
         if ((parameters?.Any() ?? false) is false)
@@ -62,7 +63,7 @@ public class ReadResourceCollectionQueryProcessor<TAggregateRoot, TResource> : I
             {
                 continue;
             }
-            
+
             // x.{columnName}
             MemberExpression columnNameExpression = Expression.Property(xParameter, aggregatePropertyInfo.Name);
 
@@ -74,7 +75,7 @@ public class ReadResourceCollectionQueryProcessor<TAggregateRoot, TResource> : I
 
             // {searchValue}
             ConstantExpression expectedValueExpression = Expression.Constant(expectedValue);
-            
+
             // TODO: Anything other than string likely breaks
             // Need to convert the incoming value (likely a string) to the same type as the underlying ValueType value
 

@@ -38,10 +38,10 @@ public class EmployeeEqualOpportunities : AggregateMember<EmployeeEqualOpportuni
                 return Maybe<Fault>.None;
             });
 
-    internal static OneOf<EmployeeEqualOpportunities, IEnumerable<DomainRuleFault>> Create(string parentPropertyName, EmployeeEqualOpportunitiesResource resource) =>
+    internal static OneOf<EmployeeEqualOpportunities, IEnumerable<DomainRuleFault>> Create(string parentPropertyName, EmployeeEqualOpportunitiesResource resource, Guid id) =>
         Validator.CreateBuilder<EmployeeEqualOpportunities>()
             .WithMandatoryScalarProperty(resource.BirthDate, x => EventDate.CreateMandatory($"{parentPropertyName}.{nameof(BirthDate)}", x), out EventDate birthDateValueObject)
             .WithMandatoryScalarProperty(resource.Sex.ToString(), x => Sex.CreateMandatory($"{parentPropertyName}.{nameof(Sex)}", x), out Sex sexValueObject)
             .Build()
-            .ToOneOf(() => new EmployeeEqualOpportunities((EntityId<EmployeeEqualOpportunities>)resource.Id, birthDateValueObject, sexValueObject));
+            .ToOneOf(() => new EmployeeEqualOpportunities((EntityId<EmployeeEqualOpportunities>)id, birthDateValueObject, sexValueObject));
 }

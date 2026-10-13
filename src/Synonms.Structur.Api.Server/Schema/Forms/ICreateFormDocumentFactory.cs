@@ -6,7 +6,6 @@ namespace Synonms.Structur.Api.Server.Schema.Forms;
 
 public interface ICreateFormDocumentFactory<TAggregateRoot, in TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource, new()
 {
-    FormDocument Create(Uri documentUri, Uri targetUri, TResource? resource = null);
+    FormDocument Create(Uri documentUri, Uri targetUri, TResource? resource = default);
 }

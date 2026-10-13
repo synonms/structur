@@ -2,6 +2,7 @@ using Bogus;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using Synonms.Structur.Api.Core.Schema;
+using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Core.Schema.Forms;
 using Synonms.Structur.Api.Core.ValueObjects;
 using Synonms.Structur.Api.Core.ValueObjects.Enumerations;
@@ -38,7 +39,7 @@ public class EmploymentsTestFeature :
 
     public EmploymentResource GenerateInvalidResource(EntityId<Employment> id) =>
         new Faker<EmploymentResource>("en_GB")
-            .CustomInstantiator(faker => new EmploymentResource(id.Value, Link.EmptyLink()))
+            .CustomInstantiator(_ => new EmploymentResource())
             .RuleFor(x => x.EmployeeId, Guid.Empty)
             .RuleFor(x => x.EmploymentReference, string.Empty)
             .RuleFor(x => x.ContinuousStartDate, DateOnly.MinValue)
@@ -47,12 +48,12 @@ public class EmploymentsTestFeature :
 
     public EmploymentResource GenerateValidResource(EntityId<Employment> id) =>
         new Faker<EmploymentResource>("en_GB")
-            .CustomInstantiator(faker => new EmploymentResource(id.Value, Link.EmptyLink()))
+            .CustomInstantiator(_ => new EmploymentResource())
             .RuleFor(x => x.EmployeeId, Guid.NewGuid())
             .RuleFor(x => x.EmploymentReference, faker => $"EMP{faker.Random.Number(1000, 9999)}")
             .RuleFor(x => x.ContinuousStartDate, faker => DateOnly.FromDateTime(faker.Date.Past(5)))
             .RuleFor(x => x.Contracts, faker => [
-                new EmploymentContractResource(Guid.NewGuid())
+                new EmploymentContractResource()
                 {
                     StartDate = DateOnly.FromDateTime(faker.Date.Past(5)),
                     EmployerNoticePeriod = new PeriodResource { Units = 1, Interval = "Month" },
@@ -73,7 +74,13 @@ public class EmploymentsTestFeature :
     public ArrangeAggregateInfo<Employment> GenerateUniqueAggregate(EntityId<Employment> id)
     {
         EmploymentResource resource = GenerateValidResource(id);
-        EmploymentCreatedEvent createdEvent = new(_userActionProvider, _versionContext, id, resource, TestTenant.Id);
+        ResourceMetadata metadata = new(id.Value, Link.EmptyLink());
+        for (int index = 0; index < resource.Contracts.Count; index++)
+        {
+            metadata.GetOrAddEmbeddedMetadata(resource.Contracts[index], $"{nameof(EmploymentResource.Contracts)}[{index}]");
+        }
+        EmploymentCreatedEvent createdEvent = new(_userActionProvider, _versionContext,
+            new ResourceEnvelope<EmploymentResource>(resource, metadata), TestTenant.Id);
         Result<Employment> createdResult = createdEvent.ApplyAsync(null).Result;
 
         return createdResult.Match(
@@ -123,7 +130,6 @@ public class EmploymentsTestFeature :
 
     public void ValidateResource(Employment aggregateRoot, EmploymentResource resource)
     {
-        Assert.Equal(aggregateRoot.Id.Value, resource.Id);
         Assert.Equal(aggregateRoot.EmployeeId.Value, resource.EmployeeId);
         Assert.Equal(aggregateRoot.EmploymentReference, resource.EmploymentReference);
         Assert.Equal(aggregateRoot.ContinuousStartDate, resource.ContinuousStartDate);
@@ -138,7 +144,6 @@ public class EmploymentsTestFeature :
         {
             EmploymentContract contract = aggregateRoot.Contracts[i];
             EmploymentContractResource contractResource = resource.Contracts[i];
-            Assert.Equal(contract.Id.Value, contractResource.Id);
             Assert.Equal(contract.StartDate, contractResource.StartDate);
             Assert.Equal(contract.ProbationEndDate?.Value, contractResource.ProbationEndDate);
             Assert.Equal(contract.EndDate?.Value, contractResource.EndDate);
@@ -180,7 +185,7 @@ public class EmploymentsTestFeature :
     {
         EntityId<Employee> employeeId = EntityId<Employee>.New();
         EmployeeResource employeeResource = new Faker<EmployeeResource>("en_GB")
-            .CustomInstantiator(faker => new EmployeeResource(employeeId.Value, Link.EmptyLink()))
+            .CustomInstantiator(_ => new EmployeeResource())
             .RuleFor(x => x.EmployeeReference, faker => faker.Random.AlphaNumeric(10))
             .RuleFor(x => x.NationalInsuranceNumber, faker => faker.Random.String(2, 'A', 'C') + faker.Random.Number(100000, 999999) + faker.Random.String(1, 'A', 'D'))
             .RuleFor(x => x.Forename, faker => faker.Name.FirstName())
@@ -200,7 +205,8 @@ public class EmploymentsTestFeature :
             ])
             .RuleFor(x => x.TelephoneContacts, []);
 
-        EmployeeCreatedEvent employeeCreatedEvent = new(_userActionProvider, _versionContext, employeeId, employeeResource, TestTenant.Id);
+        EmployeeCreatedEvent employeeCreatedEvent = new(_userActionProvider, _versionContext,
+            new ResourceEnvelope<EmployeeResource>(employeeResource, new ResourceMetadata(employeeId.Value, Link.EmptyLink())), TestTenant.Id);
         Result<Employee> employeeResult = await employeeCreatedEvent.ApplyAsync(null);
         Employee employee = employeeResult.Match(
             e => e,

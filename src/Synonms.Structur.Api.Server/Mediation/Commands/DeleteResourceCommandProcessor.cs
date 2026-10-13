@@ -8,9 +8,9 @@ using Synonms.Structur.Domain.Events;
 
 namespace Synonms.Structur.Api.Server.Mediation.Commands;
 
-public class DeleteResourceCommandProcessor<TAggregateRoot, TResource> : ICommandHandler<DeleteResourceCommand<TAggregateRoot>, DeleteResourceCommandResponse<TAggregateRoot>>
+public class DeleteResourceCommandProcessor<TAggregateRoot, TResource> : ICommandHandler<DeleteResourceCommand<TAggregateRoot, TResource>, DeleteResourceCommandResponse<TAggregateRoot>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
     private readonly IDomainEventFactory<TAggregateRoot, TResource> _domainEventFactory;
     private readonly IDomainEventRepository<TAggregateRoot> _domainEventRepository;
@@ -24,8 +24,8 @@ public class DeleteResourceCommandProcessor<TAggregateRoot, TResource> : IComman
         _readAggregateRepository = readAggregateRepository;
         _writeAggregateRepository = writeAggregateRepository;
     }
-    
-    public async Task<Result<DeleteResourceCommandResponse<TAggregateRoot>>> HandleAsync(DeleteResourceCommand<TAggregateRoot> command, CancellationToken cancellationToken)
+
+    public async Task<Result<DeleteResourceCommandResponse<TAggregateRoot>>> HandleAsync(DeleteResourceCommand<TAggregateRoot, TResource> command, CancellationToken cancellationToken)
     {
         Maybe<TAggregateRoot> findOutcome = await _readAggregateRepository.FindAsync(command.Id, cancellationToken);
 
@@ -40,7 +40,7 @@ public class DeleteResourceCommandProcessor<TAggregateRoot, TResource> : IComman
             {
                 return aggregateRoot;
             }
-            
+
             return Maybe<TAggregateRoot>.None;
         });
 
@@ -55,7 +55,7 @@ public class DeleteResourceCommandProcessor<TAggregateRoot, TResource> : IComman
                             return Maybe<Fault>.None;
                         }))),
                 () => Maybe<Fault>.SomeAsync(new EntityNotFoundFault("{0} with id '{1}' not found.", nameof(TAggregateRoot), command.Id)));
-        
+
         return deleteOutcome.ToResult(() => new DeleteResourceCommandResponse<TAggregateRoot>());
     }
 }

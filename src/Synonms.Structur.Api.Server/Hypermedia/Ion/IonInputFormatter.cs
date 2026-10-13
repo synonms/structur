@@ -10,6 +10,7 @@ using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Core.Serialisation;
 using Synonms.Structur.Api.Core.Serialisation.Ion;
 using Synonms.Structur.Api.Server.Versioning.Context;
+using Synonms.Structur.Api.Server.Hypermedia;
 
 namespace Synonms.Structur.Api.Server.Hypermedia.Ion;
 
@@ -25,18 +26,18 @@ public class IonInputFormatter : TextInputFormatter
         SupportedEncodings.Add(Encoding.UTF8);
     }
 
-    protected override bool CanReadType(Type type) => 
+    protected override bool CanReadType(Type type) =>
         type.IsResource();
-    
+
     public override async Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context, Encoding encoding)
     {
         IVersionContext versionContext = context.HttpContext.RequestServices.GetRequiredService<IVersionContext>();
-        
+
         JsonSerializerOptions jsonSerializerOptions = new ()
         {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            Converters = { 
+            Converters = {
                 new DateOnlyJsonConverter(),
                 new OptionalDateOnlyJsonConverter(),
                 new TimeOnlyJsonConverter(),
@@ -55,7 +56,7 @@ public class IonInputFormatter : TextInputFormatter
 
             string body = await streamReader.ReadToEndAsync();
 
-            object? resource = JsonSerializer.Deserialize(body, context.ModelType, jsonSerializerOptions);
+            object? resource = ResourceContractInputReader.Deserialize(body, context.ModelType, jsonSerializerOptions, context.HttpContext);
 
             return await InputFormatterResult.SuccessAsync(resource);
         }

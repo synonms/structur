@@ -1,56 +1,31 @@
-using Synonms.Structur.Domain.Aggregates;
-using Synonms.Structur.Domain.Projections;
-
 namespace Synonms.Structur.Api.Server.Routing;
 
 public class RouteNameProvider : IRouteNameProvider
 {
-    public string GetById<TAggregateRoot>()
-        where TAggregateRoot : AggregateRoot<TAggregateRoot> =>
-        GetById(typeof(TAggregateRoot));
+    public string GetById(Type aggregateRootType, Type resourceType) =>
+        GetRepresentationPrefix(aggregateRootType, resourceType) + nameof(GetById);
 
-    public string GetById(Type aggregateRootType) =>
-        aggregateRootType.Name + nameof(GetById);
-    
-    public string GetAll<TAggregateRoot>() where TAggregateRoot : AggregateRoot<TAggregateRoot> =>
-        GetAll(typeof(TAggregateRoot));
+    public string GetAll(Type aggregateRootType, Type resourceType) =>
+        GetRepresentationPrefix(aggregateRootType, resourceType) + nameof(GetAll);
 
-    public string GetAll(Type aggregateRootType) =>
-        aggregateRootType.Name + nameof(GetAll);
+    public string Post(Type aggregateRootType, Type resourceType) =>
+        GetRepresentationPrefix(aggregateRootType, resourceType) + nameof(Post);
 
-    public string Post<TAggregateRoot>() where TAggregateRoot : AggregateRoot<TAggregateRoot> =>
-        Post(typeof(TAggregateRoot));
-        
-    public string Post(Type aggregateRootType) =>
-        aggregateRootType.Name + nameof(Post);
-    
-    public string Put<TAggregateRoot>() where TAggregateRoot : AggregateRoot<TAggregateRoot> =>
-        Post(typeof(TAggregateRoot));
-        
-    public string Put(Type aggregateRootType) =>
-        aggregateRootType.Name + nameof(Put);
-    
-    public string Delete<TAggregateRoot>() where TAggregateRoot : AggregateRoot<TAggregateRoot> =>
-        Post(typeof(TAggregateRoot));
-        
-    public string Delete(Type aggregateRootType) =>
-        aggregateRootType.Name + nameof(Delete);
+    public string Put(Type aggregateRootType, Type resourceType) =>
+        GetRepresentationPrefix(aggregateRootType, resourceType) + nameof(Put);
 
-    public string CreateForm<TAggregateRoot>() where TAggregateRoot : AggregateRoot<TAggregateRoot> =>
-        CreateForm(typeof(TAggregateRoot));
+    public string Delete(Type aggregateRootType, Type resourceType) =>
+        GetRepresentationPrefix(aggregateRootType, resourceType) + nameof(Delete);
 
-    public string CreateForm(Type aggregateRootType) =>
-        aggregateRootType.Name + nameof(CreateForm);
+    public string CreateForm(Type aggregateRootType, Type resourceType) =>
+        GetRepresentationPrefix(aggregateRootType, resourceType) + nameof(CreateForm);
 
-    public string EditForm<TAggregateRoot>() where TAggregateRoot : AggregateRoot<TAggregateRoot> =>
-        EditForm(typeof(TAggregateRoot));
+    public string EditForm(Type aggregateRootType, Type resourceType) =>
+        GetRepresentationPrefix(aggregateRootType, resourceType) + nameof(EditForm);
 
-    public string EditForm(Type aggregateRootType) =>
-        aggregateRootType.Name + nameof(EditForm);
-    
-    public string GetProjection<TAggregateRoot, TProjection>() where TAggregateRoot : AggregateRoot<TAggregateRoot> where TProjection : Projection<TAggregateRoot> =>
-        GetProjection(typeof(TAggregateRoot), typeof(TProjection));
+    public string GetProjection(Type aggregateRootType, Type resourceType, Type projectionType) =>
+        GetRepresentationPrefix(aggregateRootType, resourceType) + projectionType.Name + nameof(GetProjection);
 
-    public string GetProjection(Type aggregateRootType, Type projectionType) =>
-        aggregateRootType.Name + projectionType.Name + nameof(GetProjection);
+    private static string GetRepresentationPrefix(Type aggregateRootType, Type resourceType) =>
+        aggregateRootType.Name + resourceType.FullName!.Replace('.', '_').Replace('+', '_');
 }

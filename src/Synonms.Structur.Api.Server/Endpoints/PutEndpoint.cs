@@ -9,6 +9,7 @@ using Synonms.Structur.Api.Core.Schema.Errors;
 using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Server.Cors;
 using Synonms.Structur.Api.Server.Http;
+using Synonms.Structur.Api.Server.Hypermedia;
 using Synonms.Structur.Api.Server.Mediation.Commands;
 using Synonms.Structur.Api.Server.Routing;
 using Synonms.Structur.Api.Server.Schema.Errors;
@@ -24,7 +25,7 @@ namespace Synonms.Structur.Api.Server.Endpoints;
 [EnableCors(CorsConstants.PolicyName)]
 public class PutEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
     private readonly ICommandHandler<UpdateResourceCommand<TAggregateRoot, TResource>, UpdateResourceCommandResponse<TAggregateRoot>> _mediator;
     private readonly IRouteGenerator _routeGenerator;
@@ -41,34 +42,32 @@ public class PutEndpoint<TAggregateRoot, TResource> : ControllerBase
     [Route("{id}")]
     public async Task<IActionResult> PutAsync([FromRoute] EntityId<TAggregateRoot> id, [FromBody] TResource? resource)
     {
-        Uri itemUri = _routeGenerator.Item(id);
+        Uri itemUri = _routeGenerator.Item(typeof(TAggregateRoot), typeof(TResource), id.Value);
         Link requestedDocumentLink = new (itemUri, IanaLinkRelationConstants.Item, IanaHttpMethodConstants.Put);
 
         if (resource is null)
         {
-            ClientFault fault = new("Unable to parse resource from request.");  
+            ClientFault fault = new("Unable to parse resource from request.");
             ErrorCollectionDocument errorCollectionDocument = _errorCollectionDocumentFactory.Create(fault, requestedDocumentLink);
 
             return BadRequest(errorCollectionDocument);
         }
 
-        // The Id should not be passed in the body so the resource.Id value will be a random Guid.
-        // Align it so that if resource.Id is accessed during the request pipeline it is correct as per the route. 
-        resource.Id = id.Value;
-        
+        ResourceMetadata metadata = ResourceContractInputReader.GetMetadata(HttpContext, id.Value);
+
         EntityTag? ifMatch = HttpContext.Request.Headers.ExtractIfMatch();
 
-        UpdateResourceCommand<TAggregateRoot, TResource> request = new(id, resource)
+        UpdateResourceCommand<TAggregateRoot, TResource> request = new(id, new ResourceEnvelope<TResource>(resource, metadata))
         {
             IfMatch = ifMatch
         };
-        
+
         Result<UpdateResourceCommandResponse<TAggregateRoot>> commandResult = await _mediator.HandleAsync(request);
-    
+
         return commandResult.Match(
             commandResponse =>
             {
-                Response.Headers[HeaderNames.ETag] = commandResponse.AggregateRoot.EntityTag.ToString();    
+                Response.Headers[HeaderNames.ETag] = commandResponse.AggregateRoot.EntityTag.ToString();
 
                 return StatusCode(StatusCodes.Status204NoContent);
             },

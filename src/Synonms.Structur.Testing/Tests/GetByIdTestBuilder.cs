@@ -13,15 +13,15 @@ namespace Synonms.Structur.Testing.Tests;
 
 public static class GetByIdTest<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
-    public static GetByIdTestBuilder<TAggregateRoot, TResource> Create(StructurTestFixture testFixture, IGetByIdTestFeature<TAggregateRoot, TResource> testFeature) => 
+    public static GetByIdTestBuilder<TAggregateRoot, TResource> Create(StructurTestFixture testFixture, IGetByIdTestFeature<TAggregateRoot, TResource> testFeature) =>
         new(testFixture, testFeature);
 }
 
-public class GetByIdTestBuilder<TAggregateRoot, TResource> 
+public class GetByIdTestBuilder<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
     public GetByIdTestBuilder(StructurTestFixture testFixture, IGetByIdTestFeature<TAggregateRoot, TResource> testFeature)
     {
@@ -29,13 +29,13 @@ public class GetByIdTestBuilder<TAggregateRoot, TResource>
     }
 
     public PreArrangeStep Arrange { get; }
-    
+
     public class PreArrangeStep
     {
         private readonly StructurTestFixture _testFixture;
         private readonly IGetByIdTestFeature<TAggregateRoot, TResource> _testFeature;
         private readonly EntityId<TAggregateRoot> _id = EntityId<TAggregateRoot>.New();
-        
+
         public PreArrangeStep(StructurTestFixture testFixture, IGetByIdTestFeature<TAggregateRoot, TResource> testFeature)
         {
             _testFixture = testFixture;
@@ -54,17 +54,17 @@ public class GetByIdTestBuilder<TAggregateRoot, TResource>
             return new PostArrangeStep(_testFixture, _testFeature, _id, persistedAggregateRoot);
         }
     }
-    
+
     public class PostArrangeStep
     {
         public PostArrangeStep(StructurTestFixture testFixture, IGetByIdTestFeature<TAggregateRoot, TResource> testFeature, EntityId<TAggregateRoot> id, TAggregateRoot? aggregateRoot)
         {
             Act = new ActStep(testFixture, testFeature, id, aggregateRoot);
         }
-        
+
         public ActStep Act { get; }
     }
-    
+
     public class ActStep
     {
         private readonly StructurTestFixture _testFixture;
@@ -86,11 +86,11 @@ public class GetByIdTestBuilder<TAggregateRoot, TResource>
         public ActStep WithAuthenticatedUser(string userId, params string[] permissions)
         {
             _testFixture.HttpClient.WithAuthenticatedUser(userId, permissions);
-            
+
             return this;
         }
     }
-    
+
     public class AssertStep
     {
         private readonly StructurTestFixture _testFixture;
@@ -108,11 +108,11 @@ public class GetByIdTestBuilder<TAggregateRoot, TResource>
 
             _getByIdPath = _testFeature.CollectionPath + "/" + id.Value;
         }
-        
+
         public void SucceedsWith(HttpStatusCode httpStatusCode)
         {
             Assert.True(_aggregateRoot is not null, "Entity not arranged when testing success path - call Arrange.WithAggregate() in test body.");
-            
+
             HttpResponseMessage httpResponseMessage = _testFixture.HttpClient.GetAsync(_getByIdPath).Result;
 
             httpResponseMessage.AssertSuccess(httpStatusCode);
@@ -128,7 +128,7 @@ public class GetByIdTestBuilder<TAggregateRoot, TResource>
             }
 
             _testFeature.ValidateResource(_aggregateRoot!, resourceDocument.Resource);
-            
+
             // TODO: Test Resource Links
 //                AssertThat.Links(resource.Links).Presents(/*TODO*/);
 
@@ -139,7 +139,7 @@ public class GetByIdTestBuilder<TAggregateRoot, TResource>
 
             AssertThat.Links(resourceDocument.Links).Presents(expectedLinks);
         }
-        
+
         public void FailsWith(HttpStatusCode httpStatusCode)
         {
             HttpResponseMessage httpResponseMessage = _testFixture.HttpClient.GetAsync(_getByIdPath).Result;

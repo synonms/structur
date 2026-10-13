@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using Synonms.Structur.Api.Core.Schema;
 using Synonms.Structur.Api.Core.Schema.Forms;
+using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Core.ValueObjects;
 using Synonms.Structur.Api.Core.ValueObjects.Enumerations;
 using Synonms.Structur.Api.Server.Users;
@@ -38,7 +39,7 @@ public class EmployeesTestFeature :
 
     public EmployeeResource GenerateInvalidResource(EntityId<Employee> id) =>
         new Faker<EmployeeResource>("en_GB")
-            .CustomInstantiator(faker => new EmployeeResource(id.Value, Link.EmptyLink()))
+            .CustomInstantiator(_ => new EmployeeResource())
             .RuleFor(x => x.EmployeeReference, string.Empty)
             .RuleFor(x => x.NationalInsuranceNumber, string.Empty)
             .RuleFor(x => x.Forename, string.Empty)
@@ -49,7 +50,7 @@ public class EmployeesTestFeature :
 
     public EmployeeResource GenerateValidResource(EntityId<Employee> id) =>
         new Faker<EmployeeResource>("en_GB")
-            .CustomInstantiator(faker => new EmployeeResource(id.Value, Link.EmptyLink()))
+            .CustomInstantiator(_ => new EmployeeResource())
             .RuleFor(x => x.EmployeeReference, faker => faker.Random.AlphaNumeric(10))
             .RuleFor(x => x.NationalInsuranceNumber, faker => faker.Random.String(2, 'A', 'C') + faker.Random.Number(100000, 999999) + faker.Random.String(1, 'A', 'D'))
             .RuleFor(x => x.Forename, faker => faker.Name.FirstName())
@@ -73,7 +74,8 @@ public class EmployeesTestFeature :
     public ArrangeAggregateInfo<Employee> GenerateUniqueAggregate(EntityId<Employee> id)
     {
         EmployeeResource resource = GenerateValidResource(id);
-        EmployeeCreatedEvent createdEvent = new(_userActionProvider, _versionContext, id, resource, TestTenant.Id);
+        EmployeeCreatedEvent createdEvent = new(_userActionProvider, _versionContext,
+            new ResourceEnvelope<EmployeeResource>(resource, new ResourceMetadata(id.Value, Link.EmptyLink())), TestTenant.Id);
         Result<Employee> createdResult = createdEvent.ApplyAsync(null).Result;
             
         return createdResult.Match(
@@ -112,7 +114,6 @@ public class EmployeesTestFeature :
 
     public void ValidateResource(Employee aggregateRoot, EmployeeResource resource)
     {
-        Assert.Equal(aggregateRoot.Id.Value, resource.Id);
         Assert.Equal(aggregateRoot.EmployeeReference, resource.EmployeeReference);
         Assert.Equal(aggregateRoot.NationalInsuranceNumber, resource.NationalInsuranceNumber);
         Assert.Equal(aggregateRoot.Title?.Value, resource.Title?.ToString());
@@ -144,7 +145,6 @@ public class EmployeesTestFeature :
     {
         ValidateCommonAggregateProperties(aggregateRoot, resource);
 
-        Assert.Equal(resource.Id, aggregateRoot.Id.Value);
         Assert.Equal(resource.EmployeeReference, aggregateRoot.EmployeeReference);
         Assert.Equal(resource.NationalInsuranceNumber, aggregateRoot.NationalInsuranceNumber);
     }
@@ -181,7 +181,6 @@ public class EmployeesTestFeature :
 
     private void ValidateCommonAggregateProperties(Employee aggregateRoot, EmployeeResource resource)
     {
-        Assert.Equal(resource.Id, aggregateRoot.Id.Value);
         Assert.Equal(resource.Title?.ToString(), aggregateRoot.Title?.Value);
         Assert.Equal(resource.Forename, aggregateRoot.Forename);
         Assert.Equal(resource.MiddleNames, aggregateRoot.MiddleNames?.Value);

@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Synonms.Structur.Api.Core.Schema.Resources;
+using Synonms.Structur.Api.Core.Schema;
 using Synonms.Structur.Api.Server.Routing;
 using Synonms.Structur.Domain.Aggregates;
 using Synonms.Structur.Domain.Lookups;
@@ -9,7 +10,6 @@ namespace Synonms.Structur.Api.Server.Mapping;
 
 public class DefaultChildResourceMapper<TAggregateMember, TChildResource> : IChildResourceMapper<TAggregateMember, TChildResource>
     where TAggregateMember : AggregateMember<TAggregateMember>
-    where TChildResource : ChildResource, new()
 {
     private readonly ILogger<DefaultChildResourceMapper<TAggregateMember, TChildResource>> _logger;
     private readonly IResourceMapperFactory _resourceMapperFactory;
@@ -23,58 +23,47 @@ public class DefaultChildResourceMapper<TAggregateMember, TChildResource> : IChi
         _childResourceMapperFactory = childResourceMapperFactory;
         _routeGenerator = routeGenerator;
     }
-    
+
     public object? Map(object value)
     {
         if (value is TAggregateMember aggregateMember)
         {
             return Map(aggregateMember);
         }
-        
+
         return null;
     }
 
     public TChildResource? Map(TAggregateMember aggregateMember)
     {
-        TChildResource childResource = CreateEmptyResourceForMember(aggregateMember);
-        IEnumerable<PropertyInfo> childResourcePropertyInfos = typeof(TChildResource).GetChildResourceProperties();
+        ResourceEnvelope<TChildResource>? envelope = MapEnvelope(aggregateMember);
+        return envelope is null ? default : envelope.Data;
+    }
 
-        foreach (PropertyInfo childResourcePropertyInfo in childResourcePropertyInfos)
+    public ResourceEnvelope<TChildResource>? MapEnvelope(TAggregateMember aggregateMember)
+    {
+        TChildResource childResource = ResourceContractActivator.Create<TChildResource>();
+        ResourceMetadata metadata = new(aggregateMember.Id.Value, Link.EmptyLink(), includesSelfLink: false);
+        ResourceMappingPlan plan = ResourceMappingPlan.Get(typeof(TAggregateMember), typeof(TChildResource));
+        foreach (ResourceMappingBinding binding in plan.Bindings)
         {
-            ResourcePropertyType resourcePropertyType = childResourcePropertyInfo.PropertyType.GetResourcePropertyType();
-            
-            _logger.LogDebug("Mapping property {PropertyName} of type {PropertyType} on child resource {ResourceType} and determined resource property type {ResourcePropertyType}", childResourcePropertyInfo.Name, childResourcePropertyInfo.PropertyType.Name, typeof(TChildResource).Name, resourcePropertyType);
-
-            PropertyInfo? aggregateMemberPropertyInfo = childResourcePropertyInfo.GetMatchingPropertyFrom<TAggregateMember>();
-            Type? sourcePropertyType = aggregateMemberPropertyInfo?.PropertyType;
-            object? sourceValue = aggregateMemberPropertyInfo?.GetValue(aggregateMember);
-            Type destinationPropertyType = childResourcePropertyInfo.PropertyType;
-            
-            object? childResourcePropertyValue = sourcePropertyType is not null && ComplexValueObjectResourceMapping.SupportsSource(sourcePropertyType)
-                ? ComplexValueObjectResourceMapping.Map(sourcePropertyType, destinationPropertyType, sourceValue)
-                : resourcePropertyType switch
+            _logger.LogDebug("Mapping property {PropertyName} on child resource {ResourceType}", binding.Destination.Name, typeof(TChildResource).Name);
+            try
             {
-                ResourcePropertyType.EmbeddedResource => MappingHelper.MapEmbeddedResource(_resourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),
-                ResourcePropertyType.EmbeddedResourceCollection => MappingHelper.MapEmbeddedResourceCollection(_resourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),
-                ResourcePropertyType.EmbeddedChildResource => MappingHelper.MapEmbeddedChildResource(_childResourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),
-                ResourcePropertyType.EmbeddedChildResourceCollection => MappingHelper.MapEmbeddedChildResourceCollection(_childResourceMapperFactory, sourcePropertyType, destinationPropertyType, sourceValue),
-                ResourcePropertyType.EmbeddedLookupResource => MappingHelper.MapOptionalLookup(sourceValue as Lookup),
-                ResourcePropertyType.RelatedResource => MappingHelper.MapRelatedResource<TChildResource>(_routeGenerator, childResource.Links, childResourcePropertyInfo, sourcePropertyType, sourceValue),
-                ResourcePropertyType.RelatedResourceCollection => MappingHelper.MapRelatedResourceCollection(_routeGenerator, childResource.Links, childResourcePropertyInfo, typeof(TAggregateMember).Name, aggregateMember.Id.Value, sourceValue),
-                ResourcePropertyType.VanillaCollection => MappingHelper.MapVanillaCollection(sourcePropertyType, destinationPropertyType, sourceValue),
-                ResourcePropertyType.VanillaScalar => MappingHelper.MapVanillaScalar(sourcePropertyType, sourceValue),
-                _ => null
-            };
-            
-            childResourcePropertyInfo.SetValue(childResource, childResourcePropertyValue);
+                object? sourceValue = binding.ReadSource?.Invoke(aggregateMember);
+                object? mappedValue = MappingHelper.MapProperty<TChildResource>(binding, sourceValue, metadata,
+                    _resourceMapperFactory, _childResourceMapperFactory, _routeGenerator,
+                    typeof(TAggregateMember).Name, aggregateMember.Id.Value);
+                binding.WriteDestination(childResource!, mappedValue);
+            }
+            catch (Exception exception)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to map {typeof(TAggregateMember).FullName} -> {typeof(TChildResource).FullName}, property '{binding.Destination.Name}'.",
+                    exception);
+            }
         }
 
-        return childResource;
+        return new ResourceEnvelope<TChildResource>(childResource, metadata);
     }
-    
-    private TChildResource CreateEmptyResourceForMember(TAggregateMember aggregateMember) =>
-        new()
-        {
-            Id = aggregateMember.Id.Value,
-        };
 }

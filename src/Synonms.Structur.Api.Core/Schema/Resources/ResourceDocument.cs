@@ -4,28 +4,31 @@ namespace Synonms.Structur.Api.Core.Schema.Resources;
 
 public class ResourceDocument<TResource> : Document
 {
-    public ResourceDocument(Link selfLink, TResource resource) 
-        : base(selfLink)
+    public ResourceDocument(ResourceEnvelope<TResource> envelope)
+        : base(envelope.Metadata.SelfLink)
     {
-        Resource = resource;
+        Resource = envelope.Data;
+        Metadata = envelope.Metadata;
     }
-    
+
     public TResource Resource { get; }
-    
+
+    public ResourceMetadata Metadata { get; }
+
     public ResourceDocument<TResource> WithLink(string name, Link link)
     {
         Links[name] = link;
 
         return this;
-    }    
-    
+    }
+
     public ResourceDocument<TResource> WithEditForm(Uri uri)
     {
         Links[IanaLinkRelationConstants.Forms.Edit] = Link.EditFormLink(uri);
 
         return this;
     }
-    
+
     public ResourceDocument<TResource> WithDelete(Uri uri)
     {
         Links[LinkRelationConstants.Delete] = new Link(uri, IanaLinkRelationConstants.Self, IanaHttpMethodConstants.Delete);

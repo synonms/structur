@@ -10,13 +10,14 @@
         }
         else
         {
-            <EmploymentForm Model="_employment" OperationType="OperationType.Read" ValidSubmitCallback="(() => { })"></EmploymentForm>
+            <EmploymentForm Model="_employment" Id="Id" Metadata="_metadata" OperationType="OperationType.Read" ValidSubmitCallback="(() => { })"></EmploymentForm>
         }
     </CarbonBlazorPane>
 </CarbonBlazorStack>
 
 @code {
     private EmploymentResource? _employment;
+    private ResourceMetadata? _metadata;
     
     [Inject]
     public required StructurHttpClient<EmploymentResource> EmploymentsHttpClient { get; set; }
@@ -56,6 +57,7 @@
                 document =>
                 {
                     _employment = document.Resource;
+                    _metadata = document.Metadata;
                 },
                 fault =>
                 {

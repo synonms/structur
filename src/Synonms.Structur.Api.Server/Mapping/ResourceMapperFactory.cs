@@ -15,10 +15,7 @@ public class ResourceMapperFactory : IResourceMapperFactory
     {
         IEnumerable<IResourceMapper> resourceMappers = _serviceProvider.GetRequiredService<IEnumerable<IResourceMapper>>();
 
-        Type closedGenericMapperType = typeof(IResourceMapper<,>).MakeGenericType(aggregateRootType, resourceType);
-
-        IResourceMapper? mapper = resourceMappers.FirstOrDefault(x => x.GetType().IsAssignableTo(closedGenericMapperType));
-
-        return mapper;
+        Type contract = typeof(IResourceMapper<,>).MakeGenericType(aggregateRootType, resourceType);
+        return MapperResolution.Resolve(resourceMappers, contract, typeof(DefaultResourceMapper<,>), aggregateRootType, resourceType);
     }
 }

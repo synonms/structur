@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Domain.Aggregates;
@@ -11,15 +12,15 @@ namespace Synonms.Structur.Testing.Tests;
 
 public static class PostTest<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
-    public static PostTestBuilder<TAggregateRoot, TResource> Create(StructurTestFixture testFixture, IPostTestFeature<TAggregateRoot, TResource> testFeature) => 
+    public static PostTestBuilder<TAggregateRoot, TResource> Create(StructurTestFixture testFixture, IPostTestFeature<TAggregateRoot, TResource> testFeature) =>
         new(testFixture, testFeature);
 }
 
 public class PostTestBuilder<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
     public PostTestBuilder(StructurTestFixture testFixture, IPostTestFeature<TAggregateRoot, TResource> testFeature)
     {
@@ -27,7 +28,7 @@ public class PostTestBuilder<TAggregateRoot, TResource>
     }
 
     public PreArrangeStep Arrange { get; }
-    
+
     public class PreArrangeStep
     {
         private readonly StructurTestFixture _testFixture;
@@ -39,16 +40,16 @@ public class PostTestBuilder<TAggregateRoot, TResource>
             _testFixture = testFixture;
             _testFeature = testFeature;
         }
-        
+
         public PostArrangeStep WithValidResource(params object[]? prerequisiteEntities) =>
             WithValidResource(new ArrangeEntitiesInfo(prerequisiteEntities));
-        
+
         public PostArrangeStep WithValidResource(ArrangeEntitiesInfo prerequisiteEntities)
         {
             _testFeature.PersistPrerequisitesAsync(_testFixture.ServiceScopeFactory, prerequisiteEntities).Wait();
 
             TResource resource = _testFeature.GenerateValidResource(_id);
-            
+
             return new PostArrangeStep(_testFixture, _testFeature, _id, resource);
         }
 
@@ -58,23 +59,23 @@ public class PostTestBuilder<TAggregateRoot, TResource>
         public PostArrangeStep WithInvalidResource(ArrangeEntitiesInfo prerequisiteEntities)
         {
             _testFeature.PersistPrerequisitesAsync(_testFixture.ServiceScopeFactory, prerequisiteEntities).Wait();
-            
+
             TResource resource = _testFeature.GenerateInvalidResource(_id);
-            
+
             return new PostArrangeStep(_testFixture, _testFeature, _id, resource);
         }
     }
-    
+
     public class PostArrangeStep
     {
         public PostArrangeStep(StructurTestFixture testFixture, IPostTestFeature<TAggregateRoot, TResource> testFeature, EntityId<TAggregateRoot> id, TResource resource)
         {
             Act = new ActStep(testFixture, testFeature, id, resource);
         }
-        
+
         public ActStep Act { get; }
     }
-    
+
     public class ActStep
     {
         private readonly StructurTestFixture _testFixture;
@@ -98,10 +99,10 @@ public class PostTestBuilder<TAggregateRoot, TResource>
         public ActStep WithAuthenticatedUser(string userId, params string[] permissions)
         {
             _testFixture.HttpClient.WithAuthenticatedUser(userId, permissions);
-            
+
             return this;
         }
-        
+
         public ActStep WithCorrelationId(Guid correlationId)
         {
             _testFixture.HttpClient.WithCorrelationId(correlationId);
@@ -109,7 +110,7 @@ public class PostTestBuilder<TAggregateRoot, TResource>
             return this;
         }
     }
-    
+
     public class AssertStep
     {
         private readonly StructurTestFixture _testFixture;
@@ -130,7 +131,7 @@ public class PostTestBuilder<TAggregateRoot, TResource>
 
         public void SucceedsWith(HttpStatusCode httpStatusCode)
         {
-            string json = JsonSerializer.Serialize(_resource, _testFixture.JsonSerializerOptions);
+            string json = SerializeResourceWithId();
             StringContent content = new(json, Encoding.UTF8, _testFixture.MediaType);
             HttpResponseMessage httpResponseMessage = _testFixture.HttpClient.PostAsync(_postPath, content).Result;
 
@@ -160,14 +161,22 @@ public class PostTestBuilder<TAggregateRoot, TResource>
 
             _testFeature.ValidateCreatedAggregate(retrievedAggregateRoot, _resource);
         }
-        
+
         public void FailsWith(HttpStatusCode httpStatusCode)
         {
-            string json = JsonSerializer.Serialize(_resource, _testFixture.JsonSerializerOptions);
+            string json = SerializeResourceWithId();
             StringContent content = new(json, Encoding.UTF8, _testFixture.MediaType);
             HttpResponseMessage httpResponseMessage = _testFixture.HttpClient.PostAsync(_postPath, content).Result;
 
             httpResponseMessage.AssertFailure(httpStatusCode);
+        }
+
+        private string SerializeResourceWithId()
+        {
+            JsonObject resourceObject = JsonSerializer.SerializeToNode(_resource, _testFixture.JsonSerializerOptions)?.AsObject()
+                ?? throw new InvalidOperationException("A posted resource contract must serialize to a JSON object.");
+            resourceObject["id"] = JsonValue.Create(_id.Value);
+            return resourceObject.ToJsonString(_testFixture.JsonSerializerOptions);
         }
     }
 }

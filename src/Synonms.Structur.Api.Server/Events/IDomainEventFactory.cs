@@ -6,13 +6,13 @@ using Synonms.Structur.Domain.Events;
 
 namespace Synonms.Structur.Api.Server.Events;
 
-public interface IDomainEventFactory<TAggregateRoot, in TResource>
+public interface IDomainEventFactory<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
-    Task<Result<DomainEvent<TAggregateRoot>>> GenerateCreatedEvent(TResource resource, CancellationToken cancellationToken = default);
-    
+    Task<Result<DomainEvent<TAggregateRoot>>> GenerateCreatedEvent(ResourceEnvelope<TResource> envelope, CancellationToken cancellationToken = default);
+
     Task<Result<DomainEvent<TAggregateRoot>>> GenerateDeletedEvent(EntityId<TAggregateRoot> aggregateId, CancellationToken cancellationToken = default);
 
-    Task<Result<DomainEvent<TAggregateRoot>>> GenerateUpdatedEvent(TResource resource, CancellationToken cancellationToken = default);
+    Task<Result<DomainEvent<TAggregateRoot>>> GenerateUpdatedEvent(ResourceEnvelope<TResource> envelope, CancellationToken cancellationToken = default);
 }

@@ -15,7 +15,6 @@ namespace Synonms.Structur.Api.Server.Endpoints;
 [EnableCors(CorsConstants.PolicyName)]
 public class CreateFormEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource, new()
 {
     private readonly IRouteGenerator _routeGenerator;
     private readonly ICreateFormDocumentFactory<TAggregateRoot, TResource> _documentFactory;
@@ -25,14 +24,14 @@ public class CreateFormEndpoint<TAggregateRoot, TResource> : ControllerBase
         _routeGenerator = routeGenerator;
         _documentFactory = documentFactory;
     }
-    
+
     [HttpGet]
     [Route(IanaLinkRelationConstants.Forms.Create)]
     public Task<IActionResult> CreateFormAsync()
     {
-        Uri createFormUri = _routeGenerator.CreateForm<TAggregateRoot>();
-        Uri targetUri = _routeGenerator.Collection<TAggregateRoot>();
-        TResource resource = new();
+        Uri createFormUri = _routeGenerator.CreateForm(typeof(TAggregateRoot), typeof(TResource));
+        Uri targetUri = _routeGenerator.Collection(typeof(TAggregateRoot), typeof(TResource));
+        TResource resource = ResourceContractActivator.Create<TResource>();
         FormDocument document = _documentFactory.Create(createFormUri, targetUri, resource);
 
         return Task.FromResult(Ok(document) as IActionResult);

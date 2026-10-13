@@ -3,12 +3,15 @@ using System.Text.Json.Serialization;
 using Synonms.Structur.Api.Core.Iana;
 using Synonms.Structur.Api.Core.Schema;
 using Synonms.Structur.Api.Core.Schema.Resources;
+using Synonms.Structur.Api.Core.Serialisation;
 
 namespace Synonms.Structur.Api.Core.Serialisation.Ion;
 
 public class IonResourceCollectionDocumentJsonConverter<TResource> : JsonConverter<ResourceCollectionDocument<TResource>>
-    where TResource : Resource
 {
+    private readonly Version _version;
+
+    public IonResourceCollectionDocumentJsonConverter(Version version) => _version = version;
     public override ResourceCollectionDocument<TResource> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (!JsonDocument.TryParseValue(ref reader, out JsonDocument? doc))
@@ -25,18 +28,26 @@ public class IonResourceCollectionDocumentJsonConverter<TResource> : JsonConvert
             throw new JsonException($"Expected '{IonPropertyNames.Value}' property to be an array.");
         }
 
-        List<TResource> clientResources = new();
+        List<ResourceEnvelope<TResource>> clientResources = new();
 
         foreach (JsonElement valueElement in valueArray.EnumerateArray())
         {
-            TResource? clientResource = JsonSerializer.Deserialize<TResource>(valueElement.ToString(), options);
+            TResource? clientResource = (TResource?)ResourceJsonDataReader.Deserialize(
+                valueElement.GetRawText(),
+                typeof(TResource),
+                options,
+                out ResourceMetadata metadata);
 
             if (clientResource is null)
             {
                 throw new JsonException($"Unable to deserialise client resource type {nameof(TResource)}.");
             }
 
-            clientResources.Add(clientResource);
+            metadata.SelfLink = valueElement.TryGetProperty(IanaLinkRelationConstants.Self, out JsonElement itemSelfElement)
+                ? JsonSerializer.Deserialize<Link>(itemSelfElement.GetRawText(), options) ?? Link.EmptyLink()
+                : Link.EmptyLink();
+            valueElement.ForEachIonLinkProperty((linkName, link) => metadata.Links.Add(linkName, link), options);
+            clientResources.Add(new ResourceEnvelope<TResource>(clientResource, metadata));
         }
 
         JsonElement selfElement = jsonDocument.RootElement.GetProperty(IanaLinkRelationConstants.Self);
@@ -67,7 +78,12 @@ public class IonResourceCollectionDocumentJsonConverter<TResource> : JsonConvert
         writer.WriteStartObject();
 
         writer.WritePropertyName(IonPropertyNames.Value);
-        JsonSerializer.Serialize(writer, value.Resources, options);
+        writer.WriteStartArray();
+        foreach (ResourceEnvelope<TResource> envelope in value.Envelopes)
+        {
+            ResourceJsonWriter.Write(writer, envelope, options, _version, true);
+        }
+        writer.WriteEndArray();
 
         foreach ((string key, Link link) in value.Links)
         {

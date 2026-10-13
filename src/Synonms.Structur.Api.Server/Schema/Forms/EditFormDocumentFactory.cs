@@ -9,7 +9,6 @@ namespace Synonms.Structur.Api.Server.Schema.Forms;
 
 public class EditFormDocumentFactory<TAggregateRoot, TResource> : IEditFormDocumentFactory<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource, new()
 {
     private readonly ILookupOptionsProvider _lookupOptionsProvider;
 
@@ -22,7 +21,7 @@ public class EditFormDocumentFactory<TAggregateRoot, TResource> : IEditFormDocum
     {
         Form form = resource.GenerateEditForm<TAggregateRoot, TResource>(targetUri, _lookupOptionsProvider);
         Link selfLink = Link.SelfLink(documentUri);
-        
+
         return new FormDocument(selfLink, form);
     }
 }

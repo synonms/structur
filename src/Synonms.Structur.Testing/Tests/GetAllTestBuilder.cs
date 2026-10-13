@@ -14,15 +14,15 @@ namespace Synonms.Structur.Testing.Tests;
 
 public static class GetAllTest<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
-    public static GetAllTestBuilder<TAggregateRoot, TResource> Create(StructurTestFixture testFixture, IGetAllTestFeature<TAggregateRoot, TResource> testFeature) => 
+    public static GetAllTestBuilder<TAggregateRoot, TResource> Create(StructurTestFixture testFixture, IGetAllTestFeature<TAggregateRoot, TResource> testFeature) =>
         new(testFixture, testFeature);
 }
 
 public class GetAllTestBuilder<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
     public GetAllTestBuilder(StructurTestFixture testFixture, IGetAllTestFeature<TAggregateRoot, TResource> testFeature)
     {
@@ -30,7 +30,7 @@ public class GetAllTestBuilder<TAggregateRoot, TResource>
     }
 
     public PreArrangeStep Arrange { get; }
-    
+
     public class PreArrangeStep
     {
         private readonly StructurTestFixture _testFixture;
@@ -50,7 +50,7 @@ public class GetAllTestBuilder<TAggregateRoot, TResource>
             List<ArrangeAggregateInfo<TAggregateRoot>> arrangeAggregateInfos = Enumerable.Range(0, count)
                 .Select(_ => _testFeature.GenerateUniqueAggregate(EntityId<TAggregateRoot>.New()))
                 .ToList();
-                
+
             List<TAggregateRoot> persistedAggregateRoots = arrangeAggregateInfos
                 .Select(arrangeAggregateInfo => _testFeature.PersistAggregateAsync(_testFixture.ServiceScopeFactory, arrangeAggregateInfo).Result)
                 .ToList();
@@ -58,17 +58,17 @@ public class GetAllTestBuilder<TAggregateRoot, TResource>
             return new PostArrangeStep(_testFixture, _testFeature, persistedAggregateRoots);
         }
     }
-    
+
     public class PostArrangeStep
     {
         public PostArrangeStep(StructurTestFixture testFixture, IGetAllTestFeature<TAggregateRoot, TResource> testFeature, IEnumerable<TAggregateRoot> aggregateRoots)
         {
             Act = new ActStep(testFixture, testFeature, aggregateRoots);
         }
-        
+
         public ActStep Act { get; }
     }
-    
+
     public class ActStep
     {
         private readonly StructurTestFixture _testFixture;
@@ -96,17 +96,17 @@ public class GetAllTestBuilder<TAggregateRoot, TResource>
         public ActStep WithAuthenticatedUser(string userId, params string[] permissions)
         {
             _testFixture.HttpClient.WithAuthenticatedUser(userId, permissions);
-            
+
             return this;
         }
 
         // public ActStep WithEntityTag(EntityVersion entityVersion)
         // {
         //     _httpClient.WithEntityTag(entityVersion);
-        //     
+        //
         //     return this;
         // }
-        
+
         public ActStep WithCorrelationId(Guid correlationId)
         {
             _testFixture.HttpClient.WithCorrelationId(correlationId);
@@ -120,7 +120,7 @@ public class GetAllTestBuilder<TAggregateRoot, TResource>
 
             return this;
         }
-        
+
         public ActStep WithPageLimit(int pageLimit)
         {
             _pageLimit = pageLimit;
@@ -128,7 +128,7 @@ public class GetAllTestBuilder<TAggregateRoot, TResource>
             return this;
         }
     }
-    
+
     public class AssertStep
     {
         private readonly StructurTestFixture _testFixture;
@@ -156,7 +156,7 @@ public class GetAllTestBuilder<TAggregateRoot, TResource>
             HttpResponseMessage httpResponseMessage = _testFixture.HttpClient.GetAsync(_getAllPath).Result;
 
             httpResponseMessage.AssertSuccess(httpStatusCode);
-            
+
             string content = httpResponseMessage.Content.ReadAsStringAsync().Result;
 
             ResourceCollectionDocument<TResource>? resourceCollectionDocument = JsonSerializer.Deserialize<ResourceCollectionDocument<TResource>>(content, _testFixture.JsonSerializerOptions);
@@ -168,10 +168,13 @@ public class GetAllTestBuilder<TAggregateRoot, TResource>
             }
 
             int matchedResourceCount = 0;
-            
+
             foreach (TAggregateRoot aggregateRoot in _aggregateRoots)
             {
-                TResource? resource = resourceCollectionDocument.Resources.SingleOrDefault(x => x.Id.Equals(aggregateRoot.Id.Value));
+                TResource? resource = resourceCollectionDocument.Envelopes
+                    .Where(envelope => envelope.Metadata.Id == aggregateRoot.Id.Value)
+                    .Select(envelope => envelope.Data)
+                    .SingleOrDefault();
 
                 if (resource is null)
                 {
@@ -180,14 +183,14 @@ public class GetAllTestBuilder<TAggregateRoot, TResource>
                         // We expect to all aggregates to be present
                         Assert.True(resource is not null, $"Unable to find resource for entity Id=[{aggregateRoot.Id}] in document.");
                     }
-                    
+
                     continue;
                 }
 
                 matchedResourceCount++;
 
                 _testFeature.ValidateResource(aggregateRoot, resource);
-                
+
                 // TODO: Test Resource Links
 //                AssertThat.Links(resource.Links).Presents(/*TODO*/);
             }
@@ -200,7 +203,7 @@ public class GetAllTestBuilder<TAggregateRoot, TResource>
             {
                 Assert.Equal(_pageLimit, matchedResourceCount);
             }
-            
+
             Dictionary<string, Link> expectedLinks = new()
             {
                 [IanaLinkRelationConstants.Self] = Link.SelfLink(new Uri("/" + _getAllPath, UriKind.Relative))
@@ -212,11 +215,11 @@ public class GetAllTestBuilder<TAggregateRoot, TResource>
             }
 
             AssertThat.Links(resourceCollectionDocument.Links).Presents(expectedLinks);
-            
+
             // TODO: Test Pagination Links
 //            AssertThat.LinksFromPagination(resourceCollectionDocument.Pagination).Presents(/*TODO*/);
         }
-        
+
         public void FailsWith(HttpStatusCode httpStatusCode)
         {
             HttpResponseMessage httpResponseMessage = _testFixture.HttpClient.GetAsync(_getAllPath).Result;

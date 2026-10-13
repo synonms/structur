@@ -1,20 +1,10 @@
-using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Core.ValueObjects;
 using Synonms.Structur.Core.Attributes;
 
 namespace Synonms.Structur.Sample.ClientApi.Features.Employments;
 
-public class EmploymentContractResource : ChildResource
+public class EmploymentContractResource
 {
-    public EmploymentContractResource()
-    {
-    }
-
-    public EmploymentContractResource(Guid id)
-        : base(id)
-    {
-    }
-
     [StructurRequired]
     public DateOnly StartDate { get; set; }
 
@@ -45,5 +35,4 @@ public class EmploymentContractResource : ChildResource
     [StructurRequired]
     public bool CanClaimTravelExpensesToOffice { get; set; }
 }
-
 

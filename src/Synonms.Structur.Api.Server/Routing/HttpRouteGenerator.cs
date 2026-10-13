@@ -10,116 +10,110 @@ using Synonms.Structur.Domain.Projections;
 namespace Synonms.Structur.Api.Server.Routing;
 
 /// <summary>
-/// All URIs changed to Relative to skirt issue with Docker containers where Absolute URIs report the internal protocol/port rather than the external host. 
+/// All URIs changed to Relative to skirt issue with Docker containers where Absolute URIs report the internal protocol/port rather than the external host.
 /// </summary>
 public class HttpRouteGenerator : IRouteGenerator
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly LinkGenerator _linkGenerator;
     private readonly IRouteNameProvider _routeNameProvider;
+    private readonly IResourceDirectory _resourceDirectory;
 
-    public HttpRouteGenerator(IHttpContextAccessor httpContextAccessor, LinkGenerator linkGenerator, IRouteNameProvider routeNameProvider)
+    public HttpRouteGenerator(IHttpContextAccessor httpContextAccessor, LinkGenerator linkGenerator, IRouteNameProvider routeNameProvider, IResourceDirectory resourceDirectory)
     {
         _httpContextAccessor = httpContextAccessor;
         _linkGenerator = linkGenerator;
         _routeNameProvider = routeNameProvider;
+        _resourceDirectory = resourceDirectory;
     }
 
-    public Uri Item<TAggregateRoot>(EntityId<TAggregateRoot> id, QueryParameters? queryParameters = null) 
+    public Uri Item<TAggregateRoot>(EntityId<TAggregateRoot> id, QueryParameters? queryParameters = null)
         where TAggregateRoot : AggregateRoot<TAggregateRoot>
     {
-        HttpContext httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
-        
-        string routeName = _routeNameProvider.GetById<TAggregateRoot>();
-        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, new { id = id.Value }, options: RoutingConfiguration.DefaultLinkOptions) ?? string.Empty;
-        string queryString = queryParameters?.Any() ?? false ? queryParameters.ToQueryString() : string.Empty;
-        
-        return new Uri(uriString + queryString).ToRelativeUri();
+        return Item(typeof(TAggregateRoot), id.Value, queryParameters);
     }
 
     public Uri Item(Type aggregateRootType, Guid id, QueryParameters? queryParameters = null)
     {
+        IResourceDirectory.AggregateRootLayout layout = _resourceDirectory.GetDefaultRoot(aggregateRootType);
+        return Item(aggregateRootType, layout.ResourceType, id, queryParameters);
+    }
+
+    public Uri Item(Type aggregateRootType, Type resourceType, Guid id, QueryParameters? queryParameters = null)
+    {
         HttpContext httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
-        
-        string routeName = _routeNameProvider.GetById(aggregateRootType);
+        string routeName = _routeNameProvider.GetById(aggregateRootType, resourceType);
         string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, new { id }, options: RoutingConfiguration.DefaultLinkOptions) ?? string.Empty;
         string queryString = queryParameters?.Any() ?? false ? queryParameters.ToQueryString() : string.Empty;
-        
         return new Uri(uriString + queryString).ToRelativeUri();
     }
 
-    public Uri Collection<TAggregateRoot>(QueryParameters? queryParameters = null) 
+    public Uri Collection<TAggregateRoot>(QueryParameters? queryParameters = null)
         where TAggregateRoot : AggregateRoot<TAggregateRoot>
     {
-        HttpContext httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
-
-        string routeName = _routeNameProvider.GetAll<TAggregateRoot>();
-        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, null, options: RoutingConfiguration.DefaultLinkOptions) ?? string.Empty;
-        string queryString = queryParameters?.Any() ?? false ? queryParameters.ToQueryString() : string.Empty;
-        
-        return new Uri(uriString + queryString).ToRelativeUri();
+        return Collection(typeof(TAggregateRoot), queryParameters);
     }
 
     public Uri Collection(Type aggregateRootType, QueryParameters? queryParameters = null)
     {
-        HttpContext httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
+        IResourceDirectory.AggregateRootLayout layout = _resourceDirectory.GetDefaultRoot(aggregateRootType);
+        return Collection(aggregateRootType, layout.ResourceType, queryParameters);
+    }
 
-        string routeName = _routeNameProvider.GetAll(aggregateRootType);
+    public Uri Collection(Type aggregateRootType, Type resourceType, QueryParameters? queryParameters = null)
+    {
+        HttpContext httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
+        string routeName = _routeNameProvider.GetAll(aggregateRootType, resourceType);
         string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, null, options: RoutingConfiguration.DefaultLinkOptions) ?? string.Empty;
         string queryString = queryParameters?.Any() ?? false ? queryParameters.ToQueryString() : string.Empty;
-        
         return new Uri(uriString + queryString).ToRelativeUri();
     }
-    
+
     public Uri CreateForm<TAggregateRoot>(QueryParameters? queryParameters = null)
         where TAggregateRoot : AggregateRoot<TAggregateRoot>
     {
-        HttpContext httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
-
-        string routeName = _routeNameProvider.CreateForm<TAggregateRoot>();
-        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, null, options: RoutingConfiguration.DefaultLinkOptions) ?? string.Empty;
-        string queryString = queryParameters?.Any() ?? false ? queryParameters.ToQueryString() : string.Empty;
-        
-        return new Uri(uriString + queryString).ToRelativeUri();
+        return CreateForm(typeof(TAggregateRoot), queryParameters);
     }
 
     public Uri CreateForm(Type aggregateRootType, QueryParameters? queryParameters = null)
     {
-        HttpContext httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
+        IResourceDirectory.AggregateRootLayout layout = _resourceDirectory.GetDefaultRoot(aggregateRootType);
+        return CreateForm(aggregateRootType, layout.ResourceType, queryParameters);
+    }
 
-        string routeName = _routeNameProvider.CreateForm(aggregateRootType);
+    public Uri CreateForm(Type aggregateRootType, Type resourceType, QueryParameters? queryParameters = null)
+    {
+        HttpContext httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
+        string routeName = _routeNameProvider.CreateForm(aggregateRootType, resourceType);
         string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, null, options: RoutingConfiguration.DefaultLinkOptions) ?? string.Empty;
         string queryString = queryParameters?.Any() ?? false ? queryParameters.ToQueryString() : string.Empty;
-        
         return new Uri(uriString + queryString).ToRelativeUri();
     }
 
     public Uri EditForm<TAggregateRoot>(EntityId<TAggregateRoot> id, QueryParameters? queryParameters = null)
         where TAggregateRoot : AggregateRoot<TAggregateRoot>
     {
-        HttpContext httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
-
-        string routeName = _routeNameProvider.EditForm<TAggregateRoot>();
-        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, new { id }, options: RoutingConfiguration.DefaultLinkOptions) ?? string.Empty;
-        string queryString = queryParameters?.Any() ?? false ? queryParameters.ToQueryString() : string.Empty;
-        
-        return new Uri(uriString + queryString).ToRelativeUri();
+        return EditForm(typeof(TAggregateRoot), id.Value, queryParameters);
     }
 
     public Uri EditForm(Type aggregateRootType, Guid id, QueryParameters? queryParameters = null)
     {
-        HttpContext httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
+        IResourceDirectory.AggregateRootLayout layout = _resourceDirectory.GetDefaultRoot(aggregateRootType);
+        return EditForm(aggregateRootType, layout.ResourceType, id, queryParameters);
+    }
 
-        string routeName = _routeNameProvider.EditForm(aggregateRootType);
+    public Uri EditForm(Type aggregateRootType, Type resourceType, Guid id, QueryParameters? queryParameters = null)
+    {
+        HttpContext httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
+        string routeName = _routeNameProvider.EditForm(aggregateRootType, resourceType);
         string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, new { id }, options: RoutingConfiguration.DefaultLinkOptions) ?? string.Empty;
         string queryString = queryParameters?.Any() ?? false ? queryParameters.ToQueryString() : string.Empty;
-        
         return new Uri(uriString + queryString).ToRelativeUri();
     }
-    
-    public Uri Projection<TAggregateRoot, TProjection>(EntityId<TAggregateRoot> id, QueryParameters? queryParameters = null) 
+
+    public Uri Projection<TAggregateRoot, TProjection>(EntityId<TAggregateRoot> id, QueryParameters? queryParameters = null)
         where TAggregateRoot : AggregateRoot<TAggregateRoot>
-        where TProjection : Projection<TAggregateRoot> => 
+        where TProjection : Projection<TAggregateRoot> =>
         Projection(typeof(TAggregateRoot), typeof(TProjection), id.Value, queryParameters);
 
     public Uri Projection(Type aggregateRootType, Type projectionType, Guid id, QueryParameters? queryParameters = null)
@@ -130,13 +124,23 @@ public class HttpRouteGenerator : IRouteGenerator
         {
             return new Uri("/", UriKind.Relative);
         }
-        
+
+        IResourceDirectory.AggregateRootLayout layout = _resourceDirectory.GetDefaultRoot(aggregateRootType);
+        return Projection(aggregateRootType, layout.ResourceType, projectionType, id, queryParameters);
+    }
+
+    public Uri Projection(Type aggregateRootType, Type resourceType, Type projectionType, Guid id, QueryParameters? queryParameters = null)
+    {
+        StructurProjectionAttribute? projectionAttribute = projectionType.GetCustomAttribute<StructurProjectionAttribute>();
+        if (projectionAttribute is null)
+        {
+            return new Uri("/", UriKind.Relative);
+        }
+
         HttpContext httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext();
-        
-        string routeName = _routeNameProvider.GetById(aggregateRootType);
-        string getByIdUriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, new { id }, options: RoutingConfiguration.DefaultLinkOptions) ?? string.Empty;
+        string routeName = _routeNameProvider.GetById(aggregateRootType, resourceType);
+        string itemUri = _linkGenerator.GetUriByRouteValues(httpContext, routeName, new { id }, options: RoutingConfiguration.DefaultLinkOptions) ?? string.Empty;
         string queryString = queryParameters?.Any() ?? false ? queryParameters.ToQueryString() : string.Empty;
-        
-        return new Uri(getByIdUriString + "/projections/" + projectionAttribute.ProjectionIdentifier + queryString).ToRelativeUri();
+        return new Uri(itemUri + "/projections/" + projectionAttribute.ProjectionIdentifier + queryString).ToRelativeUri();
     }
 }

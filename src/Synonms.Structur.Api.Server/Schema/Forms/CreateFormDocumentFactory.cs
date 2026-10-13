@@ -7,9 +7,8 @@ using Synonms.Structur.Domain.Aggregates;
 
 namespace Synonms.Structur.Api.Server.Schema.Forms;
 
-public class CreateFormDocumentFactory<TAggregateRoot, TResource> : ICreateFormDocumentFactory<TAggregateRoot, TResource> 
+public class CreateFormDocumentFactory<TAggregateRoot, TResource> : ICreateFormDocumentFactory<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource, new()
 {
     private readonly ILookupOptionsProvider _lookupOptionsProvider;
 
@@ -17,13 +16,13 @@ public class CreateFormDocumentFactory<TAggregateRoot, TResource> : ICreateFormD
     {
         _lookupOptionsProvider = lookupOptionsProvider;
     }
-    
-    public FormDocument Create(Uri documentUri, Uri targetUri, TResource? resource = null)
+
+    public FormDocument Create(Uri documentUri, Uri targetUri, TResource? resource = default)
     {
-        resource ??= new TResource();
+        resource ??= ResourceContractActivator.Create<TResource>();
         Form form = resource.GenerateCreateForm<TAggregateRoot, TResource>(targetUri, _lookupOptionsProvider);
         Link selfLink = Link.SelfLink(documentUri);
-        
+
         return new FormDocument(selfLink, form);
     }
 }

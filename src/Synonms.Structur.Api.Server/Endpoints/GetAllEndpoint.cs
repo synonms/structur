@@ -20,7 +20,7 @@ namespace Synonms.Structur.Api.Server.Endpoints;
 [EnableCors(CorsConstants.PolicyName)]
 public class GetAllEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
     private readonly IQueryHandler<ReadResourceCollectionQuery<TAggregateRoot, TResource>, ReadResourceCollectionQueryResponse<TAggregateRoot, TResource>> _queryHandler;
     private readonly IRouteGenerator _routeGenerator;
@@ -35,11 +35,13 @@ public class GetAllEndpoint<TAggregateRoot, TResource> : ControllerBase
     [Route("")]
     public async Task<IActionResult> GetAllAsync([FromQuery] int offset = 0, [FromQuery] int limit = Pagination.DefaultPageLimit)
     {
-        StructurResourceAttribute? resourceAttribute = typeof(TAggregateRoot).GetCustomAttribute<StructurResourceAttribute>();
+        StructurResourceAttribute? resourceAttribute = typeof(TAggregateRoot)
+            .GetCustomAttributes<StructurResourceAttribute>()
+            .SingleOrDefault(attribute => attribute.ResourceType == typeof(TResource));
 
         int configuredPageLimit = resourceAttribute?.PageLimit ?? 0;
         int pageLimit = configuredPageLimit > 0 ? configuredPageLimit : Math.Clamp(limit, 0, int.MaxValue);
-        
+
         ReadResourceCollectionQuery<TAggregateRoot, TResource> request = new(pageLimit)
         {
             Offset = offset,
@@ -51,24 +53,24 @@ public class GetAllEndpoint<TAggregateRoot, TResource> : ControllerBase
         return queryResult.Match(
             queryResponse =>
             {
-                Uri selfUri = _routeGenerator.Collection<TAggregateRoot>(request.QueryParameters);
+                Uri selfUri = _routeGenerator.Collection(typeof(TAggregateRoot), typeof(TResource), request.QueryParameters);
                 Link selfLink = Link.SelfLink(selfUri);
-        
+
                 Pagination pagination = queryResponse.ResourceCollection.GeneratePagination(o =>
-                    _routeGenerator.Collection<TAggregateRoot>(request.QueryParameters)
+                    _routeGenerator.Collection(typeof(TAggregateRoot), typeof(TResource), request.QueryParameters)
                 );
 
-                ResourceCollectionDocument<TResource> document = new(selfLink, queryResponse.ResourceCollection, pagination);
+                ResourceCollectionDocument<TResource> document = new(selfLink, queryResponse.Envelopes, pagination);
 
-                if (resourceAttribute?.IsCreateDisabled is false)
+                if (resourceAttribute?.IsCreateDisabled is false && resourceAttribute.IsCreateFormDisabled is false)
                 {
-                    Uri createFormUri = _routeGenerator.CreateForm<TAggregateRoot>();
+                    Uri createFormUri = _routeGenerator.CreateForm(typeof(TAggregateRoot), typeof(TResource));
                     Link createFormLink = Link.CreateFormLink(createFormUri);
                     document.WithLink(IanaLinkRelationConstants.Forms.Create, createFormLink);
                 }
 
                 return Ok(document) as IActionResult;
-            }, 
+            },
             fault => HttpResponseMapper.MapFault(fault));
     }
 }

@@ -12,7 +12,7 @@
     <CarbonBlazorText Type="CarbonBlazorTextType.HeadingCompact">Contracts</CarbonBlazorText>
     
     <NestedCollectionDataTable TModel="EmploymentContractResource" Title="Employment Contracts" ChildResources="@Model.Contracts" ChildResourceName="Employment Contract" ValidationFunc="ValidateEmploymentContract"
-                               MatcherFunc="@((left, right) => left.Id == right.Id)">
+                               MatcherFunc="@MatchesContract">
         <HeaderRowTemplate>
             <CarbonBlazorDataTableHeaderCell>Start Date</CarbonBlazorDataTableHeaderCell>
             <CarbonBlazorDataTableHeaderCell>End Date</CarbonBlazorDataTableHeaderCell>
@@ -50,6 +50,12 @@
 
     [Parameter, EditorRequired]
     public EmploymentResource Model { get; set; }
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    [Parameter]
+    public ResourceMetadata? Metadata { get; set; }
 
     [Parameter, EditorRequired]
     public EventCallback ValidSubmitCallback { get; set; }
@@ -139,7 +145,20 @@
             return;
         }
         
-        NavigationManager.NavigateTo("employments/" + Model.Id + "/update");
+        NavigationManager.NavigateTo("employments/" + Id + "/update");
+    }
+
+    private bool MatchesContract(EmploymentContractResource left, EmploymentContractResource right)
+    {
+        if (ReferenceEquals(left, right))
+        {
+            return true;
+        }
+
+        return Metadata is not null
+            && Metadata.TryGetEmbeddedMetadata(left, out ResourceMetadata leftMetadata)
+            && Metadata.TryGetEmbeddedMetadata(right, out ResourceMetadata rightMetadata)
+            && leftMetadata.Id == rightMetadata.Id;
     }
 
     private async Task OnValidSubmit()

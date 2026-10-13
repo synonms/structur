@@ -13,7 +13,7 @@ public class ProjectionsController : ControllerBase
         public required Uri Href { get; init; }
         public string? Description { get; init; }
     }
-    
+
     private readonly IResourceDirectory _resourceDirectory;
     private readonly IRouteGenerator _routeGenerator;
 
@@ -27,11 +27,12 @@ public class ProjectionsController : ControllerBase
     [Route("{collectionPath}/{id:guid}/projections")]
     public IActionResult GetAll([FromRoute] string collectionPath, [FromRoute] Guid id)
     {
-        IReadOnlyDictionary<string, IResourceDirectory.AggregateRootLayout> aggregateRootLayouts = _resourceDirectory.GetAllRoots();
-        
         Dictionary<string, ProjectionModel> uris = new();
-        
-        if (aggregateRootLayouts.TryGetValue(collectionPath, out IResourceDirectory.AggregateRootLayout? aggregateRootLayout))
+
+        IResourceDirectory.AggregateRootLayout? aggregateRootLayout = _resourceDirectory.GetAllRoots()
+            .SingleOrDefault(layout => string.Equals(layout.CollectionPath, collectionPath, StringComparison.OrdinalIgnoreCase));
+
+        if (aggregateRootLayout is not null)
         {
             foreach (Type projectionType in aggregateRootLayout.ProjectionTypes)
             {
@@ -42,8 +43,8 @@ public class ProjectionsController : ControllerBase
                     continue;
                 }
 
-                Uri projectionUri = _routeGenerator.Projection(aggregateRootLayout.AggregateRootType, projectionType, id);
-                
+                Uri projectionUri = _routeGenerator.Projection(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType, projectionType, id);
+
                 uris.Add(projectionAttribute.Name, new ProjectionModel { Href = projectionUri, Description = projectionAttribute.Description });
             }
         }

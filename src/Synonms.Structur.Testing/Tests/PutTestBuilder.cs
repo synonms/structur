@@ -11,15 +11,15 @@ namespace Synonms.Structur.Testing.Tests;
 
 public static class PutTest<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
-    public static PutTestBuilder<TAggregateRoot, TResource> Create(StructurTestFixture testFixture, IPutTestFeature<TAggregateRoot, TResource> testFeature) => 
+    public static PutTestBuilder<TAggregateRoot, TResource> Create(StructurTestFixture testFixture, IPutTestFeature<TAggregateRoot, TResource> testFeature) =>
         new(testFixture, testFeature);
 }
 
 public class PutTestBuilder<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
     public PutTestBuilder(StructurTestFixture testFixture, IPutTestFeature<TAggregateRoot, TResource> testFeature)
     {
@@ -27,7 +27,7 @@ public class PutTestBuilder<TAggregateRoot, TResource>
     }
 
     public ArrangeEntityStep Arrange { get; }
-    
+
     public class ArrangeEntityStep
     {
         private readonly StructurTestFixture _testFixture;
@@ -46,13 +46,13 @@ public class PutTestBuilder<TAggregateRoot, TResource>
         public ArrangeTemplateStep WithAggregate()
         {
             ArrangeAggregateInfo<TAggregateRoot> arrangeAggregateInfo = _testFeature.GenerateUniqueAggregate(_id);
-            
+
             TAggregateRoot persistedAggregateRoot = _testFeature.PersistAggregateAsync(_testFixture.ServiceScopeFactory, arrangeAggregateInfo).Result;
 
             return new ArrangeTemplateStep(_testFixture, _testFeature, _id, persistedAggregateRoot);
         }
     }
-    
+
     public class ArrangeTemplateStep
     {
         private readonly StructurTestFixture _testFixture;
@@ -71,28 +71,28 @@ public class PutTestBuilder<TAggregateRoot, TResource>
         public PostArrangeStep WithValidResource()
         {
             TResource resource = _testFeature.GenerateValidResource(_id);
-            
+
             return new PostArrangeStep(_testFixture, _testFeature, _id, _aggregateRoot, resource);
         }
-        
+
         public PostArrangeStep WithInvalidResource()
         {
             TResource resource = _testFeature.GenerateInvalidResource(_id);
-            
+
             return new PostArrangeStep(_testFixture, _testFeature, _id, _aggregateRoot, resource);
         }
     }
-    
+
     public class PostArrangeStep
     {
         public PostArrangeStep(StructurTestFixture testFixture, IPutTestFeature<TAggregateRoot, TResource> testFeature, EntityId<TAggregateRoot> id, TAggregateRoot? aggregateRoot, TResource resource)
         {
             Act = new ActStep(testFixture, testFeature, id, aggregateRoot, resource);
         }
-        
+
         public ActStep Act { get; }
     }
-    
+
     public class ActStep
     {
         private readonly StructurTestFixture _testFixture;
@@ -122,10 +122,10 @@ public class PutTestBuilder<TAggregateRoot, TResource>
         public ActStep WithAuthenticatedUser(string userId, params string[] permissions)
         {
             _testFixture.HttpClient.WithAuthenticatedUser(userId, permissions);
-            
+
             return this;
         }
-        
+
         public ActStep WithoutVersion()
         {
             // TODO: Update HttpClient
@@ -142,7 +142,7 @@ public class PutTestBuilder<TAggregateRoot, TResource>
             return this;
         }
     }
-    
+
     public class AssertStep
     {
         private readonly StructurTestFixture _testFixture;
@@ -168,7 +168,7 @@ public class PutTestBuilder<TAggregateRoot, TResource>
         public void SucceedsWith(HttpStatusCode httpStatusCode)
         {
             Assert.True(_aggregateRoot is not null, "Aggregate not arranged when testing success path - call Arrange.WithAggregate() in test body.");
-            
+
             string json = JsonSerializer.Serialize(_resource, _testFixture.JsonSerializerOptions);
             StringContent content = new(json, Encoding.UTF8, _testFixture.MediaType);
             HttpResponseMessage httpResponseMessage = _testFixture.HttpClient.PutAsync(_putPath, content).Result;
@@ -185,7 +185,7 @@ public class PutTestBuilder<TAggregateRoot, TResource>
 
             _testFeature.ValidateUpdatedAggregate(retrievedAggregateRoot, _resource);
         }
-        
+
         public void FailsWith(HttpStatusCode httpStatusCode)
         {
             string json = JsonSerializer.Serialize(_resource, _testFixture.JsonSerializerOptions);

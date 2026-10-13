@@ -8,22 +8,15 @@ public static class TypeExtensions
 {
     public static IEnumerable<PropertyInfo> GetResourceProperties(this Type resourceType)
     {
-        string[] propertiesToExclude = [nameof(Resource.Id), nameof(Resource.SupportedVersions), nameof(Resource.SelfLink), nameof(Resource.Links)];
-        
+        string[] propertiesToExclude = ["Id", "Links", "SelfLink", "SupportedVersions"];
+
         return resourceType.GetPublicInstanceProperties(propertiesToExclude);
-    }
-    
-    public static IEnumerable<PropertyInfo> GetChildResourceProperties(this Type childResourceType)
-    {
-        string[] propertiesToExclude = [nameof(ChildResource.Id), nameof(Resource.Links)];
-        
-        return childResourceType.GetPublicInstanceProperties(propertiesToExclude);
     }
 
     public static object? GetValueObjectValue(this Type valueObjectType, object? valueObject)
     {
         if (valueObject is null) return null;
-        
+
         PropertyInfo? valueObjectValuePropertyInfo = valueObjectType.GetProperty("Value", BindingFlags.Instance | BindingFlags.Public);
 
         if (valueObjectValuePropertyInfo is null) return null;

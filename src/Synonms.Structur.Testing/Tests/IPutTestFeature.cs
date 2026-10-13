@@ -5,12 +5,12 @@ using Synonms.Structur.Domain.Aggregates;
 
 namespace Synonms.Structur.Testing.Tests;
 
-public interface IPutTestFeature<TAggregateRoot, TResource> where TAggregateRoot : AggregateRoot<TAggregateRoot> where TResource : Resource
+public interface IPutTestFeature<TAggregateRoot, TResource> where TAggregateRoot : AggregateRoot<TAggregateRoot>
 {
     string CollectionPath { get; }
-    
+
     TResource GenerateInvalidResource(EntityId<TAggregateRoot> id);
-    
+
     TResource GenerateValidResource(EntityId<TAggregateRoot> id);
 
     ArrangeAggregateInfo<TAggregateRoot> GenerateUniqueAggregate(EntityId<TAggregateRoot> id);

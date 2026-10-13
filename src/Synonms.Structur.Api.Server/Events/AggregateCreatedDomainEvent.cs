@@ -9,14 +9,14 @@ namespace Synonms.Structur.Api.Server.Events;
 
 public abstract class AggregateCreatedDomainEvent<TAggregateRoot, TResource> : DomainEvent<TAggregateRoot>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
-    protected AggregateCreatedDomainEvent(EntityId<TAggregateRoot> aggregateId, TResource resource, Guid tenantId) : base(aggregateId, tenantId)
+    protected AggregateCreatedDomainEvent(ResourceEnvelope<TResource> envelope, Guid tenantId) : base((EntityId<TAggregateRoot>)envelope.Metadata.Id, tenantId)
     {
-        Resource = resource;
+        Envelope = envelope;
     }
 
-    public TResource Resource { get; protected set; }
+    public ResourceEnvelope<TResource> Envelope { get; protected set; }
 
     public override Task<Result<TAggregateRoot>> ApplyAsync(TAggregateRoot? aggregateRoot)
     {
@@ -26,8 +26,8 @@ public abstract class AggregateCreatedDomainEvent<TAggregateRoot, TResource> : D
             return Result<TAggregateRoot>.Failure(fault).AsAsync();
         }
 
-        return CreateAggregate(Resource).AsAsync();
+        return CreateAggregate(Envelope).AsAsync();
     }
 
-    public abstract Result<TAggregateRoot> CreateAggregate(TResource resource);
+    public abstract Result<TAggregateRoot> CreateAggregate(ResourceEnvelope<TResource> envelope);
 }

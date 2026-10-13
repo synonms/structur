@@ -8,6 +8,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using Synonms.Structur.Api.Core.Serialisation;
 using Synonms.Structur.Api.Core.Serialisation.Default;
+using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Core.ValueObjects;
 using Synonms.Structur.Api.Core.ValueObjects.Enumerations;
 using Synonms.Structur.Api.Server.Mapping;
@@ -243,10 +244,11 @@ public class ComplexValueObjectIntegrationTests
         DefaultResourceMapper<ComplexAggregate, ComplexResource> mapper = new(
             NullLogger<DefaultResourceMapper<ComplexAggregate, ComplexResource>>.Instance,
             new EmptyResourceMapperFactory(), new EmptyChildResourceMapperFactory(), new FixtureRouteGenerator());
-        ComplexResource resource = mapper.Map(aggregate);
-        Assert.Equal(aggregate.Id.Value, resource.Id);
-        Assert.Equal("/complex/123", resource.SelfLink.Uri.ToString());
-        Assert.NotEmpty(resource.Links);
+        ResourceEnvelope<ComplexResource> envelope = mapper.MapEnvelope(aggregate);
+        ComplexResource resource = envelope.Data;
+        Assert.Equal(aggregate.Id.Value, envelope.Metadata.Id);
+        Assert.Equal("/complex/123", envelope.Metadata.SelfLink.Uri.ToString());
+        Assert.NotEmpty(envelope.Metadata.Links);
         Assert.Equal(AddressTypeEnumeration.Home, resource.Address!.Type);
         Assert.Null(resource.Address.Line2);
         Assert.Null(resource.Addresses![1]);
@@ -256,10 +258,11 @@ public class ComplexValueObjectIntegrationTests
         Assert.Equal("123456", resource.Bank!.SortCode);
         JsonSerializerOptions options = new JsonSerializerOptions().ConfigureForStructurFramework();
         options.Converters.Add(new JsonStringEnumConverter());
-        options.Converters.Add(new DefaultResourceJsonConverter<ComplexResource>(new Version(1, 0)));
-        string json = JsonSerializer.Serialize(resource, options);
+        options.Converters.Add(new DefaultCustomJsonConverterFactory(new Version(1, 0)));
+        options.Converters.Add(new DefaultLinkJsonConverter());
+        string json = JsonSerializer.Serialize(new ResourceDocument<ComplexResource>(envelope), options);
         using JsonDocument document = JsonDocument.Parse(json);
-        JsonElement root = document.RootElement;
+        JsonElement root = document.RootElement.GetProperty(DefaultPropertyNames.Value);
         Assert.Equal("Home", root.GetProperty("address").GetProperty("type").GetString());
         Assert.Equal(JsonValueKind.Null, root.GetProperty("address").GetProperty("line2").ValueKind);
         Assert.Equal(JsonValueKind.Null, root.GetProperty("addresses")[1].ValueKind);

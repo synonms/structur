@@ -21,11 +21,11 @@ public class RootController : ControllerBase
     {
         Dictionary<string, Uri> uris = new();
 
-        foreach ((string collectionRoute, IResourceDirectory.AggregateRootLayout aggregateRootLayout) in _resourceDirectory.GetAllRoots())
+        foreach (IResourceDirectory.AggregateRootLayout aggregateRootLayout in _resourceDirectory.GetAllRoots())
         {
-            Uri getAllUri = _routeGenerator.Collection(aggregateRootLayout.AggregateRootType);
-            
-            uris.Add(collectionRoute, getAllUri);
+            Uri getAllUri = _routeGenerator.Collection(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+
+            uris.Add(aggregateRootLayout.CollectionPath, getAllUri);
         }
 
         return Ok(uris);

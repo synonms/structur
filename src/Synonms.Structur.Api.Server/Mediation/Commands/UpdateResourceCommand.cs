@@ -7,17 +7,17 @@ namespace Synonms.Structur.Api.Server.Mediation.Commands;
 
 public class UpdateResourceCommand<TAggregateRoot, TResource> : Command
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource
+
 {
-    public UpdateResourceCommand(EntityId<TAggregateRoot> id, TResource resource)
+    public UpdateResourceCommand(EntityId<TAggregateRoot> id, ResourceEnvelope<TResource> envelope)
     {
         Id = id;
-        Resource = resource;
+        Envelope = envelope;
     }
 
     public EntityId<TAggregateRoot> Id { get; }
-    
-    public TResource Resource { get; }
-    
+
+    public ResourceEnvelope<TResource> Envelope { get; }
+
     public EntityTag? IfMatch { get; init; }
 }
