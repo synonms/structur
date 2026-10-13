@@ -44,5 +44,5 @@ public class Moniker : ScalarValueObject<Moniker, string>, IScalarValueObject<Mo
         CreateMandatory(nameof(Moniker), value, value.Length)
             .Match(
                 valueObject => valueObject,
-                _ => new Moniker(string.Empty));
+                _ => new Moniker(value));
 }

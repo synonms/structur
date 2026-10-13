@@ -44,5 +44,5 @@ public class UniqueReference : ScalarValueObject<UniqueReference, string>, IScal
         CreateMandatory(nameof(UniqueReference), value, value.Length)
             .Match(
                 valueObject => valueObject,
-                _ => new UniqueReference(string.Empty));
+                _ => new UniqueReference(value));
 }

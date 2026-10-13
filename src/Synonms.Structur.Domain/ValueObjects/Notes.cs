@@ -44,5 +44,5 @@ public class Notes : ScalarValueObject<Notes, string>, IScalarValueObject<Notes,
         CreateMandatory(nameof(Notes), value, value.Length)
             .Match(
                 valueObject => valueObject,
-                _ => new Notes(string.Empty));
+                _ => new Notes(value));
 }

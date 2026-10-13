@@ -44,6 +44,6 @@ public class EventDateTime : ScalarValueObject<EventDateTime, DateTime>, IScalar
     public static EventDateTime Rehydrate(DateTime value) =>
         CreateMandatory(nameof(EventDateTime), value, value, value).Match(
             valueObject => valueObject,
-            _ => new EventDateTime(DateTime.MinValue)
+            _ => new EventDateTime(value)
         );
 }

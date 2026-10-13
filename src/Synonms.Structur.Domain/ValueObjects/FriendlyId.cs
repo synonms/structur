@@ -46,5 +46,5 @@ public class FriendlyId : ScalarValueObject<FriendlyId, string>, IScalarValueObj
         CreateMandatory(nameof(FriendlyId), value)
             .Match(
                 valueObject => valueObject,
-                _ => new FriendlyId(string.Empty));
+                _ => new FriendlyId(value));
 }

@@ -35,6 +35,6 @@ public class Role : ScalarValueObject<Role, string>, IScalarValueObject<Role, st
         CreateMandatory(nameof(Role), value)
             .Match(
                 valueObject => valueObject,
-                _ => new Role(string.Empty));
+                _ => new Role(value));
 }
 

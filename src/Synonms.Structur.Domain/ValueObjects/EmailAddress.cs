@@ -37,5 +37,5 @@ public class EmailAddress : ScalarValueObject<EmailAddress, string>, IScalarValu
         CreateMandatory(nameof(EmailAddress), value)
             .Match(
                 valueObject => valueObject,
-                _ => new EmailAddress(string.Empty));
+                _ => new EmailAddress(value));
 }

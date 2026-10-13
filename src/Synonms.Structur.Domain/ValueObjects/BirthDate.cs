@@ -48,5 +48,5 @@ public class BirthDate : ScalarValueObject<BirthDate, DateOnly>, IScalarValueObj
     public static BirthDate Rehydrate(DateOnly value) =>
         CreateMandatory(nameof(BirthDate), value).Match(
             valueObject => valueObject,
-            _ => new BirthDate(DateOnly.MinValue));
+            _ => new BirthDate(value));
 }

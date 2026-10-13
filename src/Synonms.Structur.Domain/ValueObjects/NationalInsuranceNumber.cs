@@ -40,5 +40,5 @@ public class NationalInsuranceNumber : ScalarValueObject<NationalInsuranceNumber
         CreateMandatory(nameof(NationalInsuranceNumber), value)
             .Match(
                 valueObject => valueObject,
-                _ => new NationalInsuranceNumber(string.Empty));
+                _ => new NationalInsuranceNumber(value));
 }

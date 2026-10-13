@@ -35,6 +35,6 @@ public class UkBuildingSocietyRollNumber : ScalarValueObject<UkBuildingSocietyRo
         CreateMandatory(nameof(UkBuildingSocietyRollNumber), value)
             .Match(
                 valueObject => valueObject,
-                _ => new UkBuildingSocietyRollNumber(string.Empty));
+                _ => new UkBuildingSocietyRollNumber(value));
 }
 

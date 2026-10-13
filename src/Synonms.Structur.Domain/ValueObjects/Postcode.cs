@@ -37,5 +37,5 @@ public class Postcode : ScalarValueObject<Postcode, string>, IScalarValueObject<
         CreateMandatory(nameof(Postcode), value)
             .Match(
                 valueObject => valueObject,
-                _ => new Postcode(string.Empty));
+                _ => new Postcode(value));
 }

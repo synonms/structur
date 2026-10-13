@@ -44,5 +44,5 @@ public class Label : ScalarValueObject<Label, string>, IScalarValueObject<Label,
         CreateMandatory(nameof(Label), value, value.Length)
             .Match(
                 valueObject => valueObject,
-                _ => new Label(string.Empty));
+                _ => new Label(value));
 }

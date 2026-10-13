@@ -49,5 +49,5 @@ public class EffectiveDate : ScalarValueObject<EffectiveDate, DateOnly>, IScalar
     public static EffectiveDate Rehydrate(DateOnly value) =>
         CreateMandatory(nameof(EffectiveDate), value).Match(
             valueObject => valueObject,
-            _ => new EffectiveDate(DateOnly.MinValue));
+            _ => new EffectiveDate(value));
 }

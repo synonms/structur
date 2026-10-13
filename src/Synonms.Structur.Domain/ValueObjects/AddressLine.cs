@@ -46,5 +46,5 @@ public class AddressLine : ScalarValueObject<AddressLine, string>, IScalarValueO
         CreateMandatory(nameof(AddressLine), value, value.Length)
             .Match(
                 valueObject => valueObject,
-                _ => new AddressLine(string.Empty));
+                _ => new AddressLine(value));
 }

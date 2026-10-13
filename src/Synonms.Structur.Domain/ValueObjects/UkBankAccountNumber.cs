@@ -37,7 +37,7 @@ public class UkBankAccountNumber : ScalarValueObject<UkBankAccountNumber, string
         CreateMandatory(nameof(UkBankAccountNumber), value)
             .Match(
                 valueObject => valueObject,
-                _ => new UkBankAccountNumber(string.Empty));
+                _ => new UkBankAccountNumber(value));
 }
 
 

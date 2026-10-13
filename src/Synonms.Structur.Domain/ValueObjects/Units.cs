@@ -47,5 +47,5 @@ public class Units : ScalarValueObject<Units, int>, IScalarValueObject<Units, in
     public static Units Rehydrate(int value) =>
         CreateMandatory(nameof(Units), value).Match(
             valueObject => valueObject,
-            _ => new Units(DefaultMinValue));
+            _ => new Units(value));
 }

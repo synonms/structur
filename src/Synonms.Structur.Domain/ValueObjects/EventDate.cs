@@ -44,6 +44,6 @@ public class EventDate : ScalarValueObject<EventDate, DateOnly>, IScalarValueObj
     public static EventDate Rehydrate(DateOnly value) =>
         CreateMandatory(nameof(EventDate), value, value, value).Match(
             valueObject => valueObject,
-            _ => new EventDate(DateOnly.MinValue)
+            _ => new EventDate(value)
         );
 }

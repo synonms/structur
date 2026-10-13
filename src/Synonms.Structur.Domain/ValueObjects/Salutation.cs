@@ -44,5 +44,5 @@ public class Salutation : ScalarValueObject<Salutation, string>, IScalarValueObj
         CreateMandatory(nameof(Salutation), value)
             .Match(
                 valueObject => valueObject,
-                _ => new Salutation(string.Empty));
+                _ => new Salutation(value));
 }

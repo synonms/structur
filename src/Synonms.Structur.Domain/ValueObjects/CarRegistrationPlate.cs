@@ -37,7 +37,7 @@ public class CarRegistrationPlate : ScalarValueObject<CarRegistrationPlate, stri
         CreateMandatory(nameof(CarRegistrationPlate), value)
             .Match(
                 valueObject => valueObject,
-                _ => new CarRegistrationPlate(string.Empty));
+                _ => new CarRegistrationPlate(value));
 }
 
 

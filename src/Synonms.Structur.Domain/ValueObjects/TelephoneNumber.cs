@@ -37,5 +37,5 @@ public class TelephoneNumber : ScalarValueObject<TelephoneNumber, string>, IScal
         CreateMandatory(nameof(TelephoneNumber), value)
             .Match(
                 valueObject => valueObject,
-                _ => new TelephoneNumber(string.Empty));
+                _ => new TelephoneNumber(value));
 }

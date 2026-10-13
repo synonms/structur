@@ -44,5 +44,5 @@ public class ExternalReference : ScalarValueObject<ExternalReference, string>, I
         CreateMandatory(nameof(ExternalReference), value, value.Length)
             .Match(
                 valueObject => valueObject,
-                _ => new ExternalReference(string.Empty));
+                _ => new ExternalReference(value));
 }

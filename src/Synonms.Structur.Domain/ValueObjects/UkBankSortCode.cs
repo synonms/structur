@@ -37,7 +37,7 @@ public class UkBankSortCode : ScalarValueObject<UkBankSortCode, string>, IScalar
         CreateMandatory(nameof(UkBankSortCode), value)
             .Match(
                 valueObject => valueObject,
-                _ => new UkBankSortCode(string.Empty));
+                _ => new UkBankSortCode(value));
 }
 
 
