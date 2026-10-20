@@ -27,7 +27,7 @@ public interface IComplexValueObject<TSelf, TData>
 ### Validated construction
 
 - Existing multiparameter factories forward to DTO overloads, preserving source compatibility.
-- Mandatory null DTOs return the existing required-field domain fault at `propertyName`.
+- `CreateMandatory` and `Rehydrate` trust their non-nullable DTO contracts and do not guard against null arguments. Callers that bypass nullable warnings and supply null are misusing the contract and may encounter a `NullReferenceException`; this is not a domain validation failure.
 - Missing required DTO members produce existing validator faults, using paths such as `Address.Line1`, `Period.Units` and `Email.IsPrimary`. Missing strings are passed to existing scalar validators as empty input rather than causing null dereferences.
 - Optional null DTOs return `None`. Existing partial-input behavior is preserved: an address missing any of type/line1/postcode, a period missing units/interval, a contact missing type/address-or-number/primary flag, or bank details missing any required component returns `None`, even if other supplied components are invalid.
 - Complete optional input goes through mandatory validation. A boolean `false` and integer `0` are populated input, not absence.

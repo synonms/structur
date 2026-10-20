@@ -155,37 +155,28 @@ public class ResourceDirectory : IResourceDirectory
             StructurResourceAttribute registration = layout.Registration;
             string collectionPath = layout.CollectionPath;
 
-            if (!registration.IsReadDisabled)
-            {
-                Add("GET", collectionPath, layout);
-                Add("GET", collectionPath + "/{id}", layout);
+            Add("GET", collectionPath, layout);
+            Add("GET", collectionPath + "/{id}", layout);
 
-                foreach (Type projectionType in layout.ProjectionTypes)
+            foreach (Type projectionType in layout.ProjectionTypes)
+            {
+                StructurProjectionAttribute? projection = projectionType.GetCustomAttribute<StructurProjectionAttribute>();
+                if (projection is not null)
                 {
-                    StructurProjectionAttribute? projection = projectionType.GetCustomAttribute<StructurProjectionAttribute>();
-                    if (projection is not null)
-                    {
-                        Add("GET", collectionPath + "/{id}/projections/" + projection.ProjectionIdentifier, layout);
-                    }
+                    Add("GET", collectionPath + "/{id}/projections/" + projection.ProjectionIdentifier, layout);
                 }
             }
 
             if (!registration.IsCreateDisabled)
             {
                 Add("POST", collectionPath, layout);
-                if (!registration.IsCreateFormDisabled)
-                {
-                    Add("GET", collectionPath + "/create-form", layout);
-                }
+                Add("GET", collectionPath + "/create-form", layout);
             }
 
             if (!registration.IsUpdateDisabled)
             {
                 Add("PUT", collectionPath + "/{id}", layout);
-                if (!registration.IsEditFormDisabled)
-                {
-                    Add("GET", collectionPath + "/{id}/edit-form", layout);
-                }
+                Add("GET", collectionPath + "/{id}/edit-form", layout);
             }
 
             if (!registration.IsDeleteDisabled)

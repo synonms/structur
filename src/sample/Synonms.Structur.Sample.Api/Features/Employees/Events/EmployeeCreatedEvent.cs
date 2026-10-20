@@ -4,7 +4,6 @@ using Synonms.Structur.Api.Server.Versioning.Context;
 using Synonms.Structur.Api.Server.Versioning.Faults;
 using Synonms.Structur.Api.Server.Versioning;
 using Synonms.Structur.Api.Core.Schema.Resources;
-using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Projections;
 using Synonms.Structur.Sample.Api.Features.Employees.Projections;

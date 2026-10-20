@@ -60,11 +60,11 @@ public class ControllerModelConvention : IControllerModelConvention
                 {
                     Name = _routeNameProvider.Post(aggregateRootType, resourceType)
                 },
-                "Put" => new RouteAttribute("")
+                "Put" => new RouteAttribute("{id}")
                 {
                     Name = _routeNameProvider.Put(aggregateRootType, resourceType)
                 },
-                "Delete" => new RouteAttribute("")
+                "Delete" => new RouteAttribute("{id}")
                 {
                     Name = _routeNameProvider.Delete(aggregateRootType, resourceType)
                 },
@@ -112,14 +112,14 @@ public class ControllerModelConvention : IControllerModelConvention
             {
                 AuthorizeFilter authorizeFilter = action.ActionName switch
                 {
-                    "GetById" => new AuthorizeFilter(resourceAttribute.ReadPolicy ?? "Read" + aggregateRootType.Name),
-                    "GetAll" => new AuthorizeFilter(resourceAttribute.ReadPolicy ?? "Read" + aggregateRootType.Name),
-                    "Post" => new AuthorizeFilter(resourceAttribute.CreatePolicy ?? "Create" + aggregateRootType.Name),
-                    "Put" => new AuthorizeFilter(resourceAttribute.UpdatePolicy ?? "Update" + aggregateRootType.Name),
-                    "Delete" => new AuthorizeFilter(resourceAttribute.DeletePolicy ?? "Delete" + aggregateRootType.Name),
-                    "CreateForm" => new AuthorizeFilter(resourceAttribute.CreatePolicy ?? "Create" + aggregateRootType.Name),
-                    "EditForm" => new AuthorizeFilter(resourceAttribute.UpdatePolicy ?? "Update" + aggregateRootType.Name),
-                    "GetProjection" => new AuthorizeFilter(resourceAttribute.ReadPolicy ?? "Read" + aggregateRootType.Name),
+                    "GetById" => new AuthorizeFilter("Read" + aggregateRootType.Name),
+                    "GetAll" => new AuthorizeFilter("Read" + aggregateRootType.Name),
+                    "Post" => new AuthorizeFilter("Create" + aggregateRootType.Name),
+                    "Put" => new AuthorizeFilter("Update" + aggregateRootType.Name),
+                    "Delete" => new AuthorizeFilter("Delete" + aggregateRootType.Name),
+                    "CreateForm" => new AuthorizeFilter("Create" + aggregateRootType.Name),
+                    "EditForm" => new AuthorizeFilter("Update" + aggregateRootType.Name),
+                    "GetProjection" => new AuthorizeFilter("Read" + aggregateRootType.Name),
                     _ => throw new InvalidOperationException($"Unexpected controller action '{action.ActionName}'.")
                 };
 

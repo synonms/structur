@@ -1,5 +1,3 @@
-using Synonms.Structur.Api.Core.Schema;
-using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Core.ValueObjects;
 using Synonms.Structur.Core.Attributes;
 

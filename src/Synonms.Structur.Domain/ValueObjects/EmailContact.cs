@@ -33,20 +33,13 @@ public class EmailContact : ComplexValueObject<EmailContact>, IComplexValueObjec
 
     public static implicit operator string(EmailContact emailAddress) => emailAddress.Address;
 
-    public static OneOf<EmailContact, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, EmailContactData data)
-    {
-        if (data is null)
-        {
-            return new DomainRuleFault[] { DomainValidationFaults.Required(propertyName) };
-        }
-
-        return Validator.CreateBuilder<EmailContact>()
+    public static OneOf<EmailContact, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, EmailContactData data) =>
+        Validator.CreateBuilder<EmailContact>()
             .WithFaultIf($"{propertyName}.{nameof(IsPrimary)}", () => data.IsPrimary is null, DomainValidationFaults.RequiredFieldTemplate)
             .WithMandatoryScalarProperty(data.Type ?? string.Empty, x => EmailContactType.CreateMandatory($"{propertyName}.{nameof(Type)}", x), out EmailContactType typeValueObject)
             .WithMandatoryScalarProperty(data.Address ?? string.Empty, x => EmailAddress.CreateMandatory($"{propertyName}.{nameof(Address)}", x), out EmailAddress emailAddressValueObject)
             .WithOptionalScalarProperty(data.Label, x => Label.CreateOptional($"{propertyName}.{nameof(Label)}", x), out Label? labelValueObject)
             .Build(() => new EmailContact(typeValueObject, emailAddressValueObject, data.IsPrimary.GetValueOrDefault(), labelValueObject));
-    }
 
     public static OneOf<Maybe<EmailContact>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, EmailContactData? data)
     {
@@ -68,7 +61,6 @@ public class EmailContact : ComplexValueObject<EmailContact>, IComplexValueObjec
 
     public static EmailContact Rehydrate(EmailContactData data)
     {
-        ArgumentNullException.ThrowIfNull(data);
         return new(
             EmailContactType.Rehydrate(ComplexValueObjectData.Required(data.Type, nameof(Type))),
             EmailAddress.Rehydrate(ComplexValueObjectData.Required(data.Address, nameof(Address))),

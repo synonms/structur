@@ -50,8 +50,8 @@ public class Employment : AggregateRoot<Employment>
     internal Maybe<Fault> Update(ResourceEnvelope<EmploymentResource> envelope, UserActionDto updatedActionDto, Version? applicableVersion = null)
     {
         EmploymentResource resource = envelope.Data;
-        return
-        Validator.CreateBuilder<Employment>()
+        
+        return Validator.CreateBuilder<Employment>()
             .WithMandatoryScalarProperty(updatedActionDto, x => UserAction.CreateMandatory(nameof(UpdatedAction), x), out UserAction updatedActionValueObject)
             .WithMandatoryScalarProperty(resource.ContinuousStartDate, x => EffectiveDate.CreateMandatory(nameof(ContinuousStartDate), x, DateOnly.Parse("1970-01-01"), DateOnly.MaxValue), out EffectiveDate continuousStartDateValueObject)
             .WithMandatoryScalarProperty(resource.BankDetails, x => UkBankDetails.CreateMandatory(nameof(BankDetails), new UkBankDetailsData { BankName = x.BankName, SortCode = x.SortCode, AccountNumber = x.AccountNumber, AccountName = x.AccountName, BuildingSocietyRollNumber = x.BuildingSocietyRollNumber }), out UkBankDetails bankDetailsValueObject)
@@ -65,12 +65,12 @@ public class Employment : AggregateRoot<Employment>
 
                         return Maybe<Fault>.None;
                     }));
-
     }
 
     internal static Result<Employment> Create(Guid tenantId, ResourceEnvelope<EmploymentResource> envelope, UserActionDto createdActionDto, Version? applicableVersion = null)
     {
         EmploymentResource resource = envelope.Data;
+        
         for (int index = 0; index < resource.Contracts.Count; index++)
         {
             envelope.Metadata.GetOrAddEmbeddedMetadata(resource.Contracts[index], $"{nameof(Contracts)}[{index}]");

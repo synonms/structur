@@ -6,7 +6,6 @@ using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Server.Routing;
 using Synonms.Structur.Core.Attributes;
 using Synonms.Structur.Domain.Aggregates;
-using Synonms.Structur.Domain.Lookups;
 
 namespace Synonms.Structur.Api.Server.Mapping;
 
@@ -81,7 +80,7 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
 
         if (resourceAttribute is not null)
         {
-            if (resourceAttribute.IsUpdateDisabled is false && resourceAttribute.IsEditFormDisabled is false)
+            if (resourceAttribute.IsUpdateDisabled is false)
             {
                 Uri editFormUri = _routeGenerator.EditForm(typeof(TAggregateRoot), typeof(TResource), aggregateRoot.Id.Value);
                 Link editFormLink = Link.EditFormLink(editFormUri);
@@ -95,10 +94,7 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
             }
         }
 
-        if (resourceAttribute?.IsReadDisabled is not true)
-        {
-            links.Add("projections", Link.ProjectionsLink(new Uri(relativeResourcePath + "/projections", UriKind.Relative)));
-        }
+        links.Add("projections", Link.ProjectionsLink(new Uri(relativeResourcePath + "/projections", UriKind.Relative)));
 
         return new ResourceMetadata(aggregateRoot.Id.Value, selfLink, links);
     }

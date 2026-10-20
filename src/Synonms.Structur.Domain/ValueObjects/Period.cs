@@ -23,19 +23,12 @@ public class Period : ComplexValueObject<Period>, IComplexValueObject<Period, Pe
 
     public Interval Interval { get; private set; }
 
-    public static OneOf<Period, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, PeriodData data)
-    {
-        if (data is null)
-        {
-            return new DomainRuleFault[] { DomainValidationFaults.Required(propertyName) };
-        }
-
-        return Validator.CreateBuilder<Period>()
+    public static OneOf<Period, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, PeriodData data) =>
+        Validator.CreateBuilder<Period>()
             .WithFaultIf($"{propertyName}.{nameof(Units)}", () => data.Units is null, DomainValidationFaults.RequiredFieldTemplate)
             .WithMandatoryScalarProperty(data.Units.GetValueOrDefault(), x => Units.CreateMandatory($"{propertyName}.{nameof(Units)}", x, 0, int.MaxValue), out Units unitsValueObject)
             .WithMandatoryScalarProperty(data.Interval ?? string.Empty, x => Interval.CreateMandatory($"{propertyName}.{nameof(Interval)}", x), out Interval intervalValueObject)
             .Build(() => new Period(unitsValueObject, intervalValueObject));
-    }
 
     public static OneOf<Maybe<Period>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, PeriodData? data)
     {
@@ -47,16 +40,15 @@ public class Period : ComplexValueObject<Period>, IComplexValueObject<Period, Pe
         return CreateMandatory(propertyName, data).ToMaybe();
     }
 
-    public PeriodData ToData() => new()
-    {
-        Units = Units.Value, 
-        Interval = 
-            Interval.Value
-    };
+    public PeriodData ToData() => 
+        new()
+        {
+            Units = Units.Value, 
+            Interval = Interval.Value
+        };
 
     public static Period Rehydrate(PeriodData data)
     {
-        ArgumentNullException.ThrowIfNull(data);
         return new(
             Units.Rehydrate(ComplexValueObjectData.Required(data.Units, nameof(Units))),
             Interval.Rehydrate(ComplexValueObjectData.Required(data.Interval, nameof(Interval))));

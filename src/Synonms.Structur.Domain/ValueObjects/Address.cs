@@ -43,14 +43,8 @@ public class Address : ComplexValueObject<Address>, IComplexValueObject<Address,
     
     public Label? Label { get; private set; }
 
-    public static OneOf<Address, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, AddressData data)
-    {
-        if (data is null)
-        {
-            return new DomainRuleFault[] { DomainValidationFaults.Required(propertyName) };
-        }
-
-        return Validator.CreateBuilder<Address>()
+    public static OneOf<Address, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, AddressData data) =>
+        Validator.CreateBuilder<Address>()
             .WithMandatoryScalarProperty(data.Type ?? string.Empty, x => AddressType.CreateMandatory($"{propertyName}.{nameof(Type)}", x), out AddressType addressTypeValueObject)
             .WithMandatoryScalarProperty(data.Line1 ?? string.Empty, x => AddressLine.CreateMandatory($"{propertyName}.{nameof(Line1)}", x), out AddressLine line1ValueObject)
             .WithOptionalScalarProperty(data.Line2, x => AddressLine.CreateOptional($"{propertyName}.{nameof(Line2)}", x), out AddressLine? line2ValueObject)
@@ -59,7 +53,6 @@ public class Address : ComplexValueObject<Address>, IComplexValueObject<Address,
             .WithMandatoryScalarProperty(data.Postcode ?? string.Empty, x => Postcode.CreateMandatory($"{propertyName}.{nameof(Postcode)}", x), out Postcode postcodeValueObject)
             .WithOptionalScalarProperty(data.Label, x => Label.CreateOptional($"{propertyName}.{nameof(Label)}", x), out Label? labelValueObject)
             .Build(() => new Address(addressTypeValueObject, line1ValueObject, line2ValueObject, line3ValueObject, line4ValueObject, postcodeValueObject, labelValueObject));
-    }
 
     public static OneOf<Maybe<Address>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, AddressData? data)
     {
@@ -84,7 +77,6 @@ public class Address : ComplexValueObject<Address>, IComplexValueObject<Address,
 
     public static Address Rehydrate(AddressData data)
     {
-        ArgumentNullException.ThrowIfNull(data);
         return new(
             AddressType.Rehydrate(ComplexValueObjectData.Required(data.Type, nameof(Type))),
             AddressLine.Rehydrate(ComplexValueObjectData.Required(data.Line1, nameof(Line1))),

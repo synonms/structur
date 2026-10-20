@@ -865,41 +865,6 @@
         ],
         "summary": "Get a paged collection of resources.",
         "operationId": "EmployeeSummaries.GetAll",
-        "parameters": [
-          {
-            "name": "X-Structur-ApiVersion",
-            "in": "header",
-            "description": "Requested API version. This representation supports: 1.0",
-            "schema": {
-              "enum": [
-                "1.0"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "name": "X-Structur-Version",
-            "in": "header",
-            "description": "Legacy version header. If supplied, it must match a supported API version.",
-            "schema": {
-              "enum": [
-                "1.0"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "name": "apiVersion",
-            "in": "query",
-            "description": "Requested API version. This representation supports: 1.0",
-            "schema": {
-              "enum": [
-                "1.0"
-              ],
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -911,9 +876,6 @@
                 "schema": { }
               }
             }
-          },
-          "400": {
-            "description": "The requested API version is not supported by this resource representation."
           }
         }
       }
@@ -935,39 +897,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "X-Structur-ApiVersion",
-            "in": "header",
-            "description": "Requested API version. This representation supports: 1.0",
-            "schema": {
-              "enum": [
-                "1.0"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "name": "X-Structur-Version",
-            "in": "header",
-            "description": "Legacy version header. If supplied, it must match a supported API version.",
-            "schema": {
-              "enum": [
-                "1.0"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "name": "apiVersion",
-            "in": "query",
-            "description": "Requested API version. This representation supports: 1.0",
-            "schema": {
-              "enum": [
-                "1.0"
-              ],
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -981,9 +910,6 @@
                 "schema": { }
               }
             }
-          },
-          "400": {
-            "description": "The requested API version is not supported by this resource representation."
           }
         }
       }

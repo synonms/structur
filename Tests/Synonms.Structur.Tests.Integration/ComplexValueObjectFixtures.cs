@@ -19,7 +19,7 @@ namespace Synonms.Structur.Tests.Integration;
 // A representative collection-bearing fixture, not an additional framework domain concept.
 public sealed class AddressBookData
 {
-    public List<AddressData>? Addresses { get; init; }
+    public List<AddressData?>? Addresses { get; init; }
 }
 
 public class AddressBook : ComplexValueObject<AddressBook>, IComplexValueObject<AddressBook, AddressBookData>
@@ -31,11 +31,11 @@ public class AddressBook : ComplexValueObject<AddressBook>, IComplexValueObject<
 
     public IReadOnlyList<Address> Addresses { get; }
 
-    public AddressBookData ToData() => new() { Addresses = Addresses.Select(address => address.ToData()).ToList() };
+    public AddressBookData ToData() => new() { Addresses = [.. Addresses.Select(address => address.ToData())] };
 
     public static OneOf<AddressBook, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, AddressBookData data)
     {
-        if (data?.Addresses is null)
+        if (data.Addresses is null)
         {
             return Validator.CreateBuilder<AddressBook>()
                 .WithFaultIf(propertyName, () => true, DomainValidationFaults.RequiredFieldTemplate)
@@ -43,7 +43,9 @@ public class AddressBook : ComplexValueObject<AddressBook>, IComplexValueObject<
         }
         return Validator.CreateBuilder<AddressBook>()
             .WithCollectionProperty(data.Addresses.Select((address, index) => (address, index)).ToList(),
-                item => Address.CreateMandatory($"{propertyName}.Addresses[{item.index}]", item.address),
+                item => item.address is null
+                    ? new DomainRuleFault[] { DomainValidationFaults.Required($"{propertyName}.Addresses[{item.index}]") }
+                    : Address.CreateMandatory($"{propertyName}.Addresses[{item.index}]", item.address),
                 out List<Address> addresses)
             .Build(() => new AddressBook(addresses));
     }
@@ -52,7 +54,8 @@ public class AddressBook : ComplexValueObject<AddressBook>, IComplexValueObject<
         data?.Addresses is null ? Maybe<AddressBook>.None : CreateMandatory(propertyName, data).ToMaybe();
 
     public static AddressBook Rehydrate(AddressBookData data) =>
-        new(ComplexValueObjectData.Required(data.Addresses, nameof(Addresses)).Select(Address.Rehydrate));
+        new(ComplexValueObjectData.Required(data.Addresses, nameof(Addresses))
+            .Select(address => Address.Rehydrate(ComplexValueObjectData.Required(address, nameof(Addresses)))));
 
     protected override object?[] EqualityMembers => [Addresses];
 }

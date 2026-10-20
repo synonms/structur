@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Synonms.Structur.Api.Core.Content;
 using Synonms.Structur.Api.Core.Serialisation;
 using Synonms.Structur.Api.Core.Serialisation.Default;
-using Synonms.Structur.Api.Server.Hypermedia.Default;
 using WireMock.Net.Testcontainers;
 
 namespace Synonms.Structur.Testing;

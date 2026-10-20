@@ -15,6 +15,7 @@
 - For scalar values, implement `IValueObject<TSelf, TValue>` and use `ValueObject<TSelf, TValue>` for shared equality behavior; expose a read-only `Value` and an outward raw-value conversion.
 - For multi-property values, implement `IComplexValueObject<TSelf, TData>` with a domain-owned raw DTO, validated factories, `ToData`, and an explicit trusted `Rehydrate` missing-member policy. Optionally inherit `ComplexValueObject<TSelf>` and override protected `EqualityMembers` for shared exact-type, ordered member equality and hashing; serializers and mappers only require the interface.
 - Validate in factory methods, not in constructors.
+- Trust non-nullable complex value object DTO arguments in `CreateMandatory` and `Rehydrate`; do not add defensive null guards or test inputs that suppress nullable warnings. Validate nullable DTO members and accept null in `CreateOptional` as declared.
 - Keep scalar rehydration policies unchanged unless separately reviewed; never add implicit conversions from raw input into value objects.
 - Complex output mapping projects to the raw DTO first. Register nested adapters for the actual DTO-to-resource pair; a domain-value-object adapter does not apply to its projected DTO.
 
@@ -45,14 +46,19 @@
 - Use `Fact` for deterministic tests and `Theory` for parameterised tests.
 - Prefer real domain objects over mocking when testing core domain behaviour.
 
+## Dependencies
+- Use Central Package Management (CPM) for dependency versioning.
+
 ## Style
 - Use 4 spaces for indentation.
-- Prefer explicit types over `var` when clarity benefits.
+- Prefer explicit types over `var`.
 - Use nullability annotations correctly.
 - Use braces for all control structures.
 - Keep methods focused and short.
+- Prefer expression-bodied functions where there is only a single return statement.
 - Prefer expression-bodied members only for simple members.
 - Use pattern matching and switch expressions when they improve readability.
+- Remove unused `using` statements.
 
 ## Naming
 - Use PascalCase for types, members, constants, and namespaces.

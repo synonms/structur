@@ -62,7 +62,7 @@ public class GetAllEndpoint<TAggregateRoot, TResource> : ControllerBase
 
                 ResourceCollectionDocument<TResource> document = new(selfLink, queryResponse.Envelopes, pagination);
 
-                if (resourceAttribute?.IsCreateDisabled is false && resourceAttribute.IsCreateFormDisabled is false)
+                if (resourceAttribute?.IsCreateDisabled is false)
                 {
                     Uri createFormUri = _routeGenerator.CreateForm(typeof(TAggregateRoot), typeof(TResource));
                     Link createFormLink = Link.CreateFormLink(createFormUri);

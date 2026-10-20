@@ -15,7 +15,7 @@ public class StructurTestingAppHost(StructurTestingOptions options, StructurTest
     protected override void OnBuilderCreating(DistributedApplicationOptions applicationOptions, HostApplicationBuilderSettings hostOptions)
     {
         hostOptions.Configuration ??= new ConfigurationManager();
-        hostOptions.Configuration["environment"] = options.Environment;
+        hostOptions.EnvironmentName = options.Environment;
         
         options.AppHost.Configure(prerequisites, hostOptions.Configuration);
         

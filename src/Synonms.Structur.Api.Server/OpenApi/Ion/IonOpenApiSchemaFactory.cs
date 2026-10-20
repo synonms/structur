@@ -57,7 +57,7 @@ public static class IonOpenApiSchemaFactory
             { "self", CreateForLink() }
         };
 
-        if (resourceAttribute.IsUpdateDisabled is false && resourceAttribute.IsEditFormDisabled is false)
+        if (resourceAttribute.IsUpdateDisabled is false)
         {
             additionalProperties.Add("edit-form", CreateForLink());
         }

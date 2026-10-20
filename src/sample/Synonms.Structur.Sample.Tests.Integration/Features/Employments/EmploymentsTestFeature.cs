@@ -132,6 +132,11 @@ public class EmploymentsTestFeature :
     {
         Assert.Equal(aggregateRoot.EmployeeId.Value, resource.EmployeeId);
         Assert.Equal(aggregateRoot.EmploymentReference, resource.EmploymentReference);
+        ValidateMutableResource(aggregateRoot, resource);
+    }
+
+    private static void ValidateMutableResource(Employment aggregateRoot, EmploymentResource resource)
+    {
         Assert.Equal(aggregateRoot.ContinuousStartDate, resource.ContinuousStartDate);
         Assert.Equal(aggregateRoot.BankDetails.BankName, resource.BankDetails.BankName);
         Assert.Equal(aggregateRoot.BankDetails.SortCode, resource.BankDetails.SortCode);
@@ -168,7 +173,7 @@ public class EmploymentsTestFeature :
 
     public void ValidateUpdatedAggregate(Employment aggregateRoot, EmploymentResource resource)
     {
-        ValidateResource(aggregateRoot, resource);
+        ValidateMutableResource(aggregateRoot, resource);
     }
 
     public void ValidateCreateForm(Form form)

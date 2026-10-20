@@ -36,29 +36,23 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
             StructurResourceAttribute resourceAttribute = aggregateRootLayout.Registration;
 
             Dictionary<HttpMethod, OpenApiOperation> collectionOperations = [];
-            if (!resourceAttribute.IsReadDisabled)
-            {
-                collectionOperations.Add(
-                    HttpMethod.Get,
-                    AddSupportedVersions(GetAllOperation(openApiDocument, collectionName, resourceAttribute), aggregateRootLayout));
-            }
+            collectionOperations.Add(
+                HttpMethod.Get,
+                AddSupportedVersions(GetAllOperation(openApiDocument, collectionName, resourceAttribute), aggregateRootLayout));
 
             if (resourceAttribute.IsCreateDisabled is false)
             {
                 OpenApiOperation postOperation = AddSupportedVersions(PostOperation(openApiDocument, collectionName, resourceAttribute), aggregateRootLayout);
                 collectionOperations.Add(HttpMethod.Post, postOperation);
 
-                if (!resourceAttribute.IsCreateFormDisabled)
+                OpenApiOperation createFormOperation = AddSupportedVersions(CreateFormOperation(openApiDocument, collectionName, resourceAttribute), aggregateRootLayout);
+                openApiDocument.Paths.Add("/" + collectionName + "/create-form", new OpenApiPathItem
                 {
-                    OpenApiOperation createFormOperation = AddSupportedVersions(CreateFormOperation(openApiDocument, collectionName, resourceAttribute), aggregateRootLayout);
-                    openApiDocument.Paths.Add("/" + collectionName + "/create-form", new OpenApiPathItem
+                    Operations = new Dictionary<HttpMethod, OpenApiOperation>
                     {
-                        Operations = new Dictionary<HttpMethod, OpenApiOperation>
-                        {
-                            [HttpMethod.Get] = createFormOperation
-                        }
-                    });
-                }
+                        [HttpMethod.Get] = createFormOperation
+                    }
+                });
             }
 
             if (collectionOperations.Count > 0)
@@ -70,29 +64,23 @@ public class StructurDocumentTransformer : IOpenApiDocumentTransformer
             }
 
             Dictionary<HttpMethod, OpenApiOperation> resourceOperations = [];
-            if (!resourceAttribute.IsReadDisabled)
-            {
-                resourceOperations.Add(
-                    HttpMethod.Get,
-                    AddSupportedVersions(GetByIdOperation(openApiDocument, collectionName, resourceAttribute), aggregateRootLayout));
-            }
+            resourceOperations.Add(
+                HttpMethod.Get,
+                AddSupportedVersions(GetByIdOperation(openApiDocument, collectionName, resourceAttribute), aggregateRootLayout));
 
             if (resourceAttribute.IsUpdateDisabled is false)
             {
                 OpenApiOperation putOperation = AddSupportedVersions(PutOperation(openApiDocument, collectionName, resourceAttribute), aggregateRootLayout);
                 resourceOperations.Add(HttpMethod.Put, putOperation);
 
-                if (!resourceAttribute.IsEditFormDisabled)
+                OpenApiOperation editFormOperation = AddSupportedVersions(EditFormOperation(openApiDocument, collectionName, resourceAttribute), aggregateRootLayout);
+                openApiDocument.Paths.Add("/" + collectionName + "/{id}/edit-form", new OpenApiPathItem
                 {
-                    OpenApiOperation editFormOperation = AddSupportedVersions(EditFormOperation(openApiDocument, collectionName, resourceAttribute), aggregateRootLayout);
-                    openApiDocument.Paths.Add("/" + collectionName + "/{id}/edit-form", new OpenApiPathItem
+                    Operations = new Dictionary<HttpMethod, OpenApiOperation>
                     {
-                        Operations = new Dictionary<HttpMethod, OpenApiOperation>
-                        {
-                            [HttpMethod.Get] = editFormOperation
-                        }
-                    });
-                }
+                        [HttpMethod.Get] = editFormOperation
+                    }
+                });
             }
 
             if (resourceAttribute.IsDeleteDisabled is false)

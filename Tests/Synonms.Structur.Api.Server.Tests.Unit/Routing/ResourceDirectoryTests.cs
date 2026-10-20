@@ -4,7 +4,6 @@ using NSubstitute;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Synonms.Structur.Api.Core.Schema.Resources;
 using Synonms.Structur.Api.Server.Controllers;
 using Synonms.Structur.Api.Server.Endpoints;
 using Synonms.Structur.Api.Server.Mapping;
@@ -35,13 +34,11 @@ public class ResourceDirectoryTests
             layout.ResourceType == typeof(MultiRepresentationPublicResource)
             && layout.CollectionPath == "public-representations"
             && layout.Registration.IsCreateDisabled
-            && layout.Registration.ReadPolicy == "ReadPublicRepresentation"
             && layout.SupportedApiVersions.SetEquals([new Version(1, 0), new Version(1, 1)]));
         Assert.Contains(layouts, layout =>
             layout.ResourceType == typeof(MultiRepresentationAdminResource)
             && layout.CollectionPath == "admin-representations"
-            && !layout.Registration.IsCreateDisabled
-            && layout.Registration.CreatePolicy == "CreateAdminRepresentation");
+            && !layout.Registration.IsCreateDisabled);
     }
 
     [Fact]
@@ -71,7 +68,7 @@ public class ResourceDirectoryTests
         ResourceDirectory directory = new(typeof(MultiRepresentationAggregate).Assembly);
         ControllerFeature feature = new();
 
-        new Synonms.Structur.Api.Server.Controllers.ControllerFeatureProvider(directory)
+        new Controllers.ControllerFeatureProvider(directory)
             .PopulateFeature(Array.Empty<ApplicationPart>(), feature);
 
         Type[] controllers = feature.Controllers.Select(controller => controller.AsType()).ToArray();
@@ -87,14 +84,16 @@ public class ResourceDirectoryTests
         ResourceDirectory directory = new(typeof(MultiRepresentationAggregate).Assembly);
         ControllerFeature feature = new();
 
-        new Synonms.Structur.Api.Server.Controllers.ControllerFeatureProvider(directory)
+        new Controllers.ControllerFeatureProvider(directory)
             .PopulateFeature(Array.Empty<ApplicationPart>(), feature);
 
         Type[] controllers = feature.Controllers.Select(controller => controller.AsType()).ToArray();
-        Assert.DoesNotContain(typeof(GetAllEndpoint<WriteOnlyAggregate, WriteOnlyResource>), controllers);
-        Assert.DoesNotContain(typeof(GetByIdEndpoint<WriteOnlyAggregate, WriteOnlyResource>), controllers);
-        Assert.DoesNotContain(typeof(CreateFormEndpoint<WriteOnlyAggregate, WriteOnlyResource>), controllers);
+        Assert.Contains(typeof(GetAllEndpoint<WriteOnlyAggregate, WriteOnlyResource>), controllers);
+        Assert.Contains(typeof(GetByIdEndpoint<WriteOnlyAggregate, WriteOnlyResource>), controllers);
+        Assert.Contains(typeof(CreateFormEndpoint<WriteOnlyAggregate, WriteOnlyResource>), controllers);
         Assert.Contains(typeof(PostEndpoint<WriteOnlyAggregate, WriteOnlyResource>), controllers);
+        Assert.DoesNotContain(typeof(EditFormEndpoint<WriteOnlyAggregate, WriteOnlyResource>), controllers);
+        Assert.DoesNotContain(typeof(PutEndpoint<WriteOnlyAggregate, WriteOnlyResource>), controllers);
     }
 
     [Fact]
@@ -143,7 +142,7 @@ public class ResourceDirectoryTests
         AuthorizeFilter authorization = Assert.Single(actionModel.Filters.OfType<AuthorizeFilter>());
         Assert.Equal("admin-representations", controllerModel.Selectors[0].AttributeRouteModel!.Template);
         Assert.Equal(string.Empty, route.Template);
-        Assert.Equal("CreateAdminRepresentation", Assert.Single(authorization.AuthorizeData!).Policy);
+        Assert.Equal("CreateMultiRepresentationAggregate", Assert.Single(authorization.AuthorizeData!).Policy);
     }
 
     [Fact]
@@ -212,8 +211,8 @@ public class ResourceDirectoryTests
 
 }
 
-[StructurResource(typeof(MultiRepresentationPublicResource), "public-representations", allowAnonymous: true, isCreateDisabled: true, isUpdateDisabled: true, isDeleteDisabled: true, readPolicy: "ReadPublicRepresentation", SupportedApiVersions = new[] { "1.0", "1.1" })]
-[StructurResource(typeof(MultiRepresentationAdminResource), "admin-representations", createPolicy: "CreateAdminRepresentation", isDefaultRepresentation: true)]
+[StructurResource(typeof(MultiRepresentationPublicResource), "public-representations", allowAnonymous: true, isCreateDisabled: true, isUpdateDisabled: true, isDeleteDisabled: true, SupportedApiVersions = ["1.0", "1.1"])]
+[StructurResource(typeof(MultiRepresentationAdminResource), "admin-representations", isDefaultRepresentation: true)]
 public class MultiRepresentationAggregate : AggregateRoot<MultiRepresentationAggregate>
 {
     private MultiRepresentationAggregate()
@@ -244,7 +243,7 @@ public class UnregisteredResource
 {
 }
 
-[StructurResource(typeof(WriteOnlyResource), "write-only", isReadDisabled: true, isCreateFormDisabled: true, isUpdateDisabled: true, isDeleteDisabled: true)]
+[StructurResource(typeof(WriteOnlyResource), "write-only", isUpdateDisabled: true, isDeleteDisabled: true)]
 public class WriteOnlyAggregate : AggregateRoot<WriteOnlyAggregate>
 {
     private WriteOnlyAggregate()

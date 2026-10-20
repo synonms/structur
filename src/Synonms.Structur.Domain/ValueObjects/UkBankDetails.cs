@@ -35,21 +35,14 @@ public class UkBankDetails : ComplexValueObject<UkBankDetails>, IComplexValueObj
 
     public UkBuildingSocietyRollNumber? BuildingSocietyRollNumber { get; private set; }
 
-    public static OneOf<UkBankDetails, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, UkBankDetailsData data)
-    {
-        if (data is null)
-        {
-            return new DomainRuleFault[] { DomainValidationFaults.Required(propertyName) };
-        }
-
-        return Validator.CreateBuilder<UkBankDetails>()
+    public static OneOf<UkBankDetails, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, UkBankDetailsData data) =>
+        Validator.CreateBuilder<UkBankDetails>()
             .WithMandatoryScalarProperty(data.BankName ?? string.Empty, x => Moniker.CreateMandatory($"{propertyName}.{nameof(BankName)}", x), out Moniker bankNameValueObject)
             .WithMandatoryScalarProperty(data.SortCode ?? string.Empty, x => UkBankSortCode.CreateMandatory($"{propertyName}.{nameof(SortCode)}", x), out UkBankSortCode sortCodeValueObject)
             .WithMandatoryScalarProperty(data.AccountNumber ?? string.Empty, x => UkBankAccountNumber.CreateMandatory($"{propertyName}.{nameof(AccountNumber)}", x), out UkBankAccountNumber accountNumberValueObject)
             .WithMandatoryScalarProperty(data.AccountName ?? string.Empty, x => Moniker.CreateMandatory($"{propertyName}.{nameof(AccountName)}", x), out Moniker accountNameValueObject)
             .WithOptionalScalarProperty(data.BuildingSocietyRollNumber, x => UkBuildingSocietyRollNumber.CreateOptional($"{propertyName}.{nameof(BuildingSocietyRollNumber)}", x), out UkBuildingSocietyRollNumber? buildingSocietyRollNumberValueObject)
             .Build(() => new UkBankDetails(bankNameValueObject, sortCodeValueObject, accountNumberValueObject, accountNameValueObject, buildingSocietyRollNumberValueObject));
-    }
 
     public static OneOf<Maybe<UkBankDetails>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, UkBankDetailsData? data)
     {
@@ -72,7 +65,6 @@ public class UkBankDetails : ComplexValueObject<UkBankDetails>, IComplexValueObj
 
     public static UkBankDetails Rehydrate(UkBankDetailsData data)
     {
-        ArgumentNullException.ThrowIfNull(data);
         return new(
             Moniker.Rehydrate(ComplexValueObjectData.Required(data.BankName, nameof(BankName))),
             UkBankSortCode.Rehydrate(ComplexValueObjectData.Required(data.SortCode, nameof(SortCode))),

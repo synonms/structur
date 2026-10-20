@@ -22,28 +22,19 @@ public class ControllerFeatureProvider : IApplicationFeatureProvider<ControllerF
         {
             StructurResourceAttribute resourceAttribute = aggregateLayout.Registration;
 
-            if (!resourceAttribute.IsReadDisabled)
-            {
-                AddGetById(feature, aggregateLayout);
-                AddGetAll(feature, aggregateLayout);
-                AddGetProjections(feature, aggregateLayout);
-            }
+            AddGetById(feature, aggregateLayout);
+            AddGetAll(feature, aggregateLayout);
+            AddGetProjections(feature, aggregateLayout);
 
             if (resourceAttribute.IsCreateDisabled is false)
             {
-                if (!resourceAttribute.IsCreateFormDisabled)
-                {
-                    AddCreateForm(feature, aggregateLayout);
-                }
+                AddCreateForm(feature, aggregateLayout);
                 AddPost(feature, aggregateLayout);
             }
 
             if (resourceAttribute.IsUpdateDisabled is false)
             {
-                if (!resourceAttribute.IsEditFormDisabled)
-                {
-                    AddEditForm(feature, aggregateLayout);
-                }
+                AddEditForm(feature, aggregateLayout);
                 AddPut(feature, aggregateLayout);
             }
 

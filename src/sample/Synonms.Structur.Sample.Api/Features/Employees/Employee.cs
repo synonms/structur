@@ -11,8 +11,8 @@ using Synonms.Structur.Sample.ClientApi.Features.Employees;
 
 namespace Synonms.Structur.Sample.Api.Features.Employees;
 
-[StructurResource(typeof(EmployeeResource), "employees", allowAnonymous: true, isDeleteDisabled: true, pageLimit: 5, isDefaultRepresentation: true, SupportedApiVersions = new[] { "1.0", "1.1" })]
-[StructurResource(typeof(EmployeeSummaryResource), "employee-summaries", allowAnonymous: true, isCreateDisabled: true, isUpdateDisabled: true, isDeleteDisabled: true, SupportedApiVersions = new[] { "1.0" })]
+[StructurResource(typeof(EmployeeResource), "employees", allowAnonymous: true, isDeleteDisabled: true, pageLimit: 5, isDefaultRepresentation: true, SupportedApiVersions = ["1.0", "1.1"])]
+[StructurResource(typeof(EmployeeSummaryResource), "employee-summaries", allowAnonymous: true, isCreateDisabled: true, isUpdateDisabled: true, isDeleteDisabled: true)]
 public class Employee : AggregateRoot<Employee>
 {
     public const int ForenameMaxLength = 100;
@@ -78,8 +78,8 @@ public class Employee : AggregateRoot<Employee>
     internal Maybe<Fault> Update(ResourceEnvelope<EmployeeResource> envelope, UserActionDto updatedActionDto, Version? applicableVersion = null)
     {
         EmployeeResource resource = envelope.Data;
-        return
-        Validator.CreateBuilder<Employee>()
+        
+        return Validator.CreateBuilder<Employee>()
             .WithMandatoryScalarProperty(updatedActionDto, x => UserAction.CreateMandatory(nameof(UpdatedAction), x), out UserAction updatedActionValueObject)
             .WithOptionalScalarProperty(resource.Title.ToString(), x => Title.CreateOptional(nameof(Title), x), out Title? titleValueObject)
             .WithMandatoryScalarProperty(resource.Forename, x => Moniker.CreateMandatory(nameof(Forename), x, ForenameMaxLength), out Moniker forenameValueObject)
@@ -145,6 +145,7 @@ public class Employee : AggregateRoot<Employee>
     internal static Result<Employee> Create(Guid tenantId, ResourceEnvelope<EmployeeResource> envelope, UserActionDto createdActionDto, Version? applicableVersion = null)
     {
         EmployeeResource resource = envelope.Data;
+        
         ValidatedInstanceBuilder<Employee> builder = Validator.CreateBuilder<Employee>()
             .WithMandatoryScalarProperty(createdActionDto, x => UserAction.CreateMandatory(nameof(CreatedAction), x), out UserAction createdActionValueObject)
             .WithMandatoryScalarProperty(resource.EmployeeReference, x => UniqueReference.CreateMandatory(nameof(EmployeeReference), x), out UniqueReference employeeReferenceValueObject)
@@ -166,9 +167,9 @@ public class Employee : AggregateRoot<Employee>
         {
             builder = builder.WithMandatoryScalarProperty(resource.EqualOpportunities, x =>
             {
-                EmployeeEqualOpportunitiesResource contract = x ?? new EmployeeEqualOpportunitiesResource();
-                Guid id = envelope.Metadata.GetOrAddEmbeddedMetadata(contract, nameof(EmployeeResource.EqualOpportunities)).Id;
-                return EmployeeEqualOpportunities.Create(nameof(EqualOpportunities), contract, id);
+                EmployeeEqualOpportunitiesResource equalOpportunitiesResource = x ?? new EmployeeEqualOpportunitiesResource();
+                Guid id = envelope.Metadata.GetOrAddEmbeddedMetadata(equalOpportunitiesResource, nameof(EmployeeResource.EqualOpportunities)).Id;
+                return EmployeeEqualOpportunities.Create(nameof(EqualOpportunities), equalOpportunitiesResource, id);
             }, out equalOpportunities);
         }
 

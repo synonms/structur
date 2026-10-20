@@ -33,20 +33,13 @@ public class TelephoneContact : ComplexValueObject<TelephoneContact>, IComplexVa
 
     public static implicit operator string(TelephoneContact telephoneNumber) => telephoneNumber.Number;
 
-    public static OneOf<TelephoneContact, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, TelephoneContactData data)
-    {
-        if (data is null)
-        {
-            return new DomainRuleFault[] { DomainValidationFaults.Required(propertyName) };
-        }
-
-        return Validator.CreateBuilder<TelephoneContact>()
+    public static OneOf<TelephoneContact, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, TelephoneContactData data) =>
+        Validator.CreateBuilder<TelephoneContact>()
             .WithFaultIf($"{propertyName}.{nameof(IsPrimary)}", () => data.IsPrimary is null, DomainValidationFaults.RequiredFieldTemplate)
             .WithMandatoryScalarProperty(data.Type ?? string.Empty, x => TelephoneContactType.CreateMandatory($"{propertyName}.{nameof(Type)}", x), out TelephoneContactType typeValueObject)
             .WithMandatoryScalarProperty(data.Number ?? string.Empty, x => TelephoneNumber.CreateMandatory($"{propertyName}.{nameof(Number)}", x), out TelephoneNumber numberValueObject)
             .WithOptionalScalarProperty(data.Label, x => Label.CreateOptional($"{propertyName}.{nameof(Label)}", x), out Label? labelValueObject)
             .Build(() => new TelephoneContact(typeValueObject, numberValueObject, data.IsPrimary.GetValueOrDefault(), labelValueObject));
-    }
 
     public static OneOf<Maybe<TelephoneContact>, IEnumerable<DomainRuleFault>> CreateOptional(string propertyName, TelephoneContactData? data)
     {
@@ -68,7 +61,6 @@ public class TelephoneContact : ComplexValueObject<TelephoneContact>, IComplexVa
 
     public static TelephoneContact Rehydrate(TelephoneContactData data)
     {
-        ArgumentNullException.ThrowIfNull(data);
         return new(
             TelephoneContactType.Rehydrate(ComplexValueObjectData.Required(data.Type, nameof(Type))),
             TelephoneNumber.Rehydrate(ComplexValueObjectData.Required(data.Number, nameof(Number))),

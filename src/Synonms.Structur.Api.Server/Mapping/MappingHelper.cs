@@ -244,10 +244,11 @@ public static class MappingHelper
         }
 
         if (entityIdType is null || !entityIdType.IsEntityId()) return aggregateRootValue;
+        if (aggregateRootValue is null) return null;
 
         Type relatedEntityType = entityIdType.GetGenericArguments().Single();
 
-        Guid guid = Guid.Parse(aggregateRootValue?.ToString() ?? Guid.Empty.ToString());
+        Guid guid = Guid.Parse(aggregateRootValue.ToString()!);
 
         Uri relationUri = routeGenerator.Item(relatedEntityType, guid);
         Link relationLink = Link.RelationLink(relationUri);

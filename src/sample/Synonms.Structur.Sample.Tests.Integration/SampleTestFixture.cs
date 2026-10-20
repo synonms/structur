@@ -56,7 +56,12 @@ public class SampleTestFixture() : StructurTestFixture(
         },
         AppHost = new StructurTestingOptions.AppHostOptions
         {
-            WaitUntilHealthyForResourceNames = [Resources.Api]
+            WaitUntilHealthyForResourceNames = 
+            [
+                Resources.MongoServerForTest, 
+                Resources.MongoDatabase, 
+                Resources.Api
+            ]
         },
         TestHost = new StructurTestingOptions.TestHostOptions
         {

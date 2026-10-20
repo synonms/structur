@@ -53,9 +53,6 @@ public class ComplexValueObjectIntegrationTests
         Assert.True(typeof(TSelf).IsComplexValueObject());
         Assert.True(TSelf.CreateOptional("Value", null).Match(maybe => maybe.IsNone, _ => false));
         Assert.True(TSelf.CreateOptional("Value", data).Match(maybe => maybe.IsSome, _ => false));
-        IEnumerable<DomainRuleFault> nullFaults = TSelf.CreateMandatory("Value", null!)
-            .Match(_ => throw new InvalidOperationException("Expected domain faults."), faults => faults);
-        Assert.Contains(nullFaults, fault => fault.Source.Pointer == "Value");
         VerifyLegacyShape(value);
     }
 
@@ -73,61 +70,6 @@ public class ComplexValueObjectIntegrationTests
         }
         Assert.Equal(legacyDocument, value.ToBsonDocument());
         Assert.Equal(value, BsonSerializer.Deserialize<TSelf>(legacyDocument));
-    }
-
-    [Theory]
-    [InlineData(nameof(Address), "CreateMandatory")]
-    [InlineData(nameof(Period), "CreateMandatory")]
-    [InlineData(nameof(EmailContact), "CreateMandatory")]
-    [InlineData(nameof(TelephoneContact), "CreateMandatory")]
-    [InlineData(nameof(UkBankDetails), "CreateMandatory")]
-    [InlineData(nameof(Address), "Rehydrate")]
-    [InlineData(nameof(Period), "Rehydrate")]
-    [InlineData(nameof(EmailContact), "Rehydrate")]
-    [InlineData(nameof(TelephoneContact), "Rehydrate")]
-    [InlineData(nameof(UkBankDetails), "Rehydrate")]
-    [InlineData(nameof(Address), "CreateOptional")]
-    [InlineData(nameof(Period), "CreateOptional")]
-    [InlineData(nameof(EmailContact), "CreateOptional")]
-    [InlineData(nameof(TelephoneContact), "CreateOptional")]
-    [InlineData(nameof(UkBankDetails), "CreateOptional")]
-    public void BuiltInNullInputContracts(string valueObjectType, string operation)
-    {
-        switch (valueObjectType)
-        {
-            case nameof(Address): VerifyNullInputContract<Address, AddressData>(operation); break;
-            case nameof(Period): VerifyNullInputContract<Period, PeriodData>(operation); break;
-            case nameof(EmailContact): VerifyNullInputContract<EmailContact, EmailContactData>(operation); break;
-            case nameof(TelephoneContact): VerifyNullInputContract<TelephoneContact, TelephoneContactData>(operation); break;
-            case nameof(UkBankDetails): VerifyNullInputContract<UkBankDetails, UkBankDetailsData>(operation); break;
-            default: throw new ArgumentOutOfRangeException(nameof(valueObjectType));
-        }
-    }
-
-    private static void VerifyNullInputContract<TSelf, TData>(string operation)
-        where TSelf : class, IComplexValueObject<TSelf, TData>
-        where TData : class
-    {
-        const string propertyName = "Parent.Value";
-        switch (operation)
-        {
-            case "CreateMandatory":
-                IEnumerable<DomainRuleFault> faults = TSelf.CreateMandatory(propertyName, null!)
-                    .Match(_ => throw new InvalidOperationException("Expected domain faults."), errors => errors);
-                DomainRuleFault fault = Assert.Single(faults);
-                Assert.Equal(propertyName, fault.Source.Pointer);
-                Assert.Equal(DomainValidationFaults.RequiredFieldTemplate, fault.Detail);
-                break;
-            case "Rehydrate":
-                ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => TSelf.Rehydrate(null!));
-                Assert.Equal("data", exception.ParamName);
-                break;
-            case "CreateOptional":
-                Assert.True(TSelf.CreateOptional(propertyName, null).Match(maybe => maybe.IsNone, _ => false));
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(operation));
-        }
     }
 
     [Fact]
@@ -194,7 +136,7 @@ public class ComplexValueObjectIntegrationTests
     [Fact]
     public void CollectionFixtureOwnsInputAndProjectionAndUsesOrderedExactTypeEquality()
     {
-        List<AddressData> input = [AddressData(), AddressData("2 High Street")];
+        List<AddressData?> input = [AddressData(), AddressData("2 High Street")];
         AddressBook first = Create<AddressBook, AddressBookData>(new() { Addresses = input });
         AddressBook second = Create<AddressBook, AddressBookData>(first.ToData());
         Assert.Equal(first, second);
@@ -285,24 +227,24 @@ public class ComplexValueObjectIntegrationTests
         ComplexRecord record = new()
         {
             Address = Create<Address, AddressData>(AddressData()),
-            Book = Create<AddressBook, AddressBookData>(new() { Addresses = [AddressData()] }),
+            Book = Create<AddressBook, AddressBookData>(new AddressBookData { Addresses = [AddressData()] }),
             Addresses = [null, Create<Address, AddressData>(AddressData("2 High Street"))],
-            Period = Period.Rehydrate(new() { Units = -1, Interval = "Day" }),
-            Email = EmailContact.Rehydrate(new() { Type = "Personal", Address = "invalid", IsPrimary = false })
+            Period = Period.Rehydrate(new PeriodData { Units = -1, Interval = "Day" }),
+            Email = EmailContact.Rehydrate(new EmailContactData { Type = "Personal", Address = "invalid", IsPrimary = false })
         };
         ComplexRecord copied = MongoDbRecordMapper.Map<ComplexRecord>(record);
         Assert.Equal(record.Address, copied.Address);
         Assert.Equal(record.Book, copied.Book);
         Assert.Equal(record.Addresses, copied.Addresses);
-        Assert.Equal(0, copied.Period!.Units.Value);
-        Assert.Equal(string.Empty, copied.Email!.Address.Value);
+        Assert.Equal(-1, copied.Period!.Units.Value);
+        Assert.Equal("invalid", copied.Email!.Address.Value);
         Assert.False(copied.Email.IsPrimary);
-        Assert.Equal(string.Empty, copied.Email.ToData().Address);
+        Assert.Equal("invalid", copied.Email.ToData().Address);
         Assert.True(EmailContact.CreateMandatory("Email", copied.Email.ToData()).Match(_ => false, faults => faults.Any()));
         Assert.Null(BsonSerializer.Deserialize<ComplexRecord>(new BsonDocument()).Address);
         Assert.Null(BsonSerializer.Deserialize<ComplexRecord>(new BsonDocument("Address", BsonNull.Value)).Address);
         BsonDocument periodDocument = new() { { "Units", -10 }, { "Interval", "Day" } };
-        Assert.Equal(0, BsonSerializer.Deserialize<Period>(periodDocument).Units.Value);
+        Assert.Equal(-10, BsonSerializer.Deserialize<Period>(periodDocument).Units.Value);
         periodDocument.Remove("Units");
         Assert.Throws<BsonSerializationException>(() => BsonSerializer.Deserialize<Period>(periodDocument));
         periodDocument["Units"] = BsonNull.Value;

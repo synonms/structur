@@ -226,22 +226,19 @@ public static class ServiceCollectionExtensions
     {
         StructurResourceAttribute resourceAttribute = aggregateRootLayout.Registration;
 
-        if (!resourceAttribute.IsReadDisabled)
-        {
-            Type findResourceRequestType = typeof(FindResourceQuery<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-            Type findResourceResponseType = typeof(FindResourceQueryResponse<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-            Type findResourceRequestHandlerInterfaceType = typeof(IQueryHandler<,>).MakeGenericType(findResourceRequestType, findResourceResponseType);
-            Type findResourceRequestHandlerImplementationType = typeof(FindResourceQueryProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+        Type findResourceRequestType = typeof(FindResourceQuery<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+        Type findResourceResponseType = typeof(FindResourceQueryResponse<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+        Type findResourceRequestHandlerInterfaceType = typeof(IQueryHandler<,>).MakeGenericType(findResourceRequestType, findResourceResponseType);
+        Type findResourceRequestHandlerImplementationType = typeof(FindResourceQueryProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
 
-            serviceCollection.AddTransient(findResourceRequestHandlerInterfaceType, findResourceRequestHandlerImplementationType);
+        serviceCollection.AddTransient(findResourceRequestHandlerInterfaceType, findResourceRequestHandlerImplementationType);
 
-            Type readResourceCollectionRequestType = typeof(ReadResourceCollectionQuery<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-            Type readResourceCollectionResponseType = typeof(ReadResourceCollectionQueryResponse<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
-            Type readResourceCollectionRequestHandlerInterfaceType = typeof(IQueryHandler<,>).MakeGenericType(readResourceCollectionRequestType, readResourceCollectionResponseType);
-            Type readResourceCollectionRequestHandlerImplementationType = typeof(ReadResourceCollectionQueryProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+        Type readResourceCollectionRequestType = typeof(ReadResourceCollectionQuery<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+        Type readResourceCollectionResponseType = typeof(ReadResourceCollectionQueryResponse<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+        Type readResourceCollectionRequestHandlerInterfaceType = typeof(IQueryHandler<,>).MakeGenericType(readResourceCollectionRequestType, readResourceCollectionResponseType);
+        Type readResourceCollectionRequestHandlerImplementationType = typeof(ReadResourceCollectionQueryProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
 
-            serviceCollection.AddTransient(readResourceCollectionRequestHandlerInterfaceType, readResourceCollectionRequestHandlerImplementationType);
-        }
+        serviceCollection.AddTransient(readResourceCollectionRequestHandlerInterfaceType, readResourceCollectionRequestHandlerImplementationType);
 
         if (resourceAttribute.IsCreateDisabled is false)
         {
@@ -273,7 +270,7 @@ public static class ServiceCollectionExtensions
             serviceCollection.AddTransient(deleteResourceRequestHandlerInterfaceType, deleteResourceRequestHandlerImplementationType);
         }
 
-        foreach (Type projectionType in resourceAttribute.IsReadDisabled ? [] : aggregateRootLayout.ProjectionTypes)
+        foreach (Type projectionType in aggregateRootLayout.ProjectionTypes)
         {
             StructurProjectionAttribute? projectionAttribute = projectionType.GetCustomAttribute<StructurProjectionAttribute>();
 

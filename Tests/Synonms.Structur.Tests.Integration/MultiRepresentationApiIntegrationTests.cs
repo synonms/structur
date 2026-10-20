@@ -6,7 +6,6 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -187,8 +186,8 @@ internal sealed class MultiRepresentationApiHost : IAsyncDisposable
                 authentication.AddScheme<AuthenticationSchemeOptions, IntegrationTestAuthenticationHandler>("Test", _ => { }),
             AuthorizationConfiguration = authorization =>
             {
-                authorization.AddPolicy("ReadInternalRecords", policy => policy.RequireAuthenticatedUser());
-                authorization.AddPolicy("CreateInternalRecords", policy => policy.RequireAuthenticatedUser());
+                authorization.AddPolicy("ReadMultiRepresentationAggregate", policy => policy.RequireAuthenticatedUser());
+                authorization.AddPolicy("CreateMultiRepresentationAggregate", policy => policy.RequireAuthenticatedUser());
             }
         };
 
@@ -239,12 +238,10 @@ internal sealed class IntegrationTestAuthenticationHandler(
     isUpdateDisabled: true,
     isDeleteDisabled: true,
     isDefaultRepresentation: true,
-    SupportedApiVersions = new[] { "1.0", "1.1" })]
+    SupportedApiVersions = ["1.0", "1.1"])]
 [StructurResource(
     typeof(InternalRecordResource),
     "admin-records",
-    readPolicy: "ReadInternalRecords",
-    createPolicy: "CreateInternalRecords",
     isUpdateDisabled: true,
     isDeleteDisabled: true)]
 public sealed class MultiRepresentationAggregate : AggregateRoot<MultiRepresentationAggregate>
