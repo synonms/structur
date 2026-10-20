@@ -1,5 +1,7 @@
 # Persistence records technical specification
 
+> **Proposed supersession (draft, not implemented):** [Framework usability 02](framework-usability-02-persistence-querying.md) replaces this plan's BSON aggregate/record round-trip design and unchanged-repository-interface requirement for the new normal path. It requires recursively plain C# storage records, typed capture/rehydration, bounded async server-side queries and generated mirrors after an explicit-record foundation. Direct aggregate persistence becomes explicit obsolete legacy opt-in, never a fallback. Retain this document as historical context; see the [overview](framework-usability-01-overview.md) for approval status and scope.
+
 ## Goal
 Persist aggregate data through dedicated record models while preserving the existing domain-facing repository interfaces.
 

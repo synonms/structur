@@ -16,8 +16,8 @@ dotnet test /p:CollectCoverageFromAttributes=true /p:CoverletOutputFormat=openco
 ```
 
 ## Notes
-- The solution uses .NET 9.0 and Visual Studio 2022/MSBuild.
-- xUnit v3 is used for tests.
+- The solution uses .NET 10.0.
+- xUnit v3 is used for tests with Microsoft Testing Platform (MTP).
 - NSubstitute is available for mocking internal dependencies.
 - WireMock.Net.Testcontainers is used for external API simulation.
 - There is no built-in linter configuration in the repo.

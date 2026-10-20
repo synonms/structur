@@ -1,13 +1,21 @@
 # Structur Framework
 
+Structur is a DDD-oriented framework for building consistent RESTful CRUD APIs with validation, logging, error handling, Hypermedia, and OpenAPI support.
+
 ## Purpose
 This file is the entry point for agents working in this repository. Use it to find the right workflow, rule, skill, or reference doc instead of carrying all guidance in one place.
 
 ## Where to look
-- **Rules**: `.agents/rules/conventions.md` and `.agents/rules/structur-coding-rules.md`
-- **Workflows**: `.agents/workflows/feature-implementation.md`
-- **Skills**: `.agents/skills/`
-- **Resources**: `.agents/resources/`
+- **Rules**:
+  - `.agents/rules/conventions.md` - General agent guidance and tooling
+  - `.agents/rules/structur-coding-rules.md` - C# coding and domain rules
+- **Workflows**:
+  - `.agents/workflows/feature-implementation.md` - Workflow for implementing new features
+- **Skills**: 
+  - `.agents/skills/`
+- **Resources**: 
+  - `.agents/resources/structur-overview.md` - Architectural overview of the Structur framework
+  - `.agents/resources/developer-commands.md` - Build and test commands
 
 ## Agent directory
 - **framework-developer** - Maintains and enhances the Structur framework.
@@ -35,11 +43,6 @@ Use the skill docs when the task matches a reusable implementation pattern:
 - `new-projection`
 - `new-sample-feature`
 - `new-value-object`
-
-## Reference resources
-- Architecture and request flow: `.agents/resources/structur-overview.md`
-- Build and test commands: `.agents/resources/developer-commands.md`
-- Coding and domain rules: `.agents/rules/structur-coding-rules.md`
 
 ## Routing rule
 Keep this file short. Put durable rules in rule docs, step-by-step procedures in skills or workflows, and descriptive background material in resources.
