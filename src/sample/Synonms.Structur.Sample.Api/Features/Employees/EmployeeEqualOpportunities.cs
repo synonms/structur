@@ -3,6 +3,7 @@ using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Aggregates;
+using Synonms.Structur.Domain.Persistence;
 using Synonms.Structur.Domain.Validation;
 using Synonms.Structur.Domain.ValueObjects;
 using Synonms.Structur.Sample.ClientApi.Features.Employees;
@@ -10,7 +11,8 @@ using Synonms.Structur.Sample.ClientApi.Features.Employees;
 namespace Synonms.Structur.Sample.Api.Features.Employees;
 
 [StructurChildResource(typeof(EmployeeEqualOpportunitiesResource))]
-public class EmployeeEqualOpportunities : AggregateMember<EmployeeEqualOpportunities>
+[GenerateStorage("employee-equal-opportunities", 1)]
+public partial class EmployeeEqualOpportunities : AggregateMember<EmployeeEqualOpportunities>
 {
     private EmployeeEqualOpportunities()
     {
@@ -23,8 +25,10 @@ public class EmployeeEqualOpportunities : AggregateMember<EmployeeEqualOpportuni
         Sex = sex;
     }
 
+    [StoredState("BirthDate")]
     public EventDate BirthDate { get; private set; } = null!;
 
+    [StoredState("Sex")]
     public Sex Sex { get; private set; } = null!;
 
     internal Maybe<Fault> Update(EmployeeEqualOpportunitiesResource resource, Action rootUpdatedAction) =>

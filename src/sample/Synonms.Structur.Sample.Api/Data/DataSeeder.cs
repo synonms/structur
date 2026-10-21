@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Synonms.Structur.Api.Core.Schema;
 using Synonms.Structur.Api.Core.Schema.Resources;
@@ -13,10 +14,8 @@ using Synonms.Structur.Infrastructure.MongoDb;
 using Synonms.Structur.Infrastructure.MongoDb.Aggregates;
 using Synonms.Structur.Sample.Api.Features.Employees;
 using Synonms.Structur.Sample.Api.Features.Employees.Events;
-using Synonms.Structur.Sample.Api.Features.Employees.Persistence;
 using Synonms.Structur.Sample.Api.Features.Employments;
 using Synonms.Structur.Sample.Api.Features.Employments.Events;
-using Synonms.Structur.Sample.Api.Features.Employments.Persistence;
 using Synonms.Structur.Sample.Api.Infrastructure;
 using Synonms.Structur.Sample.ClientApi.Features.Employees;
 using Synonms.Structur.Sample.ClientApi.Features.Employments;
@@ -35,8 +34,10 @@ public class DataSeeder
     private IMongoCollection<SampleProduct>? _productsCollection;
     private IMongoCollection<SampleUser>? _usersCollection;
     private IMongoCollection<DomainEvent>? _domainEventsCollection;
-    private IMongoCollection<EmployeeRecord>? _employeesCollection;
-    private IMongoCollection<EmploymentRecord>? _employmentsCollection;
+    private IMongoCollection<BsonDocument>? _employeesCollection;
+    private IMongoCollection<BsonDocument>? _employmentsCollection;
+    private readonly MongoDbAggregateRecordMapper<Employee> _employeeMapper = new(SampleDatabase.MongoDatabaseConfiguration);
+    private readonly MongoDbAggregateRecordMapper<Employment> _employmentMapper = new(SampleDatabase.MongoDatabaseConfiguration);
 
     public async Task SeedDevelopmentDataAsync(WebApplication webApplication, bool clearData = true)
     {
@@ -68,8 +69,8 @@ public class DataSeeder
         _productsCollection ??= database.GetCollection<SampleProduct>(MongoDbConstants.Database.Collections.Products);
         _usersCollection ??= database.GetCollection<SampleUser>(MongoDbConstants.Database.Collections.Users);
         _domainEventsCollection ??= database.GetCollection<DomainEvent>(MongoDbConstants.Database.Collections.DomainEvents);
-        _employeesCollection ??= database.GetCollection<EmployeeRecord>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employee>());
-        _employmentsCollection ??= database.GetCollection<EmploymentRecord>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employment>());
+        _employeesCollection ??= database.GetCollection<BsonDocument>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employee>());
+        _employmentsCollection ??= database.GetCollection<BsonDocument>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employment>());
     }
 
     private async Task ClearDataAsync()
@@ -338,14 +339,15 @@ public class DataSeeder
         await createdResult.MatchAsync(
             async createdEmployee =>
             {
-                EmployeeRecord? existingEmployee = await _employeesCollection
-                    .Find(x => x.Id == createdEvent.AggregateId.Value)
+                BsonDocument? existingEmployee = await _employeesCollection
+                    .Find(Builders<BsonDocument>.Filter.Eq("_id",
+                        new BsonBinaryData(createdEvent.AggregateId.Value, GuidRepresentation.Standard)))
                     .FirstOrDefaultAsync(CancellationToken.None);
 
                 if (existingEmployee is null && _domainEventsCollection is not null && _employeesCollection is not null)
                 {
                     await _domainEventsCollection.InsertOneAsync(createdEvent);
-                    await _employeesCollection.InsertOneAsync(MongoDbRecordMapper.Map<EmployeeRecord>(createdEmployee));
+                    await _employeesCollection.InsertOneAsync(_employeeMapper.Capture(createdEmployee));
                 }
             },
             errors => throw new ApplicationException($"Unable to create Employee Id '{createdEvent.AggregateId}': {errors}"));
@@ -566,14 +568,15 @@ public class DataSeeder
         await createdResult.MatchAsync(
             async createdEmployment =>
             {
-                EmploymentRecord? existingEmployment = await _employmentsCollection
-                    .Find(x => x.Id == createdEvent.AggregateId.Value)
+                BsonDocument? existingEmployment = await _employmentsCollection
+                    .Find(Builders<BsonDocument>.Filter.Eq("_id",
+                        new BsonBinaryData(createdEvent.AggregateId.Value, GuidRepresentation.Standard)))
                     .FirstOrDefaultAsync(CancellationToken.None);
 
                 if (existingEmployment is null && _domainEventsCollection is not null && _employmentsCollection is not null)
                 {
                     await _domainEventsCollection.InsertOneAsync(createdEvent);
-                    await _employmentsCollection.InsertOneAsync(MongoDbRecordMapper.Map<EmploymentRecord>(createdEmployment));
+                    await _employmentsCollection.InsertOneAsync(_employmentMapper.Capture(createdEmployment));
                 }
             },
             errors => throw new ApplicationException($"Unable to create Employment Id '{createdEvent.AggregateId}': {errors}"));

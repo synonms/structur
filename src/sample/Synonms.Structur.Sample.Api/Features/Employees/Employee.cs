@@ -5,6 +5,7 @@ using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Core.Versioning;
 using Synonms.Structur.Domain.Aggregates;
+using Synonms.Structur.Domain.Persistence;
 using Synonms.Structur.Domain.Validation;
 using Synonms.Structur.Domain.ValueObjects;
 using Synonms.Structur.Sample.ClientApi.Features.Employees;
@@ -13,7 +14,8 @@ namespace Synonms.Structur.Sample.Api.Features.Employees;
 
 [StructurResource(typeof(EmployeeResource), "employees", allowAnonymous: true, isDeleteDisabled: true, pageLimit: 5, isDefaultRepresentation: true, SupportedApiVersions = ["1.0", "1.1"])]
 [StructurResource(typeof(EmployeeSummaryResource), "employee-summaries", allowAnonymous: true, isCreateDisabled: true, isUpdateDisabled: true, isDeleteDisabled: true)]
-public class Employee : AggregateRoot<Employee>
+[GenerateStorage("employee", 1)]
+public partial class Employee : AggregateRoot<Employee>
 {
     public const int ForenameMaxLength = 100;
     public const int SurnameMaxLength = 100;
@@ -47,32 +49,46 @@ public class Employee : AggregateRoot<Employee>
         TelephoneContacts = telephoneContacts;
     }
 
+    [StoredState("EmployeeReference")]
     public UniqueReference EmployeeReference { get; private set; } = null!;
 
+    [StoredState("NationalInsuranceNumber")]
     public NationalInsuranceNumber NationalInsuranceNumber { get; private set; } = null!;
 
+    [StoredState("Title")]
     public Title? Title { get; private set; }
 
+    [StoredState("Forename")]
     public Moniker Forename { get; private set; } = null!;
 
+    [StoredState("MiddleNames")]
     public Moniker? MiddleNames { get; private set; }
 
+    [StoredState("Surname")]
     public Moniker Surname { get; private set; } = null!;
 
+    [StoredState("KnownAs")]
     public Moniker? KnownAs { get; private set; }
 
+    [StoredState("WorkPermitRequired")]
     public bool WorkPermitRequired { get; private set; }
 
+    [StoredState("WorkPermitValidUntil")]
     public EffectiveDate? WorkPermitValidUntil { get; private set; }
 
+    [StoredState("Notes")]
     public Notes? Notes { get; private set; }
 
+    [StoredState("HomeAddress")]
     public Address HomeAddress { get; private set; } = null!;
 
+    [StoredState("EmailContacts")]
     public List<EmailContact> EmailContacts { get; private set; } = [];
 
+    [StoredState("TelephoneContacts")]
     public List<TelephoneContact> TelephoneContacts { get; private set; } = [];
 
+    [StoredState("EqualOpportunities")]
     public EmployeeEqualOpportunities? EqualOpportunities { get; private set; }
 
     internal Maybe<Fault> Update(ResourceEnvelope<EmployeeResource> envelope, UserActionDto updatedActionDto, Version? applicableVersion = null)

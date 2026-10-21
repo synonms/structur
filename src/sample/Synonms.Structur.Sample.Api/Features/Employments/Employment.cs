@@ -5,6 +5,7 @@ using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Aggregates;
+using Synonms.Structur.Domain.Persistence;
 using Synonms.Structur.Domain.Validation;
 using Synonms.Structur.Domain.ValueObjects;
 using Synonms.Structur.Sample.Api.Features.Employees;
@@ -13,7 +14,8 @@ using Synonms.Structur.Sample.ClientApi.Features.Employments;
 namespace Synonms.Structur.Sample.Api.Features.Employments;
 
 [StructurResource(typeof(EmploymentResource), "employments", allowAnonymous: true, isDeleteDisabled: true, pageLimit: 10, SupportedApiVersions = new[] { "1.0" })]
-public class Employment : AggregateRoot<Employment>
+[GenerateStorage("employment", 1)]
+public partial class Employment : AggregateRoot<Employment>
 {
     private Employment()
     {
@@ -37,14 +39,20 @@ public class Employment : AggregateRoot<Employment>
         BankDetails = bankDetails;
     }
 
+    [StorageOverride(typeof(Guid), typeof(EmployeeIdStorageCodec))]
+    [StoredState("EmployeeId")]
     public EntityId<Employee> EmployeeId { get; private set; } = null!;
 
+    [StoredState("EmploymentReference")]
     public UniqueReference EmploymentReference { get; private set; } = null!;
 
+    [StoredState("ContinuousStartDate")]
     public EffectiveDate ContinuousStartDate { get; private set; } = null!;
 
+    [StoredState("Contracts")]
     public List<EmploymentContract> Contracts { get; private set; } = [];
 
+    [StoredState("BankDetails")]
     public UkBankDetails BankDetails { get; private set; } = null!;
 
     internal Maybe<Fault> Update(ResourceEnvelope<EmploymentResource> envelope, UserActionDto updatedActionDto, Version? applicableVersion = null)

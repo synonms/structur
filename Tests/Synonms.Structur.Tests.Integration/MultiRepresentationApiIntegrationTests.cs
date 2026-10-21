@@ -51,6 +51,22 @@ public sealed class MultiRepresentationApiIntegrationTests
     }
 
     [Fact]
+    public async Task GetAll_GivenFilter_UsesTheAggregateQueryReadSurface()
+    {
+        await using MultiRepresentationApiHost host = await MultiRepresentationApiHost.StartAsync();
+        host.Store.Aggregates.Add(MultiRepresentationAggregate.Create("Filtered", "Hidden"));
+
+        using HttpResponseMessage response = await host.Client.GetAsync(
+            "/public-records?PublicName=Filtered",
+            TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        JsonElement resource = Assert.Single(document.RootElement.GetProperty("resources").EnumerateArray());
+        Assert.Equal("Filtered", resource.GetProperty("publicName").GetString());
+    }
+
+    [Fact]
     public async Task GetAll_GivenDifferentRegistrationPolicies_AuthorizesOnlyTheSelectedRepresentation()
     {
         await using MultiRepresentationApiHost host = await MultiRepresentationApiHost.StartAsync();
@@ -335,50 +351,51 @@ internal sealed class MultiRepresentationRepository(MultiRepresentationStore sto
     IReadAggregateRepository<MultiRepresentationAggregate>,
     IWriteAggregateRepository<MultiRepresentationAggregate>
 {
-    public Task<bool> AnyAsync(Expression<Func<MultiRepresentationAggregate, bool>> predicate, CancellationToken cancellationToken = default) =>
-        Task.FromResult(store.Aggregates.AsQueryable().Any(predicate));
+    public Task<bool> AnyAsync(AggregateQuery<MultiRepresentationAggregate> query, CancellationToken cancellationToken = default) =>
+        Task.FromResult(Filtered(query).Any());
 
     public Task<Maybe<MultiRepresentationAggregate>> FindAsync(EntityId<MultiRepresentationAggregate> id, CancellationToken cancellationToken = default) =>
         Task.FromResult(store.Aggregates.SingleOrDefault(aggregate => aggregate.Id == id) is { } aggregate
             ? Maybe<MultiRepresentationAggregate>.Some(aggregate)
             : Maybe<MultiRepresentationAggregate>.None);
 
-    public Task<Maybe<MultiRepresentationAggregate>> FindFirstAsync(Expression<Func<MultiRepresentationAggregate, bool>> predicate, CancellationToken cancellationToken = default) =>
-        Task.FromResult(store.Aggregates.AsQueryable().FirstOrDefault(predicate) is { } aggregate
-            ? Maybe<MultiRepresentationAggregate>.Some(aggregate)
-            : Maybe<MultiRepresentationAggregate>.None);
+    public Task<MultiRepresentationAggregate?> FindFirstAsync(AggregateQuery<MultiRepresentationAggregate> query, CancellationToken cancellationToken = default) =>
+        Task.FromResult(Apply(query).FirstOrDefault());
 
-    public Task<List<MultiRepresentationAggregate>> ListAllAsync(CancellationToken cancellationToken = default) =>
-        Task.FromResult(store.Aggregates.ToList());
+    public Task<IReadOnlyList<MultiRepresentationAggregate>> ListAsync(AggregateQuery<MultiRepresentationAggregate> query, CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<MultiRepresentationAggregate>>(Apply(query).ToList());
 
-    public Task<List<MultiRepresentationAggregate>> ListAsync(Expression<Func<MultiRepresentationAggregate, bool>> predicate, CancellationToken cancellationToken = default) =>
-        Task.FromResult(store.Aggregates.AsQueryable().Where(predicate).ToList());
+    public Task<long> CountAsync(AggregateQuery<MultiRepresentationAggregate> query, CancellationToken cancellationToken = default) =>
+        Task.FromResult((long)Filtered(query).Count());
 
-    public IQueryable<MultiRepresentationAggregate> Query() => store.Aggregates.AsQueryable();
-
-    public IQueryable<MultiRepresentationAggregate> Query(Expression<Func<MultiRepresentationAggregate, bool>> predicate) =>
-        store.Aggregates.AsQueryable().Where(predicate);
-
-    public Task<PaginatedList<MultiRepresentationAggregate>> ReadAllAsync(
-        int offset,
-        int limit,
-        Func<IQueryable<MultiRepresentationAggregate>, IQueryable<MultiRepresentationAggregate>> sortFunc,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult(PaginatedList<MultiRepresentationAggregate>.Create(sortFunc(Query()), offset, limit));
-
-    public Task<PaginatedList<MultiRepresentationAggregate>> ReadAsync(
-        Expression<Func<MultiRepresentationAggregate, bool>> predicate,
-        int offset,
-        int limit,
-        Func<IQueryable<MultiRepresentationAggregate>, IQueryable<MultiRepresentationAggregate>> sortFunc,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult(PaginatedList<MultiRepresentationAggregate>.Create(sortFunc(Query(predicate)), offset, limit));
-
-    public Task<List<TResult>> SelectAsync<TResult>(
-        Expression<Func<MultiRepresentationAggregate, bool>> predicate,
+    public Task<IReadOnlyList<TResult>> SelectAsync<TResult>(
+        AggregateQuery<MultiRepresentationAggregate> query,
         Expression<Func<MultiRepresentationAggregate, TResult>> selector,
         CancellationToken cancellationToken = default) =>
-        Task.FromResult(store.Aggregates.AsQueryable().Where(predicate).Select(selector).ToList());
+        Task.FromResult<IReadOnlyList<TResult>>(Apply(query).Select(selector.Compile()).ToList());
+
+    private IEnumerable<MultiRepresentationAggregate> Filtered(AggregateQuery<MultiRepresentationAggregate> query)
+    {
+        IEnumerable<MultiRepresentationAggregate> result = store.Aggregates;
+        if (query.Predicate is not null)
+        {
+            result = result.Where(query.Predicate.Compile());
+        }
+
+        IOrderedEnumerable<MultiRepresentationAggregate>? ordered = null;
+        foreach (AggregateQuerySort<MultiRepresentationAggregate> sort in query.SortKeys)
+        {
+            Func<MultiRepresentationAggregate, object?> key = (Func<MultiRepresentationAggregate, object?>)sort.Key.Compile();
+            ordered = ordered is null
+                ? sort.Descending ? result.OrderByDescending(key) : result.OrderBy(key)
+                : sort.Descending ? ordered.ThenByDescending(key) : ordered.ThenBy(key);
+        }
+
+        return ordered ?? result;
+    }
+
+    private IEnumerable<MultiRepresentationAggregate> Apply(AggregateQuery<MultiRepresentationAggregate> query) =>
+        Filtered(query).Skip(query.SkipCount).Take(query.TakeCount ?? AggregateQuery<MultiRepresentationAggregate>.MaximumTake);
 
     public Task AddAsync(MultiRepresentationAggregate entity, CancellationToken cancellationToken = default)
     {

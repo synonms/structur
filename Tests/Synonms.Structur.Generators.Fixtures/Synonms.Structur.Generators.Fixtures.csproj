@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Synonms.Structur.Domain\Synonms.Structur.Domain.csproj" />
+        <ProjectReference Include="..\..\src\Synonms.Structur.Infrastructure\Synonms.Structur.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\src\Synonms.Structur.Infrastructure.MongoDb\Synonms.Structur.Infrastructure.MongoDb.csproj" />
+        <ProjectReference Include="..\..\src\Synonms.Structur.Generators\Synonms.Structur.Generators.csproj"
+                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+</Project>

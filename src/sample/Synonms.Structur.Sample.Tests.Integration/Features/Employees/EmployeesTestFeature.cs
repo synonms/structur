@@ -1,5 +1,6 @@
 using Bogus;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Synonms.Structur.Api.Core.Schema;
 using Synonms.Structur.Api.Core.Schema.Forms;
@@ -14,7 +15,6 @@ using Synonms.Structur.Core.System;
 using Synonms.Structur.Domain.ValueObjects;
 using Synonms.Structur.Sample.Api.Features.Employees;
 using Synonms.Structur.Sample.Api.Features.Employees.Events;
-using Synonms.Structur.Sample.Api.Features.Employees.Persistence;
 using Synonms.Structur.Sample.Api.Infrastructure;
 using Synonms.Structur.Sample.ClientApi.Features.Employees;
 using Synonms.Structur.Testing;
@@ -88,10 +88,11 @@ public class EmployeesTestFeature :
         IServiceScope scope = serviceScopeFactory.CreateScope();
         IMongoClient mongoClient = scope.ServiceProvider.GetRequiredService<IMongoClient>();
         
-        IMongoCollection<EmployeeRecord> collection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
-            .GetCollection<EmployeeRecord>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employee>());
+        IMongoCollection<BsonDocument> collection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
+            .GetCollection<BsonDocument>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employee>());
 
-        await collection.InsertOneAsync(MongoDbRecordMapper.Map<EmployeeRecord>(arrangeAggregateInfo.AggregateRoot), cancellationToken: TestContext.Current.CancellationToken);
+        MongoDbAggregateRecordMapper<Employee> mapper = new(SampleDatabase.MongoDatabaseConfiguration);
+        await collection.InsertOneAsync(mapper.Capture(arrangeAggregateInfo.AggregateRoot), cancellationToken: TestContext.Current.CancellationToken);
 
         return arrangeAggregateInfo.AggregateRoot;
     }
@@ -104,12 +105,16 @@ public class EmployeesTestFeature :
         IServiceScope scope = serviceScopeFactory.CreateScope();
         IMongoClient mongoClient = scope.ServiceProvider.GetRequiredService<IMongoClient>();
         
-        IMongoCollection<EmployeeRecord> collection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
-            .GetCollection<EmployeeRecord>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employee>());
+        IMongoCollection<BsonDocument> collection = mongoClient.GetDatabase(SampleDatabase.DatabaseName)
+            .GetCollection<BsonDocument>(SampleDatabase.MongoDatabaseConfiguration.GetCollectionName<Employee>());
 
-        EmployeeRecord? employeeRecord = (await collection.FindAsync(x => x.Id == id.Value)).FirstOrDefault();
+        BsonDocument? employeeRecord = await collection.Find(
+            Builders<BsonDocument>.Filter.Eq("_id", new BsonBinaryData(id.Value, GuidRepresentation.Standard)))
+            .FirstOrDefaultAsync(TestContext.Current.CancellationToken);
 
-        return employeeRecord is null ? null : MongoDbRecordMapper.Map<Employee>(employeeRecord);
+        return employeeRecord is null
+            ? null
+            : new MongoDbAggregateRecordMapper<Employee>(SampleDatabase.MongoDatabaseConfiguration).Restore(employeeRecord);
     }
 
     public void ValidateResource(Employee aggregateRoot, EmployeeResource resource)

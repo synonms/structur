@@ -25,6 +25,10 @@ public class UserAction : IComparable, IComparable<UserAction>
     public string ActionByName { get; private set; }
 
     public static UserAction Empty => new UserAction(DateTime.MinValue, Guid.Empty, string.Empty);
+
+    /// <summary>Restores representable stored audit state without applying current command rules.</summary>
+    public static UserAction Rehydrate(UserActionDto dto) =>
+        new(dto.ActionAt, dto.ActionById, dto.ActionByName);
     
     public static OneOf<UserAction, IEnumerable<DomainRuleFault>> CreateMandatory(string propertyName, UserActionDto dto) =>
         Validator.CreateBuilder<UserAction>()

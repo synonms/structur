@@ -22,11 +22,27 @@ public abstract class AggregateRoot<TAggregateRoot> : Entity<TAggregateRoot>
     {
         TenantId = tenantId;
         CreatedAction = createdAction;
+        EntityTag = EntityTag.New();
+    }
+
+    /// <summary>
+    /// Trusted persistence restoration only. Preserves stored identity/audit/tag without command
+    /// validation, audit marking or ID/tag generation. Derived handwritten mappers restore state
+    /// through a constructor using this overload.
+    /// </summary>
+    protected AggregateRoot(EntityId<TAggregateRoot> id, Guid tenantId, EntityTag entityTag,
+        UserAction createdAction, UserAction? updatedAction, UserAction? deletedAction) : base(id)
+    {
+        TenantId = tenantId;
+        EntityTag = entityTag;
+        CreatedAction = createdAction;
+        UpdatedAction = updatedAction;
+        DeletedAction = deletedAction;
     }
 
     public Guid TenantId { get; private set; }
     
-    public EntityTag EntityTag { get; private set; } = EntityTag.New();
+    public EntityTag EntityTag { get; private set; }
     
     public UserAction CreatedAction { get; protected init; }
 

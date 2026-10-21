@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+        <OutputType>Exe</OutputType>
+        <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+        <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" />
+        <PackageReference Include="xunit.v3" />
+        <Using Include="Xunit" />
+        <ProjectReference Include="..\..\src\Synonms.Structur.Generators\Synonms.Structur.Generators.csproj" />
+        <ProjectReference Include="..\..\src\Synonms.Structur.Domain\Synonms.Structur.Domain.csproj" />
+        <ProjectReference Include="..\..\src\Synonms.Structur.Infrastructure\Synonms.Structur.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\src\Synonms.Structur.Infrastructure.MongoDb\Synonms.Structur.Infrastructure.MongoDb.csproj" />
+        <ProjectReference Include="..\Synonms.Structur.Generators.Fixtures\Synonms.Structur.Generators.Fixtures.csproj" />
+    </ItemGroup>
+</Project>

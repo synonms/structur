@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using Synonms.Structur.Core.Collections;
 using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Functional;
 
@@ -12,25 +11,17 @@ public interface IAggregateRepository
 public interface IReadAggregateRepository<TAggregateRoot> : IAggregateRepository
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
 {
-    Task<bool> AnyAsync(Expression<Func<TAggregateRoot, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<bool> AnyAsync(AggregateQuery<TAggregateRoot> query, CancellationToken cancellationToken = default);
 
     Task<Maybe<TAggregateRoot>> FindAsync(EntityId<TAggregateRoot> id, CancellationToken cancellationToken = default);
 
-    Task<Maybe<TAggregateRoot>> FindFirstAsync(Expression<Func<TAggregateRoot, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<TAggregateRoot?> FindFirstAsync(AggregateQuery<TAggregateRoot> query, CancellationToken cancellationToken = default);
 
-    Task<List<TAggregateRoot>> ListAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TAggregateRoot>> ListAsync(AggregateQuery<TAggregateRoot> query, CancellationToken cancellationToken = default);
 
-    Task<List<TAggregateRoot>> ListAsync(Expression<Func<TAggregateRoot, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<long> CountAsync(AggregateQuery<TAggregateRoot> query, CancellationToken cancellationToken = default);
 
-    IQueryable<TAggregateRoot> Query();
-
-    IQueryable<TAggregateRoot> Query(Expression<Func<TAggregateRoot, bool>> predicate);
-
-    Task<PaginatedList<TAggregateRoot>> ReadAllAsync(int offset, int limit, Func<IQueryable<TAggregateRoot>, IQueryable<TAggregateRoot>> sortFunc, CancellationToken cancellationToken = default);
-
-    Task<PaginatedList<TAggregateRoot>> ReadAsync(Expression<Func<TAggregateRoot, bool>> predicate, int offset, int limit, Func<IQueryable<TAggregateRoot>, IQueryable<TAggregateRoot>> sortFunc, CancellationToken cancellationToken = default);
-
-    Task<List<TResult>> SelectAsync<TResult>(Expression<Func<TAggregateRoot, bool>> predicate, Expression<Func<TAggregateRoot, TResult>> selector, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TOut>> SelectAsync<TOut>(AggregateQuery<TAggregateRoot> query, Expression<Func<TAggregateRoot, TOut>> selector, CancellationToken cancellationToken = default);
 }
 
 public interface IWriteAggregateRepository<TAggregateRoot> : IAggregateRepository

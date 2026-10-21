@@ -31,7 +31,10 @@ public class EmployeeDomainEventFactory : IDomainEventFactory<Employee, Employee
     public async Task<Result<DomainEvent<Employee>>> GenerateCreatedEvent(ResourceEnvelope<EmployeeResource> envelope, CancellationToken cancellationToken)
     {
         EmployeeResource resource = envelope.Data;
-        bool isNiNumberAlreadyPresent = await _readEmployeeRepository.AnyAsync(x => x.NationalInsuranceNumber == resource.NationalInsuranceNumber, cancellationToken);
+        string nationalInsuranceNumber = resource.NationalInsuranceNumber;
+        AggregateQuery<Employee> duplicateNumberQuery = AggregateQuery<Employee>.All
+            .Where(x => x.NationalInsuranceNumber.Value == nationalInsuranceNumber);
+        bool isNiNumberAlreadyPresent = await _readEmployeeRepository.AnyAsync(duplicateNumberQuery, cancellationToken);
 
         if (isNiNumberAlreadyPresent)
         {

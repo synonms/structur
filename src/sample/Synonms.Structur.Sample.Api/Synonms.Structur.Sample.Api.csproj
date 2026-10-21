@@ -19,6 +19,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Synonms.Structur.Infrastructure.MongoDb\Synonms.Structur.Infrastructure.MongoDb.csproj" />
+      <ProjectReference Include="..\..\Synonms.Structur.Generators\Synonms.Structur.Generators.csproj"
+                        OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
       <ProjectReference Include="..\..\Synonms.Structur.Api.Server\Synonms.Structur.Api.Server.csproj" />
       <ProjectReference Include="..\Synonms.Structur.Sample.ClientApi\Synonms.Structur.Sample.ClientApi.csproj" />
       <ProjectReference Include="..\Synonms.Structur.Sample.ServiceDefaults\Synonms.Structur.Sample.ServiceDefaults.csproj" />

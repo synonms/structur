@@ -3,6 +3,7 @@ using Synonms.Structur.Core.Entities;
 using Synonms.Structur.Core.Faults;
 using Synonms.Structur.Core.Functional;
 using Synonms.Structur.Domain.Aggregates;
+using Synonms.Structur.Domain.Persistence;
 using Synonms.Structur.Domain.Validation;
 using Synonms.Structur.Domain.ValueObjects;
 using Synonms.Structur.Sample.Api.Features.Employees;
@@ -11,7 +12,8 @@ using Synonms.Structur.Sample.ClientApi.Features.Employments;
 namespace Synonms.Structur.Sample.Api.Features.Employments;
 
 [StructurChildResource(typeof(EmploymentContractResource))]
-public class EmploymentContract : AggregateMember<EmploymentContract>
+[GenerateStorage("employment-contract", 1)]
+public partial class EmploymentContract : AggregateMember<EmploymentContract>
 {
     private EmploymentContract()
     {
@@ -35,28 +37,41 @@ public class EmploymentContract : AggregateMember<EmploymentContract>
         CanClaimTravelExpensesToOffice = canClaimTravelExpensesToOffice;
     }
 
+    [StoredState("StartDate")]
     public EffectiveDate StartDate { get; private set; } = null!;
 
+    [StoredState("ProbationEndDate")]
     public EventDate? ProbationEndDate { get; private set; }
 
+    [StoredState("EndDate")]
     public EffectiveDate? EndDate { get; private set; }
 
+    [StoredState("EmployerNoticePeriod")]
     public Period EmployerNoticePeriod { get; private set; } = null!;
 
+    [StoredState("EmployeeNoticePeriod")]
     public Period EmployeeNoticePeriod { get; private set; } = null!;
 
+    [StoredState("Position")]
     public Role Position { get; private set; } = null!;
 
+    [StoredState("Location")]
     public WorkLocation Location { get; private set; } = null!;
 
+    [StoredState("LocationNotes")]
     public Notes? LocationNotes { get; private set; }
 
+    [StorageOverride(typeof(Guid), typeof(OptionalEmployeeIdStorageCodec))]
+    [StoredState("ReportsToEmployeeId")]
     public EntityId<Employee>? ReportsToEmployeeId { get; private set; }
 
+    [StoredState("CarRegistrationPlate")]
     public CarRegistrationPlate? CarRegistrationPlate { get; private set; }
 
+    [StoredState("Notes")]
     public Notes? Notes { get; private set; }
 
+    [StoredState("CanClaimTravelExpensesToOffice")]
     public bool CanClaimTravelExpensesToOffice { get; private set; }
 
     internal Maybe<Fault> Update(EmploymentContractResource resource, Action rootUpdatedAction) =>

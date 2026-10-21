@@ -4,6 +4,7 @@ using Synonms.Structur.Domain.Aggregates;
 
 namespace Synonms.Structur.Infrastructure.MongoDb.Aggregates;
 
+[Obsolete("BSON object-to-object mapping is legacy only. Use AggregateRecordMapping<TAggregate,TRecord> and MongoDbAggregateRecordMapper<TAggregate> for plain-record persistence.")]
 public static class MongoDbRecordMapper
 {
     public static TDestination Map<TDestination>(object source)

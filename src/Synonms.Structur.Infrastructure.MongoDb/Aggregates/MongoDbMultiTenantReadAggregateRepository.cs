@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Synonms.Structur.Api.Server.Tenants.Context;
@@ -18,8 +17,16 @@ public class MongoDbMultiTenantReadAggregateRepository<TAggregateRoot> : MongoDb
         _tenantContext = tenantContext;
     }
 
-    public override FilterDefinition<BsonDocument> GlobalFilter =>
-        Builders<BsonDocument>.Filter.And(
-            Builders<BsonDocument>.Filter.Eq(nameof(AggregateRoot<TAggregateRoot>.DeletedAction), BsonNull.Value),
-            Builders<BsonDocument>.Filter.Eq(nameof(AggregateRoot<TAggregateRoot>.TenantId), _tenantContext.GetTenantId() ?? Guid.Empty));
+    public override FilterDefinition<BsonDocument> GlobalFilter
+    {
+        get
+        {
+            Guid tenantId = _tenantContext.GetTenantId() ??
+                throw new InvalidOperationException("A tenant is required to execute aggregate reads in multi-tenant mode.");
+            return Builders<BsonDocument>.Filter.And(
+                Builders<BsonDocument>.Filter.Eq(RecordMapper.StorageName(nameof(AggregateRoot<TAggregateRoot>.DeletedAction)), BsonNull.Value),
+                Builders<BsonDocument>.Filter.Eq(RecordMapper.StorageName(nameof(AggregateRoot<TAggregateRoot>.TenantId)),
+                    new BsonBinaryData(tenantId, GuidRepresentation.Standard)));
+        }
+    }
 }

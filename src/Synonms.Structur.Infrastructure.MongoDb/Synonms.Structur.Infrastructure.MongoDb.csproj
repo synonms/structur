@@ -18,4 +18,8 @@
       <ProjectReference Include="..\Synonms.Structur.Infrastructure\Synonms.Structur.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Synonms.Structur.Tests.Integration" />
+    </ItemGroup>
+
 </Project>
